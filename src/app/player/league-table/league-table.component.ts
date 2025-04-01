@@ -45,7 +45,7 @@ export class LeagueTableComponent implements OnInit {
         if (response) {
           this.matches = response;
           this.started = this.matches.every(
-            (match) => match.isCompleted === false
+            (match) => match.score1 == 0 && match.score2 == 0
           );
         }
       },
