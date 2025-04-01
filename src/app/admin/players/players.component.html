@@ -1,0 +1,169 @@
+<div class="flex h-screen transition-all duration-300">
+  <!-- Sidebar -->
+  <div
+    class="bg-gray-800 text-white p-4 overflow-hidden transition-all duration-300"
+    [ngClass]="{ 'w-64': isSidebarOpen, 'w-0 p-0': !isSidebarOpen }"
+  >
+    <h2 class="text-lg font-bold mb-4 flex justify-between overflow-hidden">
+      Players
+      <button (click)="isSidebarOpen = false" class="text-gray-200 text-3xl">
+        ×
+      </button>
+    </h2>
+    <ul *ngIf="isSidebarOpen">
+      <li
+        *ngFor="let player of players"
+        class="flex items-center justify-between p-2 cursor-pointer rounded-md hover:bg-gray-700"
+        [class.bg-blue-600]="selectedPlayer?.playerId === player.playerId"
+        (click)="selectPlayer(player)"
+      >
+        {{ player.fullName }}
+        <button
+          (click)="confirmDelete(player, $event)"
+          class="bg-red-500 px-2 py-1 text-sm rounded"
+        >
+          X
+        </button>
+      </li>
+    </ul>
+    <button
+      *ngIf="isSidebarOpen"
+      class="mt-4 w-full bg-green-500 p-2 rounded"
+      (click)="openModal()"
+    >
+      Add Player
+    </button>
+  </div>
+
+  <!-- Main Content -->
+  <div class="flex-1 p-2 transition-all duration-300">
+    <button
+      (click)="isSidebarOpen = !isSidebarOpen"
+      class="bg-blue-500 text-white px-3 py-2 rounded mb-4"
+    >
+      ☰ Players
+    </button>
+
+    <div *ngIf="selectedPlayer" class="w-5/6 mx-auto">
+      <h2 class="text-2xl font-bold mb-4 text-center">
+        Matches for {{ selectedPlayer.fullName }}
+      </h2>
+
+      <table class="w-full border-collapse border border-gray-300 text-center">
+        <thead>
+          <tr class="bg-gray-200">
+            <th class="border p-2">Player 1</th>
+            <th class="border p-2">Player 2</th>
+            <th class="border p-2">Result</th>
+            <th class="border p-2">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            *ngFor="let match of playerMatches; let i = index"
+            class="border"
+            [ngClass]="i % 2 === 0 ? 'bg-white' : 'bg-gray-100'"
+          >
+            <td class="p-2 font-bold">{{ match.player1Name }}</td>
+            <td class="p-2 font-bold">{{ match.player2Name }}</td>
+            <td class="p-2 font-bold">
+              {{ match.score1 }} - {{ match.score2 }}
+            </td>
+            <td class="p-2">
+              <button
+                class="bg-blue-500 px-2 py-1 rounded text-white hover:bg-blue-400 transition-all"
+                (click)="updateMatch(match.matchId, match.player1Id)"
+                [disabled]="loadingMatches[match.matchId]"
+              >
+                {{ loadingMatches[match.matchId] ? "Load" : "Win P1" }}
+              </button>
+              <button
+                class="bg-blue-500 px-2 py-1 rounded text-white mx-1 hover:bg-blue-400 transition-all"
+                (click)="updateMatch(match.matchId, match.player2Id)"
+                [disabled]="loadingMatches[match.matchId]"
+              >
+                {{ loadingMatches[match.matchId] ? "Load" : "Win P2" }}
+              </button>
+              <button
+                class="bg-yellow-500 px-2 py-1 rounded text-white hover:bg-yellow-400 transition-all"
+                (click)="updateMatch(match.matchId, null)"
+                [disabled]="loadingMatches[match.matchId]"
+              >
+                {{ loadingMatches[match.matchId] ? "Load" : "Draw" }}
+              </button>
+              <button
+                class="bg-gray-500 px-2 py-1 rounded text-white ml-2 hover:bg-gray-400 transition-all"
+                (click)="resetMatch(match.matchId)"
+                [disabled]="loadingMatches[match.matchId]"
+              >
+                {{ loadingMatches[match.matchId] ? "Load" : "Undo" }}
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- استدعاء RankingComponent -->
+    <app-ranking></app-ranking>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div
+    *ngIf="showDeleteModal"
+    class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
+  >
+    <div class="bg-white p-6 rounded-lg">
+      <h2 class="text-lg font-bold mb-4">Confirm Delete</h2>
+      <p>
+        Are you sure you want to delete
+        <strong>{{ selectedPlayerToDelete?.fullName }}</strong
+        >?
+      </p>
+      <div class="mt-4 flex justify-end">
+        <button
+          class="bg-gray-500 px-4 py-2 text-white rounded mr-2"
+          (click)="showDeleteModal = false"
+        >
+          Cancel
+        </button>
+        <button
+          class="bg-red-500 px-4 py-2 text-white rounded"
+          (click)="deleteConfirmedPlayer()"
+        >
+          Delete
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Player Modal -->
+  <div
+    *ngIf="showModal"
+    class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
+  >
+    <div class="bg-white p-6 rounded-lg">
+      <h2 class="text-lg font-bold mb-4">Add New Player</h2>
+      <input
+        type="text"
+        [(ngModel)]="newPlayerName"
+        class="border p-2 w-full"
+        placeholder="Enter player name"
+      />
+      <div class="mt-4 flex justify-end">
+        <button
+          class="bg-red-500 px-4 py-2 text-white rounded mr-2"
+          (click)="closeModal()"
+        >
+          Cancel
+        </button>
+        <button
+          class="bg-green-500 px-4 py-2 text-white rounded"
+          (click)="addPlayer()"
+        >
+          Add
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

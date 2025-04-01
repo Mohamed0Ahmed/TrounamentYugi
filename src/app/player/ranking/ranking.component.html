@@ -1,0 +1,67 @@
+<div class="container mx-auto p-4">
+  <h2 class="text-2xl font-bold text-center mb-6">جدول الترتيب</h2>
+
+   <div *ngIf="started" class="flex justify-center text-gray-500">
+    <div class="w-1/2 text-center">
+      <h2 class="shadow font-bold text-black">ستبدأ البطولة قريبا</h2>
+      <img
+        src="./assets/images/coming.jpg"
+        alt="coming soon"
+        class="w-full"
+      />
+    </div>
+  </div>
+
+  <div *ngIf="!started" class="overflow-x-auto">
+    <table class="table-auto border-collapse border border-gray-300 w-full">
+      <thead>
+        <tr class="text-center">
+          <th class="border border-gray-300 p-2 bg-gray-200">الترتيب</th>
+          <th class="border border-gray-300 p-2 bg-gray-200">الاسم</th>
+          <th class="border border-gray-300 p-2 bg-gray-200">النقاط</th>
+          <th class="border border-gray-300 p-2 bg-gray-200">فوز</th>
+          <th class="border border-gray-300 p-2 bg-gray-200">تعادل</th>
+          <th class="border border-gray-300 p-2 bg-gray-200">هزيمة</th>
+          <th class="border border-gray-300 p-2 bg-gray-200">عدد المباريات</th>
+          <th class="border border-gray-300 p-2 bg-gray-200">نسبة الفوز</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          *ngFor="let player of players; let i = index"
+          class="text-center"
+          [ngClass]="i % 2 === 0 ? 'bg-white' : 'bg-gray-100'"
+        >
+          <td class="border border-gray-300 p-2 text-center font-bold">
+            {{ player.rank }}
+          </td>
+          <td class="border border-gray-300 p-2 font-bold">
+            {{ player.fullName }}
+          </td>
+          <td class="border border-gray-300 p-2 text-center font-bold">
+            {{ player.points }}
+          </td>
+          <td
+            class="border border-gray-300 p-2 text-center text-green-500 font-bold"
+          >
+            {{ player.wins }}
+          </td>
+          <td class="border border-gray-300 p-2 text-center font-bold">
+            {{ player.draws }}
+          </td>
+          <td
+            class="border border-gray-300 p-2 text-center font-bold text-red-600"
+          >
+            {{ player.losses }}
+          </td>
+          <td class="border border-gray-300 p-2 text-center font-bold">
+            {{ player.matchesPlayed }}
+          </td>
+          <td class="border border-gray-300 p-2 text-center font-bold">
+            {{ player.winRate | number : "1.2-2" }} %
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

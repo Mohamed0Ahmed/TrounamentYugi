@@ -1,0 +1,45 @@
+<div class="container mx-auto p-4 max-w-md mt-10">
+  <h2 class="text-2xl font-bold text-center mb-6">تسجيل لاعب جديد</h2>
+
+  <!-- Register Form -->
+  <form (ngSubmit)="register()" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+    <!-- First Name -->
+    <div class="mb-4">
+      <label class="block text-gray-700 text-sm font-bold mb-2" for="firstName">
+        الاسم الأول
+      </label>
+      <input [(ngModel)]="firstName" name="firstName" id="firstName" type="text" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="أدخل الاسم الأول">
+    </div>
+
+    <!-- Last Name -->
+    <div class="mb-4">
+      <label class="block text-gray-700 text-sm font-bold mb-2" for="lastName">
+        الاسم الأخير
+      </label>
+      <input [(ngModel)]="lastName" name="lastName" id="lastName" type="text" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="أدخل الاسم الأخير">
+    </div>
+
+    <!-- Phone Number -->
+    <div class="mb-4">
+      <label class="block text-gray-700 text-sm font-bold mb-2" for="phoneNumber">
+        رقم التليفون
+      </label>
+      <input [(ngModel)]="phoneNumber" name="phoneNumber" id="phoneNumber" type="text" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="أدخل رقم التليفون">
+    </div>
+
+    <!-- Password -->
+    <div class="mb-6">
+      <label class="block text-gray-700 text-sm font-bold mb-2" for="password">
+        الباسورد
+      </label>
+      <input [(ngModel)]="password" name="password" id="password" type="password" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="أدخل الباسورد">
+    </div>
+
+    <!-- Submit Button -->
+    <div class="flex items-center justify-center">
+      <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+        تسجيل
+      </button>
+    </div>
+  </form>
+</div>

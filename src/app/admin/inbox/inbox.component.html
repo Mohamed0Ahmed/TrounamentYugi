@@ -1,0 +1,74 @@
+<div class="container mx-auto p-4">
+  <h2 class="text-2xl font-bold text-center mb-6">📥 صندوق الوارد</h2>
+
+  <!-- Tabs -->
+  <div class="flex justify-center mb-6">
+    <button
+      class="px-4 py-2 mx-2 rounded-md border border-gray-300"
+      [ngClass]="{
+        'bg-green-500 text-white': activeTab === 'read',
+        'bg-gray-200': activeTab !== 'read'
+      }"
+      (click)="changeTab('read')"
+    >
+      المقروءة ✅
+    </button>
+    <button
+      class="px-4 py-2 mx-2 rounded-md border border-gray-300"
+      [ngClass]="{
+        'bg-red-500 text-white': activeTab === 'unread',
+        'bg-gray-200': activeTab !== 'unread'
+      }"
+      (click)="changeTab('unread')"
+    >
+      غير المقروءة ❌
+    </button>
+    <button
+      class="px-4 py-2 mx-2 rounded-md border border-gray-300"
+      [ngClass]="{
+        'bg-blue-500 text-white': activeTab === 'all',
+        'bg-gray-200': activeTab !== 'all'
+      }"
+      (click)="changeTab('all')"
+    >
+      كل الرسائل
+    </button>
+  </div>
+
+  <!-- No Messages -->
+  <div *ngIf="filteredMessages.length === 0" class="text-center text-gray-500">
+    لا يوجد رسائل هنا 📭
+  </div>
+
+  <!-- Messages List -->
+  <div *ngIf="filteredMessages.length > 0" class="space-y-4">
+    <div
+      *ngFor="let message of filteredMessages"
+      class="bg-white shadow-md rounded p-4 border-l-4 w-4/5 mx-auto relative"
+      [ngClass]="{
+        'border-green-500': message.isRead,
+        'border-red-500': !message.isRead
+      }"
+    >
+      <!-- زرار Mark Read/Unread فوق على اليمين -->
+      <button
+        class="absolute top-3 right-3 px-3 py-1 rounded-md text-white text-sm"
+        [ngClass]="{
+          'bg-red-500': !message.isRead,
+          'bg-green-500': message.isRead
+        }"
+        (click)="toggleMarkMessage(message)"
+      >
+        {{ message.isRead ? "Mark Unread " : "Mark as Read " }}
+      </button>
+
+      <p class="text-gray-700 mt-6">{{ message.content }}</p>
+      <p class="text-sm text-gray-500 mt-2">
+        من: {{ message.senderFullName }} ({{ message.senderPhoneNumber }})
+      </p>
+      <p class="text-sm text-gray-500">
+        {{ message.sentAt | utcToLocal }} : بتاريخ
+      </p>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,53 @@
+<nav class="bg-gray-800 p-4">
+  <div class="container mx-auto flex justify-between items-center">
+    <!-- Logo -->
+    <div class="text-white text-xl font-bold">YuGi Tournament</div>
+
+    <!-- Links -->
+    <div class="space-x-4">
+      <a
+        routerLink="/player/league-table"
+        routerLinkActive="text-red-500"
+        class="text-white hover:text-gray-300"
+        >League Table</a
+      >
+      <a
+        *ngIf="isAdmin"
+        routerLink="/admin"
+        routerLinkActive="text-red-500"
+        class="text-white hover:text-gray-300"
+        >Admin Dashboard</a
+      >
+      <a
+        routerLink="/player/ranking"
+        routerLinkActive="text-red-500"
+        class="text-white hover:text-gray-300"
+        >Ranking</a
+      >
+      <a
+        *ngIf="!isAdmin"
+        (click)="openSendMessage()"
+        class="text-white hover:text-gray-300 cursor-pointer"
+        >Send Message</a
+      >
+    </div>
+
+    <!-- Auth Buttons -->
+    <div>
+      <ng-container *ngIf="!isLoggedIn">
+        <a routerLink="/auth/login" class="text-white hover:text-gray-300 mr-4"
+          >Login</a
+        >
+        <a routerLink="/auth/register" class="text-white hover:text-gray-300"
+          >Register</a
+        >
+      </ng-container>
+      <a
+        *ngIf="isLoggedIn"
+        (click)="logout()"
+        class="text-white hover:text-gray-300 cursor-pointer"
+        >Logout</a
+      >
+    </div>
+  </div>
+</nav>
