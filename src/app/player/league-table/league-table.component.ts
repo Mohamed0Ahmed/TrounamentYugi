@@ -26,7 +26,7 @@ export class LeagueTableComponent implements OnInit {
   }
 
   loadPlayers(): void {
-    this.playerService.getrank().subscribe({
+    this.playerService.getPlayers().subscribe({
       next: (response) => {
         if (response) {
           this.players = response;
@@ -78,11 +78,13 @@ export class LeagueTableComponent implements OnInit {
     const player2Score =
       match.player2Name === player2.fullName ? match.score2 : match.score1;
 
-    let colorClass = 'text-black';
+    let colorClass = 'text-black ';
     if (player1Score > player2Score) {
       colorClass = 'text-green-600 font-bold';
     } else if (player1Score < player2Score) {
       colorClass = 'text-red-600 font-bold';
+    } else if (player1Score == player2Score && player1Score != 0) {
+      colorClass = 'text-gray-400 font-bold text-yellow-400';
     }
 
     return { result: `${player1Score} - ${player2Score}`, color: colorClass };

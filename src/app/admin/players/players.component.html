@@ -1,8 +1,11 @@
-<div class="flex h-screen transition-all duration-300">
+<div class="flex transition-all duration-300">
   <!-- Sidebar -->
   <div
-    class="bg-gray-800 text-white p-4 overflow-hidden transition-all duration-300"
-    [ngClass]="{ 'w-64': isSidebarOpen, 'w-0 p-0': !isSidebarOpen }"
+    class="bg-gray-800 text-white overflow-hidden transition-all duration-300"
+    [ngClass]="{
+      'w-64 p-4 min-h-screen': isSidebarOpen,
+      'w-0 p-0': !isSidebarOpen
+    }"
   >
     <h2 class="text-lg font-bold mb-4 flex justify-between overflow-hidden">
       Players
@@ -60,7 +63,7 @@
         </thead>
         <tbody>
           <tr
-            *ngFor="let match of playerMatches; let i = index"
+            *ngFor="let match of displayMatches; let i = index"
             class="border"
             [ngClass]="i % 2 === 0 ? 'bg-white' : 'bg-gray-100'"
           >
@@ -73,30 +76,38 @@
               <button
                 class="bg-blue-500 px-2 py-1 rounded text-white hover:bg-blue-400 transition-all"
                 (click)="updateMatch(match.matchId, match.player1Id)"
-                [disabled]="loadingMatches[match.matchId]"
+                [disabled]="match.isCompleted"
+                [ngClass]="{
+                  'opacity-50 cursor-not-allowed': match.isCompleted
+                }"
               >
-                {{ loadingMatches[match.matchId] ? "Load" : "Win P1" }}
+                {{ loadingMatches[match.matchId] ? "Load.." : "Win P1" }}
               </button>
               <button
                 class="bg-blue-500 px-2 py-1 rounded text-white mx-1 hover:bg-blue-400 transition-all"
                 (click)="updateMatch(match.matchId, match.player2Id)"
-                [disabled]="loadingMatches[match.matchId]"
+                [disabled]="match.isCompleted"
+                [ngClass]="{
+                  'opacity-50 cursor-not-allowed': match.isCompleted
+                }"
               >
-                {{ loadingMatches[match.matchId] ? "Load" : "Win P2" }}
+                {{ loadingMatches[match.matchId] ? "Load.." : "Win P2" }}
               </button>
               <button
                 class="bg-yellow-500 px-2 py-1 rounded text-white hover:bg-yellow-400 transition-all"
                 (click)="updateMatch(match.matchId, null)"
-                [disabled]="loadingMatches[match.matchId]"
+                [disabled]="match.isCompleted"
+                [ngClass]="{
+                  'opacity-50 cursor-not-allowed': match.isCompleted
+                }"
               >
-                {{ loadingMatches[match.matchId] ? "Load" : "Draw" }}
+                {{ loadingMatches[match.matchId] ? "Load.." : "Draw" }}
               </button>
               <button
                 class="bg-gray-500 px-2 py-1 rounded text-white ml-2 hover:bg-gray-400 transition-all"
                 (click)="resetMatch(match.matchId)"
-                [disabled]="loadingMatches[match.matchId]"
               >
-                {{ loadingMatches[match.matchId] ? "Load" : "Undo" }}
+                {{ loadingMatches[match.matchId] ? "Load.." : "Undo" }}
               </button>
             </td>
           </tr>
@@ -105,7 +116,7 @@
     </div>
 
     <!-- استدعاء RankingComponent -->
-    <app-ranking></app-ranking>
+    <!-- <app-ranking></app-ranking> -->
   </div>
 
   <!-- Delete Confirmation Modal -->

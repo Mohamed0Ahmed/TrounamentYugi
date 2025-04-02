@@ -12,18 +12,15 @@ import { ToastrService } from 'ngx-toastr';
 export class PlayersComponent implements OnInit {
   players: Player[] = [];
   selectedPlayer: Player | null = null;
-  playerMatches: Match[] = [];
+  playerMatches: Match[] = []; // الداتا الخام من الـ API
+  displayMatches: Match[] = []; // الداتا المعدلة للعرض
   showModal = false;
   newPlayerName = '';
   isSidebarOpen = false;
   showDeleteModal = false;
   loadingMatches: { [matchId: number]: boolean } = {};
-
   private requestQueue: Array<() => Promise<void>> = [];
   private isProcessingQueue = false;
-
-  private updateUITimer: any = null;
-  private readonly DEBOUNCE_TIME = 500;
 
   constructor(
     private playerService: PlayerService,
@@ -32,9 +29,7 @@ export class PlayersComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.playerService.ranking$.subscribe((players) => {
-      this.players = players;
-    });
+    this.getPlayers();
   }
 
   toggleSidebar(): void {
@@ -54,6 +49,20 @@ export class PlayersComponent implements OnInit {
           m.player1Id === this.selectedPlayer!.playerId ||
           m.player2Id === this.selectedPlayer!.playerId
       );
+      this.displayMatches = this.playerMatches.map((match) => {
+        if (match.player2Id === this.selectedPlayer!.playerId) {
+          return {
+            ...match,
+            player1Name: match.player2Name,
+            player2Name: match.player1Name,
+            score1: match.score2,
+            score2: match.score1,
+            player1Id: match.player2Id,
+            player2Id: match.player1Id,
+          };
+        }
+        return { ...match };
+      });
       this.playerMatches.forEach((match) => {
         this.loadingMatches[match.matchId] = false;
       });
@@ -83,17 +92,6 @@ export class PlayersComponent implements OnInit {
     this.processQueue();
   }
 
-  private debounceUpdateUI(): void {
-    if (this.updateUITimer) {
-      clearTimeout(this.updateUITimer);
-    }
-
-    this.updateUITimer = setTimeout(() => {
-      this.loadMatches();
-      this.playerService.refreshRanking();
-    }, this.DEBOUNCE_TIME);
-  }
-
   updateMatch(matchId: number, winnerId: number | null) {
     this.loadingMatches[matchId] = true;
 
@@ -104,7 +102,7 @@ export class PlayersComponent implements OnInit {
             next: (response) => {
               if (response.success) {
                 this.toastr.success(response.message);
-                this.debounceUpdateUI();
+                this.loadMatches();
               } else {
                 this.toastr.error(response.message);
               }
@@ -131,7 +129,7 @@ export class PlayersComponent implements OnInit {
             next: (response) => {
               if (response.success) {
                 this.toastr.success(response.message);
-                this.debounceUpdateUI();
+                this.loadMatches();
               } else {
                 this.toastr.error(response.message, 'Error');
               }
@@ -152,9 +150,11 @@ export class PlayersComponent implements OnInit {
     event.stopPropagation();
     this.playerService.deletePlayer(playerId).subscribe(() => {
       this.toastr.warning('Player deleted!', 'Deleted');
+      this.getPlayers();
       if (this.selectedPlayer?.playerId === playerId) {
         this.selectedPlayer = null;
         this.playerMatches = [];
+        this.displayMatches = [];
       }
     });
   }
@@ -170,9 +170,12 @@ export class PlayersComponent implements OnInit {
 
   addPlayer(): void {
     if (!this.newPlayerName.trim()) return;
-    this.playerService.addPlayer(this.newPlayerName).subscribe(() => {
-      this.toastr.success('Player added successfully!', 'Success');
-      this.closeModal();
+    this.playerService.addPlayer(this.newPlayerName).subscribe((response) => {
+      if (response.success) {
+        this.toastr.success(response.message);
+        this.getPlayers();
+        this.closeModal();
+      } else this.toastr.warning(response.message);
     });
   }
 
@@ -194,6 +197,7 @@ export class PlayersComponent implements OnInit {
               (p) => p.playerId !== this.selectedPlayerToDelete?.playerId
             );
             this.toastr.success(response.message);
+            this.getPlayers();
           } else {
             this.toastr.error(response.message, 'Error');
           }
@@ -202,5 +206,16 @@ export class PlayersComponent implements OnInit {
       this.showDeleteModal = false;
       this.selectedPlayerToDelete = null;
     }
+  }
+
+  getPlayers() {
+    this.playerService.getPlayers().subscribe({
+      next: (players) => {
+        this.players = players;
+      },
+      error: (err) => {
+        this.toastr.error(err.message);
+      },
+    });
   }
 }

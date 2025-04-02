@@ -20,21 +20,31 @@ export class PlayerService {
       .get<[]>(`${this.baseUrl}/player/ranking`)
       .pipe(tap((data) => this.rankingSubject.next(data)));
   }
+  getPlayers(): Observable<[]> {
+    return this.http
+      .get<[]>(`${this.baseUrl}/player`)
+      .pipe(tap((data) => this.rankingSubject.next(data)));
+  }
 
   addPlayer(fullName: string): Observable<CommonResponse> {
     return this.http
       .post<CommonResponse>(`${this.baseUrl}/player`, { fullName })
-      .pipe(tap(() => this.refreshRanking()));
+      .pipe(tap(() => this.refreshPlayers()));
   }
 
   deletePlayer(playerId: number): Observable<CommonResponse> {
     return this.http
       .delete<CommonResponse>(`${this.baseUrl}/player/${playerId}`)
-      .pipe(tap(() => this.refreshRanking()));
+      .pipe(tap(() => this.refreshPlayers()));
   }
 
   refreshRanking() {
     this.http.get<[]>(`${this.baseUrl}/player/ranking`).subscribe((data) => {
+      this.rankingSubject.next(data);
+    });
+  }
+  refreshPlayers() {
+    this.http.get<[]>(`${this.baseUrl}/player`).subscribe((data) => {
       this.rankingSubject.next(data);
     });
   }

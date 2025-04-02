@@ -25,16 +25,12 @@ export class MatchService {
       .post<ResultResponse>(`${this.baseUrl}/match/${matchId}/result`, {
         winnerId,
       })
-      .pipe(
-        tap(() => this.playerService.refreshRanking())
-      );
+      .pipe(tap(() => this.playerService.refreshPlayers()));
   }
 
   resetMatch(matchId: number): Observable<ResultResponse> {
     return this.http
       .delete<ResultResponse>(`${this.baseUrl}/match/reset/${matchId}`)
-      .pipe(
-        tap(() => this.playerService.refreshRanking())
-      );
+      .pipe(tap(() => this.playerService.refreshPlayers()));
   }
 }
