@@ -5,7 +5,7 @@ import { Observable } from 'rxjs';
 import { CommonResponse, MessagesResponse } from 'src/app/models/interfaces';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class MessageService {
   private baseUrl = environment.apiUrl;
@@ -13,14 +13,32 @@ export class MessageService {
   constructor(private http: HttpClient) {}
 
   sendMessage(message: string): Observable<CommonResponse> {
-    return this.http.post<CommonResponse>(`${this.baseUrl}/Message/send`, { Content:message });
+    return this.http.post<CommonResponse>(`${this.baseUrl}/Message/send`, {
+      Content: message,
+    });
   }
 
   getMessages(): Observable<MessagesResponse> {
     return this.http.get<MessagesResponse>(`${this.baseUrl}/Message/inbox`);
   }
 
-  toggleMarkMessage(messageId: number, marked: boolean): Observable<CommonResponse> {
-    return this.http.post<CommonResponse>(`${this.baseUrl}/Message/mark/${messageId}`, { Marked: marked });
+  toggleMarkMessage(
+    messageId: number,
+    marked: boolean
+  ): Observable<CommonResponse> {
+    return this.http.post<CommonResponse>(
+      `${this.baseUrl}/Message/mark/${messageId}`,
+      { Marked: marked }
+    );
+  }
+
+  toggleDeleteMessage(
+    messageId: number,
+    marked: boolean
+  ): Observable<CommonResponse> {
+    return this.http.post<CommonResponse>(
+      `${this.baseUrl}/Message/delete/${messageId}`,
+      { Marked: marked }
+    );
   }
 }

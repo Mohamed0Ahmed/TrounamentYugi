@@ -18,31 +18,14 @@ export class RankingComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.playerService.ranking$.subscribe({
-      next: (players) => {
-        this.players = players.sort((a: any, b: any) => b.points - a.points);
-        this.started = this.players.every((match) => match.matchesPlayed === 0);
-      },
-      error: (err) => {
-        this.toastr.error('حصل خطأ أثناء جلب اللاعبين');
-        console.error(err);
-      },
-    });
-
-    this.playerService.getrank().subscribe();
-  }
-
-  loadPlayers(): void {
     this.playerService.getrank().subscribe({
       next: (response) => {
-        if (response) {
-          this.players = response.sort((a: any, b: any) => b.points - a.points);
-
-          console.log(response);
-        }
+        this.players = response;
+        this.started = this.players.every((match) => match.matchesPlayed === 0);
+        console.log(response);
       },
       error: (err) => {
-        this.toastr.error('حصل خطأ أثناء جلب اللاعبين');
+        this.toastr.error('حصل خطأ أثنا�� ��لب اللا��بين');
         console.error(err);
       },
     });

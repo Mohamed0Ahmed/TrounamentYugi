@@ -39,6 +39,7 @@ export interface Message {
   senderPhoneNumber: string;
   content: string;
   isRead: boolean;
+  isDeleted: boolean;
   sentAt: string;
 }
 

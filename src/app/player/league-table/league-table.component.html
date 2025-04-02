@@ -16,9 +16,9 @@
         <tr>
           <th
             *ngFor="let player of players"
-            class="border border-gray-300 p-2 bg-rose-600 text-white cursor-pointer hover:bg-rose-400 transition-all"
+            class="border border-gray-300 p-2  text-white cursor-pointer hover:bg-rose-400 transition-all"
             (click)="highlightColumn(player.playerId)"
-            [ngClass]="highlightedColumn == player.playerId ? 'bg-rose-400' : ''"
+            [ngClass]="highlightedColumn == player.playerId ? 'bg-rose-400' : 'bg-rose-600'"
           >
             {{ player.fullName }}
           </th>

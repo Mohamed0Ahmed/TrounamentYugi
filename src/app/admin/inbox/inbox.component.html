@@ -50,7 +50,6 @@
         'border-red-500': !message.isRead
       }"
     >
-      <!-- زرار Mark Read/Unread فوق على اليمين -->
       <button
         class="absolute top-3 right-3 px-3 py-1 rounded-md text-white text-sm"
         [ngClass]="{
@@ -60,6 +59,12 @@
         (click)="toggleMarkMessage(message)"
       >
         {{ message.isRead ? "Mark Unread " : "Mark as Read " }}
+      </button>
+      <button
+        class="absolute top-3 ledt-3 px-3 py-1 rounded-md text-white text-sm bg-red-700"
+        (click)="toggleDeleteMessage(message)"
+      >
+        Delete
       </button>
 
       <p class="text-gray-700 mt-6">{{ message.content }}</p>

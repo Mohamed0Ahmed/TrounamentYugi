@@ -25,10 +25,14 @@ export class InboxComponent implements OnInit {
     this.messageService.getMessages().subscribe({
       next: (response) => {
         if (response) {
-          this.messages = response.messages.sort(
-            (a, b) =>
-              new Date(b.sentAt).getTime() - new Date(a.sentAt).getTime()
-          );
+          this.messages = response.messages
+            .filter((message) => message.isDeleted == false)
+            .sort(
+              (a, b) =>
+                new Date(b.sentAt).getTime() - new Date(a.sentAt).getTime()
+            );
+
+          console.log(response);
 
           this.filterMessages();
         } else {
@@ -66,10 +70,30 @@ export class InboxComponent implements OnInit {
             this.toastr.success('تم تحديث حالة الرسالة');
             message.isRead = !message.isRead;
             this.filterMessages();
+            this.loadMessages();
           }
         },
         error: (err) => {
           this.toastr.error('حدث خطأ أثناء تحديث الحالة');
+          console.error(err);
+        },
+      });
+  }
+
+  toggleDeleteMessage(message: Message): void {
+    this.messageService
+      .toggleDeleteMessage(message.id, !message.isDeleted)
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.toastr.success(response.message);
+            message.isDeleted = !message.isDeleted;
+            this.filterMessages();
+            this.loadMessages();
+          }
+        },
+        error: (err) => {
+          this.toastr.error('حدث خطأ أثناء الحذف ');
           console.error(err);
         },
       });
