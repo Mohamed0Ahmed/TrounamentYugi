@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { PlayerService } from './../../core/services/player.service';
 import { MatchService } from 'src/app/core/services/match.service';
 import { ToastrService } from 'ngx-toastr';
@@ -13,6 +13,7 @@ export class LeagueTableComponent implements OnInit {
   players: Player[] = [];
   matches: Match[] = [];
   started: boolean = true;
+  highlightedColumn: number | null = null;
 
   constructor(
     private playerService: PlayerService,
@@ -88,5 +89,17 @@ export class LeagueTableComponent implements OnInit {
     }
 
     return { result: `${player1Score} - ${player2Score}`, color: colorClass };
+  }
+
+  highlightColumn(playerId: number) {
+    this.highlightedColumn =
+      this.highlightedColumn === playerId ? null : playerId;
+  }
+  @HostListener('document:click', ['$event'])
+  onClickOutside(event: Event) {
+    const table = document.querySelector('table');
+    if (table && !table.contains(event.target as Node)) {
+      this.highlightedColumn = null;
+    }
   }
 }

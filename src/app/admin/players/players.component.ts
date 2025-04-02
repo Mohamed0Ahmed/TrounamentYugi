@@ -12,7 +12,7 @@ import { ToastrService } from 'ngx-toastr';
 export class PlayersComponent implements OnInit {
   players: Player[] = [];
   selectedPlayer: Player | null = null;
-  playerMatches: Match[] = []; // الداتا الخام من الـ API
+  playerMatches: Match[] = [];
   displayMatches: Match[] = []; // الداتا المعدلة للعرض
   showModal = false;
   newPlayerName = '';

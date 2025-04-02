@@ -2,14 +2,18 @@
   <h2 class="text-2xl font-bold text-center mb-6">لوحة تحكم الإدارة</h2>
 
   <!-- Stats Cards -->
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
     <div class="bg-white shadow-md rounded p-6 text-center">
-      <h3 class="text-lg font-semibold mb-2">عدد اللاعبين</h3>
-      <p class="text-3xl font-bold text-blue-600">{{ totalPlayers }}</p>
+      <h3 class="text-lg font-semibold mb-2">عدد الماتشات المتبقية</h3>
+      <p class="text-3xl font-bold text-red-600">{{ totalMatchesLeft }}</p>
     </div>
     <div class="bg-white shadow-md rounded p-6 text-center">
       <h3 class="text-lg font-semibold mb-2">عدد الماتشات</h3>
       <p class="text-3xl font-bold text-green-600">{{ totalMatches }}</p>
+    </div>
+    <div class="bg-white shadow-md rounded p-6 text-center">
+      <h3 class="text-lg font-semibold mb-2">عدد اللاعبين</h3>
+      <p class="text-3xl font-bold text-blue-600">{{ totalPlayers }}</p>
     </div>
     <div class="bg-white shadow-md rounded p-6 text-center">
       <h3 class="text-lg font-semibold mb-2">عدد الرسائل</h3>
@@ -17,34 +21,59 @@
     </div>
   </div>
 
-<!-- Navigation Links + Reset Button -->
-<div class="flex justify-center space-x-4">
-  <a routerLink="/admin/players" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-    إدارة اللاعبين والماتشات
-  </a>
-  <a routerLink="/admin/inbox" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
-    صندوق الوارد
-  </a>
-  <button (click)="openResetModal()"
-    class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
-    إعادة تعيين الدوري
-  </button>
-</div>
+  <!-- Navigation Links + Reset Button -->
+  <div class="flex justify-center space-x-4 p-4">
+    <a
+      routerLink="/admin/players"
+      class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition-all"
+    >
+      إدارة اللاعبين والماتشات
+    </a>
+    <a
+      routerLink="/admin/inbox"
+      class="bg-orange-400 hover:bg-orange-500 text-white font-bold py-2 px-4 rounded transition-all relative"
+    >
+      صندوق الوارد
+      <div
+        class="absolute -top-2 -right-2 w-[30px] h-[30px] rounded-full bg-green-500 flex justify-center items-center"
+        *ngIf="totalMessagesLeft > 0"
+      >
+        <h2 class="text-white font-bold">{{ totalMessagesLeft }}</h2>
+      </div>
+    </a>
+    <button
+      (click)="openResetModal()"
+      class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded transition-all"
+    >
+      إعادة تعيين الدوري
+    </button>
+  </div>
 
-<!-- Reset Confirmation Modal -->
-<div *ngIf="showResetModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-  <div class="bg-white p-6 rounded-lg">
-    <h2 class="text-lg font-bold mb-4">تأكيد إعادة التعيين</h2>
-    <p>هل أنت متأكد من رغبتك في إعادة تعيين الدوري؟ سيتم مسح جميع المباريات والرسائل.</p>
-    <div class="mt-4 flex justify-end">
-      <button class="bg-gray-500 px-4 py-2 text-white rounded mr-2" (click)="closeResetModal()">
-        إلغاء
-      </button>
-      <button class="bg-red-500 px-4 py-2 text-white rounded" (click)="resetTournament()">
-        إعادة تعيين
-      </button>
+  <!-- Reset Confirmation Modal -->
+  <div
+    *ngIf="showResetModal"
+    class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
+  >
+    <div class="bg-white p-6 rounded-lg">
+      <h2 class="text-lg font-bold mb-4">تأكيد إعادة التعيين</h2>
+      <p>
+        هل أنت متأكد من رغبتك في إعادة تعيين الدوري؟ سيتم مسح جميع المباريات
+        والرسائل.
+      </p>
+      <div class="mt-4 flex justify-end">
+        <button
+          class="bg-gray-500 px-4 py-2 text-white rounded mr-2"
+          (click)="closeResetModal()"
+        >
+          إلغاء
+        </button>
+        <button
+          class="bg-red-500 px-4 py-2 text-white rounded"
+          (click)="resetTournament()"
+        >
+          إعادة تعيين
+        </button>
+      </div>
     </div>
   </div>
-</div>
-
 </div>

@@ -13,7 +13,9 @@ import { ToastrService } from 'ngx-toastr';
 export class AdminDashboardComponent implements OnInit {
   totalPlayers: number = 0;
   totalMatches: number = 0;
+  totalMatchesLeft: number = 0;
   totalMessages: number = 0;
+  totalMessagesLeft: number = 0;
   showResetModal: boolean = false;
 
   constructor(
@@ -44,6 +46,9 @@ export class AdminDashboardComponent implements OnInit {
       next: (response) => {
         if (response) {
           this.totalMatches = response.length;
+          this.totalMatchesLeft = response.filter(
+            (match) => match.isCompleted == false
+          ).length;
         }
       },
       error: (err) => {
@@ -56,6 +61,9 @@ export class AdminDashboardComponent implements OnInit {
       next: (response) => {
         if (response) {
           this.totalMessages = response.messages.length;
+          this.totalMessagesLeft = response.messages.filter(
+            (m) => m.isRead == false
+          ).length;
         } else {
           this.toastr.error('لا يوجد رسائل');
         }
@@ -78,7 +86,6 @@ export class AdminDashboardComponent implements OnInit {
   resetTournament(): void {
     this.leagueService.resetLeague().subscribe({
       next: (response) => {
-
         this.toastr.success(response);
         this.loadStats();
         this.showResetModal = false;

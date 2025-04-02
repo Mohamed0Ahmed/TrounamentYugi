@@ -4,11 +4,7 @@
   <div *ngIf="started" class="flex justify-center text-gray-500">
     <div class="w-1/2 text-center">
       <h2 class="shadow font-bold text-black">ستبدأ البطولة قريبا</h2>
-      <img
-        src="./assets/images/coming.jpg"
-        alt="coming soon"
-        class="w-full"
-      />
+      <img src="./assets/images/coming.jpg" alt="coming soon" class="w-full" />
     </div>
   </div>
 
@@ -20,7 +16,9 @@
         <tr>
           <th
             *ngFor="let player of players"
-            class="border border-gray-300 p-2 bg-rose-600 text-white"
+            class="border border-gray-300 p-2 bg-rose-600 text-white cursor-pointer hover:bg-rose-400 transition-all"
+            (click)="highlightColumn(player.playerId)"
+            [ngClass]="highlightedColumn == player.playerId ? 'bg-rose-400' : ''"
           >
             {{ player.fullName }}
           </th>
@@ -36,7 +34,11 @@
         >
           <td
             *ngFor="let player2 of players"
-            class="border border-gray-300 p-2"
+            class="border border-gray-300 p-2 transition-all"
+            [ngClass]="{
+              'shadow-lg shadow-blue-900 ':
+                highlightedColumn === player2.playerId
+            }"
           >
             <span
               *ngIf="player1.playerId === player2.playerId"
