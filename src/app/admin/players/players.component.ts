@@ -1,8 +1,14 @@
 import { MatchService } from 'src/app/core/services/match.service';
 import { PlayerService } from './../../core/services/player.service';
 import { Component, OnInit } from '@angular/core';
-import { Player, Match } from 'src/app/models/interfaces';
+import {
+  Player,
+  Match,
+  StartLeagueDto,
+  League,
+} from 'src/app/models/interfaces';
 import { ToastrService } from 'ngx-toastr';
+import { LeagueService } from 'src/app/core/services/league.service';
 
 @Component({
   selector: 'app-players',
@@ -13,23 +19,33 @@ export class PlayersComponent implements OnInit {
   players: Player[] = [];
   selectedPlayer: Player | null = null;
   playerMatches: Match[] = [];
-  displayMatches: Match[] = []; // الداتا المعدلة للعرض
+  displayMatches: Match[] = [];
   showModal = false;
   newPlayerName = '';
   isSidebarOpen = false;
   showDeleteModal = false;
+  showEndLeagueModal = false;
   loadingMatches: { [matchId: number]: boolean } = {};
   private requestQueue: Array<() => Promise<void>> = [];
   private isProcessingQueue = false;
-
+  showResetModal: boolean = false;
+  leagueData!: League;
+  showStartLeagueModal: boolean = false;
+  newLeague: StartLeagueDto = {
+    Name: '',
+    Description: '',
+    TypeOfLeague: 0,
+  };
   constructor(
     private playerService: PlayerService,
     private matchService: MatchService,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private leagueService: LeagueService
   ) {}
 
   ngOnInit(): void {
     this.getPlayers();
+    this.getCurrentLeague();
   }
 
   toggleSidebar(): void {
@@ -174,6 +190,7 @@ export class PlayersComponent implements OnInit {
       if (response.success) {
         this.toastr.success(response.message);
         this.getPlayers();
+        this.loadMatches();
         this.closeModal();
       } else this.toastr.warning(response.message);
     });
@@ -212,6 +229,76 @@ export class PlayersComponent implements OnInit {
     this.playerService.getPlayers().subscribe({
       next: (players) => {
         this.players = players;
+      },
+      error: (err) => {
+        this.toastr.error(err.message);
+      },
+    });
+  }
+
+  resetTournament(id: number) {
+    this.leagueService.resetLeague(id).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.toastr.success(response.message);
+          this.showResetModal = false;
+          this.getCurrentLeague();
+          this.loadMatches();
+          this.getPlayers();
+          this.showEndLeagueModal = false;
+        } else {
+          this.toastr.error(response.message);
+        }
+      },
+
+      error: (err) => {
+        this.toastr.error('فشل في إعادة تعيين الدوري');
+        console.error(err);
+      },
+    });
+  }
+
+  openStartLeagueModal(): void {
+    this.showStartLeagueModal = true;
+    this.newLeague = {
+      Name: '',
+      Description: '',
+      TypeOfLeague: 0,
+    };
+  }
+
+  closeStartLeagueModal(): void {
+    this.showStartLeagueModal = false;
+  }
+
+  startLeague(): void {
+    if (!this.newLeague.Name.trim()) {
+      this.toastr.error('League name is required', 'Error');
+      return;
+    }
+
+    this.leagueService.startLeague(this.newLeague).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.toastr.success(response.message);
+          this.closeStartLeagueModal();
+          this.getCurrentLeague();
+        } else {
+          this.toastr.error(response.message, 'Error');
+        }
+      },
+      error: (err) => {
+        this.toastr.error('Failed to start league');
+        console.error(err);
+      },
+    });
+  }
+
+  getCurrentLeague(): void {
+    this.leagueService.GetCurrentLeague().subscribe({
+      next: (data) => {
+        this.leagueData = data.league;
+        console.log(data);
       },
       error: (err) => {
         this.toastr.error(err.message);

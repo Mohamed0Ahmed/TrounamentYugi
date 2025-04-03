@@ -41,39 +41,7 @@
         <h2 class="text-white font-bold">{{ totalMessagesLeft }}</h2>
       </div>
     </a>
-    <button
-      (click)="openResetModal()"
-      class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded transition-all"
-    >
-      إعادة تعيين الدوري
-    </button>
   </div>
 
-  <!-- Reset Confirmation Modal -->
-  <div
-    *ngIf="showResetModal"
-    class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
-  >
-    <div class="bg-white p-6 rounded-lg">
-      <h2 class="text-lg font-bold mb-4">تأكيد إعادة التعيين</h2>
-      <p>
-        هل أنت متأكد من رغبتك في إعادة تعيين الدوري؟ سيتم مسح جميع المباريات
-        والرسائل.
-      </p>
-      <div class="mt-4 flex justify-end">
-        <button
-          class="bg-gray-500 px-4 py-2 text-white rounded mr-2"
-          (click)="closeResetModal()"
-        >
-          إلغاء
-        </button>
-        <button
-          class="bg-red-500 px-4 py-2 text-white rounded"
-          (click)="resetTournament()"
-        >
-          إعادة تعيين
-        </button>
-      </div>
-    </div>
-  </div>
+
 </div>

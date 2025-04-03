@@ -8,10 +8,12 @@ import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 
 @NgModule({
-  declarations: [LeagueTableComponent, RankingComponent, SendMessageComponent , ],
-  imports: [CommonModule, PlayerRoutingModule, HttpClientModule, FormsModule],
-  exports: [
+  declarations: [
+    LeagueTableComponent,
     RankingComponent,
+    SendMessageComponent,
   ],
+  imports: [CommonModule, PlayerRoutingModule, HttpClientModule, FormsModule],
+  exports: [RankingComponent],
 })
 export class PlayerModule {}

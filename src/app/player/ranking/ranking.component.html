@@ -30,6 +30,11 @@
         >
           <td class="border border-gray-300 p-2 text-center font-bold">
             {{ player.rank }}
+            <i
+              class="fa-solid fa-crown"
+              style="color: #ffd43b"
+              *ngIf="player.rank == 1"
+            ></i>
           </td>
           <td class="border border-gray-300 p-2 font-bold">
             {{ player.fullName }}
@@ -42,7 +47,9 @@
           >
             {{ player.wins }}
           </td>
-          <td class="border border-gray-300 p-2 text-center font-bold">
+          <td
+            class="border border-gray-300 p-2 text-center font-bold text-yellow-400"
+          >
             {{ player.draws }}
           </td>
           <td

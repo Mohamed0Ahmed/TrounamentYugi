@@ -40,12 +40,70 @@
 
   <!-- Main Content -->
   <div class="flex-1 p-2 transition-all duration-300">
-    <button
-      (click)="isSidebarOpen = !isSidebarOpen"
-      class="bg-blue-500 text-white px-3 py-2 rounded mb-4"
-    >
-      ☰ Players
-    </button>
+    <div>
+      <div class="flex justify-evenly pt-5">
+        <button
+          (click)="isSidebarOpen = !isSidebarOpen"
+          class="bg-blue-500 text-white px-3 py-2 rounded mb-4"
+        >
+          ☰ Players
+        </button>
+
+        <button
+          class="bg-green-500 text-white px-3 py-2 rounded mb-4"
+          (click)="openStartLeagueModal()"
+          *ngIf="leagueData == null"
+        >
+          بدأ دوري جديد
+        </button>
+
+        <button
+          class="bg-red-500 text-white px-3 py-2 rounded mb-4"
+          *ngIf="leagueData != null"
+          (click)="showEndLeagueModal = true"
+        >
+          انهاء الدوري
+        </button>
+      </div>
+
+      <div
+        class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8 container mx-auto"
+        *ngIf="leagueData"
+      >
+        <div class="bg-white shadow-md rounded p-6 text-center">
+          <h3 class="text-lg font-semibold mb-2">وصف البطولة</h3>
+          <pre class="font-bold text-gray-800">{{
+            leagueData.description
+          }}</pre>
+        </div>
+        <div class="bg-white shadow-md rounded p-6 text-center">
+          <h3 class="text-lg font-semibold mb-2">نظام البطولة</h3>
+          <p
+            *ngIf="leagueData.typeOfLeague === 0"
+            class="font-bold text-gray-800"
+          >
+            فردية
+          </p>
+          <p
+            *ngIf="leagueData.typeOfLeague === 1"
+            lass="font-bold text-gray-800"
+          >
+            بطولة فرق
+          </p>
+        </div>
+        <div class="bg-white shadow-md rounded p-6 text-center">
+          <h3 class="text-lg font-semibold mb-2">تاريخ بدأ البطولة</h3>
+          <p class="font-bold text-gray-800">
+            {{ leagueData.createdOn | date : "fullDate" }}
+          </p>
+        </div>
+
+        <div class="bg-white shadow-md rounded p-6 text-center">
+          <h3 class="text-lg font-semibold mb-2">اسم البطولة الحالية</h3>
+          <p class="font-bold text-gray-800">{{ leagueData.name }}</p>
+        </div>
+      </div>
+    </div>
 
     <div *ngIf="selectedPlayer" class="w-5/6 mx-auto">
       <h2 class="text-2xl font-bold mb-4 text-center">
@@ -173,6 +231,93 @@
           (click)="addPlayer()"
         >
           Add
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Start League Modal -->
+  <div
+    *ngIf="showStartLeagueModal"
+    class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
+  >
+    <div class="bg-white p-6 rounded-lg w-96">
+      <h2 class="text-lg font-bold mb-4">بدأ دوري جديد</h2>
+
+      <!-- League Name -->
+      <div class="mb-4">
+        <label class="block text-sm font-medium mb-1">اسم البطولة</label>
+        <input
+          type="text"
+          [(ngModel)]="newLeague.Name"
+          class="border p-2 w-full rounded"
+          placeholder="Enter league name"
+        />
+      </div>
+
+      <!-- League Description -->
+      <div class="mb-4">
+        <label class="block text-sm font-medium mb-1">وصف البطولة</label>
+        <textarea
+          [(ngModel)]="newLeague.Description"
+          class="border p-2 w-full rounded"
+          placeholder="Enter league description"
+          rows="3"
+        ></textarea>
+      </div>
+
+      <!-- League Type -->
+      <div class="mb-4">
+        <label class="block text-sm font-medium mb-1">نوع البطولة</label>
+        <select
+          [(ngModel)]="newLeague.TypeOfLeague"
+          class="border p-2 w-full rounded"
+        >
+          <option [ngValue]="0">Single</option>
+          <option [ngValue]="1">Multi</option>
+        </select>
+      </div>
+
+      <!-- Buttons -->
+      <div class="mt-4 flex justify-end">
+        <button
+          class="bg-gray-500 px-4 py-2 text-white rounded mr-2"
+          (click)="closeStartLeagueModal()"
+        >
+          الفاء
+        </button>
+        <button
+          class="bg-green-500 px-4 py-2 text-white rounded"
+          (click)="startLeague()"
+        >
+          بدأ الدوري
+        </button>
+      </div>
+    </div>
+  </div>
+  <!-- End League Confirmation Modal -->
+  <div
+    *ngIf="showEndLeagueModal"
+    class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
+  >
+    <div class="bg-white p-6 rounded-lg">
+      <h2 class="text-lg font-bold mb-4">تأكيد إنهاء الدوري</h2>
+      <p>
+        هل أنت متأكد أنك تريد إنهاء البطولة الحالية؟ لا يمكن التراجع عن هذا
+        الإجراء.
+      </p>
+      <div class="mt-4 flex justify-end">
+        <button
+          class="bg-gray-500 px-4 py-2 text-white rounded mr-2"
+          (click)="showEndLeagueModal = false"
+        >
+          إلغاء
+        </button>
+        <button
+          class="bg-red-500 px-4 py-2 text-white rounded"
+          (click)="resetTournament(leagueData.id)"
+        >
+          تأكيد الإنهاء
         </button>
       </div>
     </div>

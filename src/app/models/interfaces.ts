@@ -53,3 +53,28 @@ export interface Match {
   player1Id: number;
   player2Id: number;
 }
+
+export interface StartLeagueDto {
+  Name: string;
+  Description: string;
+  TypeOfLeague: LeagueType;
+}
+
+export enum LeagueType {
+  Single = 0,
+  Multi = 1,
+}
+
+export interface League {
+  id: number;
+  name: string;
+  description: string;
+  createdOn: string;
+  typeOfLeague: LeagueType;
+  isFinished: boolean;
+}
+
+export interface LeagueResponse {
+  response: CommonResponse;
+  league: League;
+}
