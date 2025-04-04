@@ -35,6 +35,12 @@
               style="color: #ffd43b"
               *ngIf="player.rank == 1"
             ></i>
+
+            <i
+              class="fa-solid fa-poo"
+              style="color: #7b370a"
+              *ngIf="i == last"
+            ></i>
           </td>
           <td class="border border-gray-300 p-2 font-bold">
             {{ player.fullName }}

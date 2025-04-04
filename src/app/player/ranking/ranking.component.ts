@@ -11,6 +11,7 @@ import { Player } from 'src/app/models/interfaces';
 export class RankingComponent implements OnInit {
   players: Player[] = [];
   started: boolean = true;
+  last: number = 0;
 
   constructor(
     private playerService: PlayerService,
@@ -21,11 +22,12 @@ export class RankingComponent implements OnInit {
     this.playerService.getrank().subscribe({
       next: (response) => {
         this.players = response;
+        this.last = response.length - 1;
         this.started = this.players.every((match) => match.matchesPlayed === 0);
         console.log(response);
       },
       error: (err) => {
-        this.toastr.error('حصل خطأ أثنا�� ��لب اللا��بين');
+        this.toastr.error('حدث خطا اثناء جلب اللاعبين');
         console.error(err);
       },
     });
