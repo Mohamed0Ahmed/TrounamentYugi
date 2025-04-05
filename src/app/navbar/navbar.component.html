@@ -1,38 +1,40 @@
-<nav class="bg-gray-800 p-4">
+<nav class="bg-gray-900 p-4">
   <div class="container mx-auto flex justify-between items-center">
     <!-- Logo -->
-    <div class="text-white space-x-3">
-      <a class="text-xl font-bold" *ngIf="!isAdmin">YuGi Tournament</a>
-
+    <div class="font-bold">
+      <a
+        class="text-xl bg-gradient-to-r from-indigo-400 to-cyan-400 text-transparent bg-clip-text"
+        *ngIf="!isAdmin"
+        >YuGi Tournament</a
+      >
       <a
         *ngIf="isAdmin"
         routerLink="/admin/players"
-        routerLinkActive="text-green-400 "
-        class="text-white hover:text-gray-300 transition"
+        routerLinkActive="!text-indigo-300 bg-white/10 border-b-2 border-white"
+        class="text-white hover:text-gray-300 hover:bg-gray-700 transition rounded py-2 px-2"
       >
         Admin Dashboard
       </a>
     </div>
 
     <!-- Links -->
-    <div class="space-x-4 font-bold">
+    <div class="space-x-2 font-bold">
       <a
         routerLink="/player/allLeagues"
-        routerLinkActive="text-green-400"
-        class="text-white hover:text-gray-300"
+        routerLinkActive="!text-indigo-300 bg-white/10 border-b-2 border-white"
+        class="text-white hover:text-gray-300 hover:bg-gray-700 transition rounded py-2 px-2"
         >All Leagues</a
       >
       <a
         routerLink="/player/league-table"
-        routerLinkActive="text-green-400"
-        class="text-white hover:text-gray-300"
+        routerLinkActive="!text-indigo-300 bg-white/10 border-b-2 border-white"
+        class="text-white hover:text-gray-300 hover:bg-gray-700 transition rounded py-2 px-2"
         >League Table</a
       >
-
       <a
         routerLink="/player/ranking"
-        routerLinkActive="text-green-400"
-        class="text-white hover:text-gray-300"
+        routerLinkActive="!text-indigo-300 bg-white/10 border-b-2 border-white"
+        class="text-white hover:text-gray-300 hover:bg-gray-700 transition rounded py-2 px-2"
         >Ranking</a
       >
     </div>
@@ -42,21 +44,27 @@
       <a
         *ngIf="!isAdmin"
         (click)="openSendMessage()"
-        class="text-white hover:text-gray-300 cursor-pointer"
+        class="text-white hover:text-gray-300 hover:bg-gray-700 transition rounded py-2 px-2 cursor-pointer"
         >Send Message</a
       >
       <ng-container *ngIf="!isLoggedIn">
-        <a routerLink="/auth/login" class="text-white hover:text-gray-300 mr-4"
+        <a
+          routerLink="/auth/login"
+          routerLinkActive="!text-indigo-300 bg-white/10 border-b-2 border-white"
+          class="text-white hover:text-gray-300 hover:bg-gray-700 transition rounded py-2 px-2 mr-4"
           >Login</a
         >
-        <a routerLink="/auth/register" class="text-white hover:text-gray-300"
+        <a
+          routerLink="/auth/register"
+          routerLinkActive="!text-indigo-300 bg-white/10 border-b-2 border-white"
+          class="text-white hover:text-gray-300 hover:bg-gray-700 transition rounded py-2 px-2"
           >Register</a
         >
       </ng-container>
       <a
         *ngIf="isLoggedIn"
         (click)="logout()"
-        class="text-white hover:text-gray-300 cursor-pointer"
+        class="text-white hover:text-gray-300 hover:bg-gray-700 transition rounded py-2 px-2 cursor-pointer"
         >Logout</a
       >
     </div>
