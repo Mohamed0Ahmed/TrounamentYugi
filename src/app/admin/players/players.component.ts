@@ -26,6 +26,7 @@ export class PlayersComponent implements OnInit {
   newPlayerName = '';
   isSidebarOpen = false;
   showDeleteModal = false;
+  showDeleteLeagueModal = false;
   showEndLeagueModal = false;
   loadingMatches: { [matchId: number]: boolean } = {};
   private requestQueue: Array<() => Promise<void>> = [];
@@ -44,6 +45,7 @@ export class PlayersComponent implements OnInit {
   totalMatchesLeft: number = 0;
   totalMessages: number = 0;
   leagues: AllLeagueRank[] = [];
+  selectedLeagueToDelete: AllLeagueRank | null = null;
   constructor(
     private playerService: PlayerService,
     private matchService: MatchService,
@@ -356,7 +358,6 @@ export class PlayersComponent implements OnInit {
     this.leagueService.GetAllLeaguesRank().subscribe({
       next: (response) => {
         if (response) {
-          console.log(response);
           this.leagues = response.reverse();
         } else {
           this.toastr.error(response);
@@ -366,5 +367,42 @@ export class PlayersComponent implements OnInit {
         this.toastr.error(err.message);
       },
     });
+  }
+
+  DeleteLeague(id: number): void {
+    this.leagueService.DeleteLeague(id).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.toastr.success(response.message);
+          this.showDeleteLeagueModal = false;
+        } else {
+          this.toastr.error(response.message);
+        }
+      },
+      error: (err) => {
+        this.toastr.error(err.message);
+      },
+    });
+  }
+
+  openDeleteLeagueModal(leagueId: number): void {
+    this.selectedLeagueToDelete =
+      this.leagues.find((l) => l.leagueId === leagueId) || null;
+    this.showDeleteLeagueModal = true;
+  }
+
+  closeDeleteLeagueModal(): void {
+    this.showDeleteLeagueModal = false;
+    this.selectedLeagueToDelete = null;
+  }
+
+  deleteConfirmedLeague(): void {
+    if (this.selectedLeagueToDelete) {
+      this.DeleteLeague(this.selectedLeagueToDelete.leagueId);
+      this.leagues = this.leagues.filter(
+        (l) => l.leagueId !== this.selectedLeagueToDelete?.leagueId
+      );
+      this.closeDeleteLeagueModal();
+    }
   }
 }
