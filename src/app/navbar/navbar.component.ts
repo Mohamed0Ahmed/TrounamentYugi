@@ -6,7 +6,7 @@ import { ToastrService } from 'ngx-toastr';
 @Component({
   selector: 'app-navbar',
   templateUrl: './navbar.component.html',
-  styleUrls: ['./navbar.component.css']
+  styleUrls: ['./navbar.component.css'],
 })
 export class NavbarComponent {
   isLoggedIn = false;
@@ -17,7 +17,7 @@ export class NavbarComponent {
     private router: Router,
     private toastr: ToastrService
   ) {
-    this.authService.isLoggedIn$.subscribe(loggedIn => {
+    this.authService.isLoggedIn$.subscribe((loggedIn) => {
       this.isLoggedIn = loggedIn;
       this.isAdmin = this.authService.getRole() === 'Admin';
     });
@@ -26,7 +26,6 @@ export class NavbarComponent {
   openSendMessage() {
     if (!this.isLoggedIn) {
       this.toastr.error('أنت مش مسجل، لازم تسجل دخول');
-      // this.router.navigate(['/auth/login']);
     } else if (this.isAdmin) {
       this.toastr.info('الـ Admin مش بيبعت رسايل');
     } else {

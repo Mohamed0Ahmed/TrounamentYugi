@@ -9,6 +9,7 @@ import {
 } from 'src/app/models/interfaces';
 import { ToastrService } from 'ngx-toastr';
 import { LeagueService } from 'src/app/core/services/league.service';
+import { MessageService } from 'src/app/core/services/message.service';
 
 @Component({
   selector: 'app-players',
@@ -36,20 +37,30 @@ export class PlayersComponent implements OnInit {
     Description: '',
     TypeOfLeague: 0,
   };
+  totalMessagesLeft: number = 0;
+  totalPlayers: number = 0;
+  totalMatches: number = 0;
+  totalMatchesLeft: number = 0;
+  totalMessages: number = 0;
   constructor(
     private playerService: PlayerService,
     private matchService: MatchService,
     private toastr: ToastrService,
-    private leagueService: LeagueService
+    private leagueService: LeagueService,
+    private messageService: MessageService
   ) {}
 
   ngOnInit(): void {
     this.getPlayers();
     this.getCurrentLeague();
+    this.getMatches();
+    this.getMessages();
+    this.GetAllLeagyes();
   }
 
   toggleSidebar(): void {
     this.isSidebarOpen = !this.isSidebarOpen;
+    this.selectedPlayer = null;
   }
 
   selectPlayer(player: Player): void {
@@ -119,6 +130,7 @@ export class PlayersComponent implements OnInit {
               if (response.success) {
                 this.toastr.success(response.message);
                 this.loadMatches();
+                this.getMatches();
               } else {
                 this.toastr.error(response.message);
               }
@@ -225,10 +237,26 @@ export class PlayersComponent implements OnInit {
     }
   }
 
-  getPlayers() {
+  getPlayers(): void {
     this.playerService.getPlayers().subscribe({
       next: (players) => {
         this.players = players;
+        this.totalPlayers = players.length;
+      },
+      error: (err) => {
+        this.toastr.error(err.message);
+      },
+    });
+  }
+  getMatches(): void {
+    this.matchService.getMatches().subscribe({
+      next: (response) => {
+        if (response) {
+          this.totalMatches = response.length;
+          this.totalMatchesLeft = response.filter(
+            (match) => match.isCompleted == false
+          ).length;
+        }
       },
       error: (err) => {
         this.toastr.error(err.message);
@@ -236,7 +264,7 @@ export class PlayersComponent implements OnInit {
     });
   }
 
-  resetTournament(id: number) {
+  resetTournament(id: number): void {
     this.leagueService.resetLeague(id).subscribe({
       next: (response) => {
         if (response.success) {
@@ -299,6 +327,38 @@ export class PlayersComponent implements OnInit {
       next: (data) => {
         this.leagueData = data.league;
         console.log(data);
+      },
+      error: (err) => {
+        this.toastr.error(err.message);
+      },
+    });
+  }
+
+  getMessages(): void {
+    this.messageService.getMessages().subscribe({
+      next: (response) => {
+        if (response) {
+          this.totalMessagesLeft = response.messages.filter(
+            (m) => m.isRead == false
+          ).length;
+        } else {
+          this.toastr.error('لا يوجد رسائل');
+        }
+      },
+      error: (err) => {
+        this.toastr.error(err.message);
+      },
+    });
+  }
+
+  GetAllLeagyes(): void {
+    this.leagueService.GetAllLeagues().subscribe({
+      next: (response) => {
+        if (response) {
+          console.log(response);
+        } else {
+          this.toastr.error('لا يوجد دوريات');
+        }
       },
       error: (err) => {
         this.toastr.error(err.message);

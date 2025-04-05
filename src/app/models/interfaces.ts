@@ -78,3 +78,7 @@ export interface LeagueResponse {
   response: CommonResponse;
   league: League;
 }
+export interface AllLeagues {
+  league: League;
+  matches: Match[];
+}

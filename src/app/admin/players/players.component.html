@@ -1,7 +1,7 @@
-<div class="flex transition-all duration-300">
+<div class="flex transition-all duration-600">
   <!-- Sidebar -->
   <div
-    class="bg-gray-800 text-white overflow-hidden transition-all duration-300"
+    class="bg-gray-800 text-white overflow-hidden transition-all duration-600"
     [ngClass]="{
       'w-64 p-4 min-h-screen': isSidebarOpen,
       'w-0 p-0': !isSidebarOpen
@@ -9,7 +9,7 @@
   >
     <h2 class="text-lg font-bold mb-4 flex justify-between overflow-hidden">
       Players
-      <button (click)="isSidebarOpen = false" class="text-gray-200 text-3xl">
+      <button (click)="toggleSidebar()" class="text-gray-200 text-3xl">
         ×
       </button>
     </h2>
@@ -39,73 +39,8 @@
   </div>
 
   <!-- Main Content -->
-  <div class="flex-1 p-2 transition-all duration-300">
-    <div>
-      <div class="flex justify-evenly pt-5">
-        <button
-          (click)="isSidebarOpen = !isSidebarOpen"
-          class="bg-blue-500 text-white px-3 py-2 rounded mb-4"
-        >
-          ☰ Players
-        </button>
-
-        <button
-          class="bg-green-500 text-white px-3 py-2 rounded mb-4"
-          (click)="openStartLeagueModal()"
-          *ngIf="leagueData == null"
-        >
-          بدأ دوري جديد
-        </button>
-
-        <button
-          class="bg-red-500 text-white px-3 py-2 rounded mb-4"
-          *ngIf="leagueData != null"
-          (click)="showEndLeagueModal = true"
-        >
-          انهاء الدوري
-        </button>
-      </div>
-
-      <div
-        class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8 container mx-auto"
-        *ngIf="leagueData"
-      >
-        <div class="bg-white shadow-md rounded p-6 text-center">
-          <h3 class="text-lg font-semibold mb-2">وصف البطولة</h3>
-          <pre class="font-bold text-gray-800">{{
-            leagueData.description
-          }}</pre>
-        </div>
-        <div class="bg-white shadow-md rounded p-6 text-center">
-          <h3 class="text-lg font-semibold mb-2">نظام البطولة</h3>
-          <p
-            *ngIf="leagueData.typeOfLeague === 0"
-            class="font-bold text-gray-800"
-          >
-            فردية
-          </p>
-          <p
-            *ngIf="leagueData.typeOfLeague === 1"
-            lass="font-bold text-gray-800"
-          >
-            بطولة فرق
-          </p>
-        </div>
-        <div class="bg-white shadow-md rounded p-6 text-center">
-          <h3 class="text-lg font-semibold mb-2">تاريخ بدأ البطولة</h3>
-          <p class="font-bold text-gray-800">
-            {{ leagueData.createdOn | date : "fullDate" }}
-          </p>
-        </div>
-
-        <div class="bg-white shadow-md rounded p-6 text-center">
-          <h3 class="text-lg font-semibold mb-2">اسم البطولة الحالية</h3>
-          <p class="font-bold text-gray-800">{{ leagueData.name }}</p>
-        </div>
-      </div>
-    </div>
-
-    <div *ngIf="selectedPlayer" class="w-5/6 mx-auto">
+  <div class="flex-1 p-2 transition-all duration-600 container mx-auto">
+    <div *ngIf="selectedPlayer" class="w-5/6">
       <h2 class="text-2xl font-bold mb-4 text-center">
         Matches for {{ selectedPlayer.fullName }}
       </h2>
@@ -172,9 +107,131 @@
         </tbody>
       </table>
     </div>
+    <div>
+      <div class="flex justify-evenly pt-5">
+        <button
+          (click)="toggleSidebar()"
+          class="bg-blue-500 text-white px-3 py-2 rounded mb-4"
+        >
+          ☰ Players
+        </button>
+        <button
+          routerLink="/admin/inbox"
+          class="bg-orange-400 hover:bg-orange-500 text-white mb-4 px-3 py-2 rounded transition-all relative"
+        >
+          صندوق الوارد
+          <div
+            class="absolute -top-2 -right-2 w-[30px] h-[30px] rounded-full bg-green-500 flex justify-center items-center"
+            *ngIf="totalMessagesLeft > 0"
+          >
+            <h2 class="text-white font-bold">{{ totalMessagesLeft }}</h2>
+          </div>
+        </button>
+        <button
+          class="bg-green-500 text-white px-3 py-2 rounded mb-4"
+          (click)="openStartLeagueModal()"
+          *ngIf="leagueData == null"
+        >
+          بدأ دوري جديد
+        </button>
 
-    <!-- استدعاء RankingComponent -->
-    <!-- <app-ranking></app-ranking> -->
+        <button
+          class="bg-red-500 text-white px-3 py-2 rounded mb-4"
+          *ngIf="leagueData != null"
+          (click)="showEndLeagueModal = true"
+        >
+          انهاء الدوري
+        </button>
+      </div>
+
+      <div
+        class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8"
+        *ngIf="leagueData"
+      >
+        <div class="bg-white shadow-md rounded p-6 text-center">
+          <h3 class="text-lg font-semibold mb-2">وصف البطولة</h3>
+          <pre class="font-bold text-sm text-gray-800">{{
+            leagueData.description
+          }}</pre>
+        </div>
+        <div class="bg-white shadow-md rounded p-6 text-center">
+          <h3 class="text-lg font-semibold mb-2">نظام البطولة</h3>
+          <p
+            *ngIf="leagueData.typeOfLeague === 0"
+            class="font-bold text-gray-800"
+          >
+            فردية
+          </p>
+          <p
+            *ngIf="leagueData.typeOfLeague === 1"
+            lass="font-bold text-gray-800"
+          >
+            بطولة فرق
+          </p>
+        </div>
+        <div class="bg-white shadow-md rounded p-6 text-center">
+          <h3 class="text-lg font-semibold mb-2">تاريخ بدأ البطولة</h3>
+          <p class="font-bold text-gray-800">
+            {{ leagueData.createdOn | date : "fullDate" }}
+          </p>
+        </div>
+
+        <div class="bg-white shadow-md rounded p-6 text-center">
+          <h3 class="text-lg font-semibold mb-2">اسم البطولة الحالية</h3>
+          <p class="font-bold text-gray-800">{{ leagueData.name }}</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 container mx-auto">
+        <div class="bg-white shadow-md rounded p-6 text-center">
+          <h3 class="text-lg font-semibold mb-2">عدد الماتشات المتبقية</h3>
+          <p class="text-3xl font-bold text-red-600">{{ totalMatchesLeft }}</p>
+        </div>
+        <div class="bg-white shadow-md rounded p-6 text-center">
+          <h3 class="text-lg font-semibold mb-2">عدد الماتشات</h3>
+          <p class="text-3xl font-bold text-green-600">{{ totalMatches }}</p>
+        </div>
+        <div class="bg-white shadow-md rounded p-6 text-center">
+          <h3 class="text-lg font-semibold mb-2">عدد اللاعبين</h3>
+          <p class="text-3xl font-bold text-blue-600">{{ totalPlayers }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="text-center">
+      <button class="bg-green-500 text-white px-3 py-2 rounded mb-4">
+        عرض كل البطولات
+      </button>
+
+      <div class="max-h-[350px] overflow-x-auto">
+        <table class="min-w-full divide-y-2 divide-gray-200">
+          <thead class="sticky top-0 bg-white ltr:text-left rtl:text-right">
+            <tr class="*:font-medium *:text-gray-900">
+              <th class="px-3 py-2 whitespace-nowrap">اسم البطولة</th>
+              <th class="px-3 py-2 whitespace-nowrap">حالة البطولة</th>
+              <th class="px-3 py-2 whitespace-nowrap">نوع البطولة</th>
+              <th class="px-3 py-2 whitespace-nowrap">تاريخ البطولة</th>
+              <th class="px-3 py-2 whitespace-nowrap">الفائز</th>
+              <th class="px-3 py-2 whitespace-nowrap">حذف</th>
+            </tr>
+          </thead>
+
+          <tbody class="divide-y divide-gray-200">
+            <tr class="*:text-gray-900 *:first:font-medium">
+              <td class="px-3 py-2 whitespace-nowrap">Nandor the Relentless</td>
+              <td class="px-3 py-2 whitespace-nowrap">04/06/1262</td>
+              <td class="px-3 py-2 whitespace-nowrap">Vampire Warrior</td>
+              <td class="px-3 py-2 whitespace-nowrap">Vampire Warrior</td>
+              <td class="px-3 py-2 whitespace-nowrap">$0</td>
+              <td class="px-3 py-2 whitespace-nowrap">
+                <button class="bg-red-500 text-white px-3 py-2 rounded mb-4">
+                  حذف البطولة
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
 
   <!-- Delete Confirmation Modal -->

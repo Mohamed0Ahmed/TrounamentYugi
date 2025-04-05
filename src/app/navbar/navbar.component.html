@@ -1,39 +1,50 @@
 <nav class="bg-gray-800 p-4">
   <div class="container mx-auto flex justify-between items-center">
     <!-- Logo -->
-    <div class="text-white text-xl font-bold">YuGi Tournament</div>
+    <div class="text-white space-x-3">
+      <a class="text-xl font-bold" *ngIf="!isAdmin">YuGi Tournament</a>
+
+      <a
+        *ngIf="isAdmin"
+        routerLink="/admin/players"
+        routerLinkActive="text-green-400 "
+        class="text-white hover:text-gray-300 transition"
+      >
+        Admin Dashboard
+      </a>
+    </div>
 
     <!-- Links -->
-    <div class="space-x-4">
+    <div class="space-x-4 font-bold">
+      <a
+        routerLink="/player/allLeagues"
+        routerLinkActive="text-green-400"
+        class="text-white hover:text-gray-300"
+        >All Leagues</a
+      >
       <a
         routerLink="/player/league-table"
-        routerLinkActive="text-red-500"
+        routerLinkActive="text-green-400"
         class="text-white hover:text-gray-300"
         >League Table</a
       >
-      <a
-        *ngIf="isAdmin"
-        routerLink="/admin"
-        routerLinkActive="text-red-500"
-        class="text-white hover:text-gray-300"
-        >Admin Dashboard</a
-      >
+
       <a
         routerLink="/player/ranking"
-        routerLinkActive="text-red-500"
+        routerLinkActive="text-green-400"
         class="text-white hover:text-gray-300"
         >Ranking</a
       >
+    </div>
+
+    <!-- Auth Buttons -->
+    <div class="space-x-4">
       <a
         *ngIf="!isAdmin"
         (click)="openSendMessage()"
         class="text-white hover:text-gray-300 cursor-pointer"
         >Send Message</a
       >
-    </div>
-
-    <!-- Auth Buttons -->
-    <div>
       <ng-container *ngIf="!isLoggedIn">
         <a routerLink="/auth/login" class="text-white hover:text-gray-300 mr-4"
           >Login</a

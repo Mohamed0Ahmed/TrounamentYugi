@@ -8,8 +8,8 @@
     </div>
   </div>
 
-  <div *ngIf="!started" class="overflow-x-auto">
-    <table class="table-auto border-collapse border border-gray-300 w-full">
+  <div *ngIf="!started" class="overflow-x-auto ">
+    <table class="table-auto border-collapse border border-gray-300 w-4/5 mx-auto">
       <thead>
         <tr class="text-center">
           <th class="border border-gray-300 p-2 bg-gray-200">الترتيب</th>
@@ -28,7 +28,18 @@
           class="text-center"
           [ngClass]="i % 2 === 0 ? 'bg-white' : 'bg-gray-100'"
         >
-          <td class="border border-gray-300 p-2 text-center font-bold">
+          <td class="border border-gray-300 p-2 font-bold">
+            <i
+              class="fa-solid fa-crown"
+              style="color: #ffd43b"
+              *ngIf="player.rank == 1"
+            ></i>
+
+            <i
+              class="fa-solid fa-poo"
+              style="color: #7b370a"
+              *ngIf="i == last"
+            ></i>
             {{ player.rank }}
             <i
               class="fa-solid fa-crown"

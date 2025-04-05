@@ -16,13 +16,13 @@
         <tr>
           <th
             *ngFor="let player of players"
-            class="border border-gray-300 p-2  text-white cursor-pointer hover:bg-rose-400 transition-all"
+            class="border border-gray-300 py-2  text-white cursor-pointer hover:bg-rose-400 transition-all"
             (click)="highlightColumn(player.playerId)"
             [ngClass]="highlightedColumn == player.playerId ? 'bg-rose-400' : 'bg-rose-600'"
           >
             {{ player.fullName }}
           </th>
-          <th class="border border-gray-300 p-2 bg-rose-600 text-white">
+          <th class="border border-gray-300 py-2 bg-rose-600 text-white">
             المباراة
           </th>
         </tr>
@@ -34,7 +34,7 @@
         >
           <td
             *ngFor="let player2 of players"
-            class="border border-gray-300 p-2 transition-all"
+            class="border border-gray-300 py-2 transition-all"
             [ngClass]="{
               'shadow-lg shadow-blue-900 ':
                 highlightedColumn === player2.playerId
@@ -52,7 +52,7 @@
               </span>
             </span>
           </td>
-          <td class="border border-gray-300 p-2 font-bold">
+          <td class="border border-gray-300 py-2 font-bold">
             {{ player1.fullName }}
           </td>
         </tr>

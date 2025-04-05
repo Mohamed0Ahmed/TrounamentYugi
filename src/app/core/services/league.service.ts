@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from './../../../environments/environment';
 import {
+  AllLeagues,
   CommonResponse,
   LeagueResponse,
   StartLeagueDto,
@@ -30,5 +31,9 @@ export class LeagueService {
     return this.http.get<LeagueResponse>(
       `${this.baseUrl}/league/getCurrentLeague`
     );
+  }
+
+  GetAllLeagues(): Observable<AllLeagues> {
+    return this.http.get<AllLeagues>(`${this.baseUrl}/player/ranking/all`);
   }
 }

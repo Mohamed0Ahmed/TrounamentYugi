@@ -11,7 +11,7 @@ import { Message } from 'src/app/models/interfaces';
 export class InboxComponent implements OnInit {
   messages: Message[] = [];
   filteredMessages: Message[] = [];
-  activeTab: 'all' | 'read' | 'unread' = 'all';
+  activeTab: 'all' | 'read' | 'unread' = 'unread';
 
   constructor(
     private messageService: MessageService,

@@ -11,7 +11,7 @@ export class LoginComponent {
   email: string = '';
   phoneNumber: string = '';
   password: string = '';
-  isAdminLogin: boolean = true;
+  isAdminLogin: boolean = false;
 
   isResetPasswordModalOpen: boolean = false;
   resetPhoneNumber: string = '';
