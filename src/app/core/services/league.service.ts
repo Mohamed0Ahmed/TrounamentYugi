@@ -3,7 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from './../../../environments/environment';
 import {
-  AllLeagues,
+  AllLeagueMatches,
+  AllLeagueRank,
   CommonResponse,
   LeagueResponse,
   StartLeagueDto,
@@ -33,7 +34,11 @@ export class LeagueService {
     );
   }
 
-  GetAllLeagues(): Observable<AllLeagues> {
-    return this.http.get<AllLeagues>(`${this.baseUrl}/player/ranking/all`);
+  GetAllLeaguesMatches(): Observable<AllLeagueMatches[]> {
+    return this.http.get<AllLeagueMatches[]>(`${this.baseUrl}/match/matches/all`);
+  }
+
+  GetAllLeaguesRank(): Observable<AllLeagueRank[]> {
+    return this.http.get<AllLeagueRank[]>(`${this.baseUrl}/player/players/all`);
   }
 }

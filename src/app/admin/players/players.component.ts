@@ -6,6 +6,7 @@ import {
   Match,
   StartLeagueDto,
   League,
+  AllLeagueRank,
 } from 'src/app/models/interfaces';
 import { ToastrService } from 'ngx-toastr';
 import { LeagueService } from 'src/app/core/services/league.service';
@@ -42,6 +43,7 @@ export class PlayersComponent implements OnInit {
   totalMatches: number = 0;
   totalMatchesLeft: number = 0;
   totalMessages: number = 0;
+  leagues: AllLeagueRank[] = [];
   constructor(
     private playerService: PlayerService,
     private matchService: MatchService,
@@ -326,7 +328,6 @@ export class PlayersComponent implements OnInit {
     this.leagueService.GetCurrentLeague().subscribe({
       next: (data) => {
         this.leagueData = data.league;
-        console.log(data);
       },
       error: (err) => {
         this.toastr.error(err.message);
@@ -352,12 +353,13 @@ export class PlayersComponent implements OnInit {
   }
 
   GetAllLeagyes(): void {
-    this.leagueService.GetAllLeagues().subscribe({
+    this.leagueService.GetAllLeaguesRank().subscribe({
       next: (response) => {
         if (response) {
           console.log(response);
+          this.leagues = response.reverse();
         } else {
-          this.toastr.error('لا يوجد دوريات');
+          this.toastr.error(response);
         }
       },
       error: (err) => {

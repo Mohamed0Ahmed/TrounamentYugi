@@ -78,7 +78,19 @@ export interface LeagueResponse {
   response: CommonResponse;
   league: League;
 }
-export interface AllLeagues {
+export interface AllLeagueMatches {
   league: League;
   matches: Match[];
+}
+
+
+
+export interface AllLeagueRank {
+  leagueId: number;
+  leagueName: string;
+  leagueDescription: string;
+  createdOn: string;
+  leagueType: number;
+  isFinished: boolean;
+  players: Player[];
 }

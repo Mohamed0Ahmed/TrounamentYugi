@@ -40,7 +40,7 @@
 
   <!-- Main Content -->
   <div class="flex-1 p-2 transition-all duration-600 container mx-auto">
-    <div *ngIf="selectedPlayer" class="w-5/6">
+    <div *ngIf="selectedPlayer" class="w-4/6 mx-auto">
       <h2 class="text-2xl font-bold mb-4 text-center">
         Matches for {{ selectedPlayer.fullName }}
       </h2>
@@ -107,6 +107,9 @@
         </tbody>
       </table>
     </div>
+    <hr class="my-3" />
+
+    <!-- القائمة الاولية-->
     <div>
       <div class="flex justify-evenly pt-5">
         <button
@@ -197,6 +200,8 @@
         </div>
       </div>
     </div>
+
+    <!-- كل البطولات -->
     <div class="text-center">
       <button class="bg-green-500 text-white px-3 py-2 rounded mb-4">
         عرض كل البطولات
@@ -216,14 +221,44 @@
           </thead>
 
           <tbody class="divide-y divide-gray-200">
-            <tr class="*:text-gray-900 *:first:font-medium">
-              <td class="px-3 py-2 whitespace-nowrap">Nandor the Relentless</td>
-              <td class="px-3 py-2 whitespace-nowrap">04/06/1262</td>
-              <td class="px-3 py-2 whitespace-nowrap">Vampire Warrior</td>
-              <td class="px-3 py-2 whitespace-nowrap">Vampire Warrior</td>
-              <td class="px-3 py-2 whitespace-nowrap">$0</td>
+            <tr
+              *ngFor="let league of leagues"
+              class="*:font-bold *:first:font-medium"
+            >
+              <!-- اسم البطولة -->
               <td class="px-3 py-2 whitespace-nowrap">
-                <button class="bg-red-500 text-white px-3 py-2 rounded mb-4">
+                {{ league.leagueName }}
+              </td>
+
+              <!-- حالة البطولة -->
+              <td
+                class="px-3 py-2 whitespace-nowrap"
+                [class.text-green-500]="!league.isFinished"
+                [class.text-red-500]="league.isFinished"
+              >
+                {{ !league.isFinished ? "مستمرة" : "انتهت" }}
+              </td>
+
+              <!-- نوع البطولة -->
+              <td class="px-3 py-2 whitespace-nowrap">
+                {{ league.leagueType === 0 ? "فردية" : "جماعية" }}
+              </td>
+
+              <!-- تاريخ البطولة -->
+              <td class="px-3 py-2 whitespace-nowrap">
+                {{ league.createdOn | date : "yyyy/MM/dd - HH:mm" }}
+              </td>
+
+              <!-- اسم الفائز -->
+              <td class="px-3 py-2 whitespace-nowrap">
+                {{ league.players[0].fullName }}
+              </td>
+
+              <!-- زر الحذف -->
+              <td class="px-3 py-2 whitespace-nowrap">
+                <button
+                  class="bg-red-500 text-white px-3 py-2 rounded hover:bg-red-600 transition"
+                >
                   حذف البطولة
                 </button>
               </td>

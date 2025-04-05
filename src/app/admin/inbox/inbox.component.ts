@@ -32,8 +32,6 @@ export class InboxComponent implements OnInit {
                 new Date(b.sentAt).getTime() - new Date(a.sentAt).getTime()
             );
 
-          console.log(response);
-
           this.filterMessages();
         } else {
           this.toastr.error('لا يوجد رسائل الآن');
@@ -41,7 +39,6 @@ export class InboxComponent implements OnInit {
       },
       error: (err) => {
         this.toastr.error('حصل خطأ أثناء جلب الرسائل');
-        console.error(err);
       },
     });
   }
