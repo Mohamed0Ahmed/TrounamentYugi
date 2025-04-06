@@ -7,6 +7,8 @@ import { SendMessageComponent } from './send-message/send-message.component';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { AllLeaguesComponent } from './all-leagues/all-leagues.component';
+import { ForbiddenCardsComponent } from './forbidden-cards/forbidden-cards.component';
+import { CarouselModule } from 'ngx-owl-carousel-o';
 
 @NgModule({
   declarations: [
@@ -14,8 +16,15 @@ import { AllLeaguesComponent } from './all-leagues/all-leagues.component';
     RankingComponent,
     SendMessageComponent,
     AllLeaguesComponent,
+    ForbiddenCardsComponent,
   ],
-  imports: [CommonModule, PlayerRoutingModule, HttpClientModule, FormsModule],
+  imports: [
+    CommonModule,
+    PlayerRoutingModule,
+    HttpClientModule,
+    FormsModule,
+    CarouselModule,
+  ],
   exports: [RankingComponent],
 })
 export class PlayerModule {}
