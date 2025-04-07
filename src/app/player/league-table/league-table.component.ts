@@ -31,6 +31,8 @@ export class LeagueTableComponent implements OnInit {
       next: (response) => {
         if (response) {
           this.players = response;
+          console.log(response);
+
         }
       },
       error: (err) => {

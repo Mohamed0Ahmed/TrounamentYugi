@@ -79,11 +79,14 @@ export interface LeagueResponse {
   league: League;
 }
 export interface AllLeagueMatches {
-  league: League;
+  leagueId: number;
+  leagueName: string;
+  leagueDescription: string;
+  leagueType: number;
+  isFinished: boolean;
+  createdOn: string;
   matches: Match[];
 }
-
-
 
 export interface AllLeagueRank {
   leagueId: number;

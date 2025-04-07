@@ -53,9 +53,9 @@ export class ForbiddenCardsComponent implements OnInit {
   monsters: string[] = [
     './assets/images/Monster/13.jpg',
     './assets/images/Monster/3.jpg',
+    './assets/images/Monster/4.jpg',
     './assets/images/Monster/2.jpg',
     './assets/images/Monster/1.jpg',
-    './assets/images/Monster/4.jpg',
     './assets/images/Monster/5.jpg',
     './assets/images/Monster/6.jpg',
     './assets/images/Monster/7.jpg',
