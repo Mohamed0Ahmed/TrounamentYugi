@@ -31,7 +31,18 @@ export interface MessagesResponse {
   message: string;
   messages: Message[];
 }
+export interface NoteResponse {
+  success: boolean;
+  message: string;
+  notes: Note[];
+}
 
+export interface Note {
+  id: number;
+  content: string;
+  isDeleted: boolean;
+  isHidden: boolean;
+}
 export interface Message {
   id: number;
   senderId: string;

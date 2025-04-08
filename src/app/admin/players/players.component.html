@@ -109,7 +109,7 @@
     </div>
     <hr class="my-3" />
 
-    <!-- القائمة الاولية-->
+    <!--* القائمة الاولية-->
     <div>
       <div class="flex justify-evenly pt-5">
         <button
@@ -144,6 +144,13 @@
           (click)="showEndLeagueModal = true"
         >
           انهاء الدوري
+        </button>
+
+        <button
+          class="bg-indigo-700 text-white px-3 py-2 rounded mb-4"
+          (click)="openNoteModal()"
+        >
+          الملاحظات
         </button>
       </div>
 
@@ -442,6 +449,80 @@
           تأكيد الإنهاء
         </button>
       </div>
+    </div>
+  </div>
+
+  <!--** Notes  -->
+  <div
+    class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
+    *ngIf="showNoteModal"
+  >
+    <div class="bg-white p-4">
+      <div>
+        <h2 class="font-bold text-gray-800 text-center">اضافة ملاحظة جديدة</h2>
+        <div>
+          <label for="Notes">
+            <span class="text-sm font-medium text-gray-700"> Notes </span>
+
+            <div class="relative m-2 overflow-hidden rounded border-gray-300">
+              <textarea
+                id="Notes"
+                class="w-full resize-none p-3 border border-x-2"
+                rows="4"
+                [(ngModel)]="newNote"
+              ></textarea>
+
+              <div class="flex items-center justify-end gap-2 p-1.5">
+                <button
+                  type="button"
+                  class="rounded p-2 font-bold text-gray-900 transition-colors hover:bg-gray-100"
+                  (click)="sendNote()"
+                >
+                  Save
+                </button>
+              </div>
+            </div>
+          </label>
+        </div>
+      </div>
+      <div class="bg-white p-6 rounded-lg">
+        <div *ngFor="let note of notes">
+          <div
+            class="mt-4 flex items-center justify-end"
+            *ngIf="note.isDeleted == false"
+          >
+            <h2 class="font-bold px-3">
+              {{ note.content }}
+            </h2>
+            <button
+              class="bg-red-500 px-4 py-2 text-white rounded mr-2"
+              (click)="toggleDeleteNote(note.id)"
+            >
+              حذف
+            </button>
+            <button
+              class="bg-green-500 px-4 py-2 text-white rounded"
+              (click)="toggleHideNote(note)"
+              *ngIf="note.isHidden == true"
+            >
+              عرض
+            </button>
+            <button
+              class="bg-purple-600 px-4 py-2 text-white rounded"
+              (click)="toggleHideNote(note)"
+              *ngIf="note.isHidden == false"
+            >
+              اخفاء
+            </button>
+          </div>
+        </div>
+      </div>
+      <button
+        class="bg-gray-400 px-4 py-2 text-white rounded"
+        (click)="closeNoteModal()"
+      >
+        الغاء
+      </button>
     </div>
   </div>
 </div>

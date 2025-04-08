@@ -7,10 +7,12 @@ import {
   StartLeagueDto,
   League,
   AllLeagueRank,
+  Note,
 } from 'src/app/models/interfaces';
 import { ToastrService } from 'ngx-toastr';
 import { LeagueService } from 'src/app/core/services/league.service';
 import { MessageService } from 'src/app/core/services/message.service';
+import { NoteService } from 'src/app/core/services/note.service';
 
 @Component({
   selector: 'app-players',
@@ -22,10 +24,12 @@ export class PlayersComponent implements OnInit {
   selectedPlayer: Player | null = null;
   playerMatches: Match[] = [];
   displayMatches: Match[] = [];
+  notes: Note[] = [];
   showModal = false;
   newPlayerName = '';
   isSidebarOpen = false;
   showDeleteModal = false;
+  showNoteModal = false;
   showDeleteLeagueModal = false;
   showEndLeagueModal = false;
   loadingMatches: { [matchId: number]: boolean } = {};
@@ -45,13 +49,15 @@ export class PlayersComponent implements OnInit {
   totalMatchesLeft: number = 0;
   totalMessages: number = 0;
   leagues: AllLeagueRank[] = [];
+  newNote: string = '';
   selectedLeagueToDelete: AllLeagueRank | null = null;
   constructor(
     private playerService: PlayerService,
     private matchService: MatchService,
     private toastr: ToastrService,
     private leagueService: LeagueService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private noteService: NoteService
   ) {}
 
   ngOnInit(): void {
@@ -60,6 +66,7 @@ export class PlayersComponent implements OnInit {
     this.getMatches();
     this.getMessages();
     this.GetAllLeagyes();
+    this.getNotes();
   }
 
   toggleSidebar(): void {
@@ -404,5 +411,51 @@ export class PlayersComponent implements OnInit {
       );
       this.closeDeleteLeagueModal();
     }
+  }
+
+  sendNote(): void {
+    if (!this.newNote.trim()) return;
+
+    this.noteService.sendNote(this.newNote).subscribe({
+      next: (res) => {
+        this.toastr.success(res.message);
+        this.newNote = '';
+        this.getNotes();
+      },
+      error: () => this.toastr.error('حصل مشكلة وانت بتبعت الملاحظة'),
+    });
+  }
+
+  toggleHideNote(note: any): void {
+    this.noteService.toggleMarHide(note.id, !note.isHidden).subscribe({
+      next: (res) => {
+        this.toastr.success(res.message);
+        this.getNotes();
+      },
+      error: () => this.toastr.error('حصل مشكلة وانت بتغير الظهور'),
+    });
+  }
+
+  toggleDeleteNote(noteId: number): void {
+    this.noteService.DeleteNote(noteId, false).subscribe({
+      next: (res) => {
+        this.toastr.warning(res.message);
+        this.getNotes();
+      },
+      error: () => this.toastr.error('حصل مشكلة وانت بتحذف '),
+    });
+  }
+
+  getNotes(): void {
+    this.noteService.getNotes().subscribe((response) => {
+      this.notes = response.notes;
+    });
+  }
+
+  openNoteModal(): void {
+    this.showNoteModal = true;
+  }
+  closeNoteModal(): void {
+    this.showNoteModal = false;
   }
 }

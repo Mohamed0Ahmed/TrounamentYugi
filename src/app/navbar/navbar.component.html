@@ -76,3 +76,8 @@
     </div>
   </div>
 </nav>
+<div class="min-h-[30px] bg-yellow-200 w-full" *ngIf="notes.length > 0">
+  <div *ngFor="let note of notes" class="pt-1">
+    <h2 class="text-center font-bold">{{ note.content }}</h2>
+  </div>
+</div>

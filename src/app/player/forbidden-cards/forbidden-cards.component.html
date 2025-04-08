@@ -31,9 +31,9 @@
     <ng-container *ngFor="let spell of spellCards">
       <ng-template carouselSlide>
         <div
-          class="p-2 relative border-2 hover:border-red-500 transition max-w-[150px] cursor-pointer"
+          class="p-2 relative border-2 hover:border-red-500 transition max-w-[150px] cursor-pointer "
         >
-          <img [src]="spell" class="w-fit" />
+          <img [src]="spell" class="w-fit min-h-[190px]" />
         </div>
         <div class="text-center">
           <i
@@ -56,7 +56,7 @@
         <div
           class="p-2 relative border-2 hover:border-red-500 transition max-w-[150px] cursor-pointer"
         >
-          <img [src]="trap" class="w-fit" />
+          <img [src]="trap" class="w-fit min-h-[190px]" />
         </div>
         <div class="text-center">
           <i
@@ -79,7 +79,7 @@
         <div
           class="p-2 relative border-2 hover:border-red-500 transition max-w-[150px] cursor-pointer"
         >
-          <img [src]="monster" class="w-fit" />
+          <img [src]="monster" class="w-fit min-h-[190px]" />
         </div>
         <div class="text-center">
           <i
