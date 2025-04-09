@@ -10,15 +10,19 @@
 
   <div *ngIf="!started" class="overflow-x-auto">
     <table
-      class="table-auto border-collapse border border-gray-300 w-full text-center"
+      class="table-auto border-collapse border border-gray-300 min-w-full text-center"
     >
       <thead>
-        <tr>
+        <tr class="">
           <th
             *ngFor="let player of players"
-            class="border border-gray-300 py-2  text-white cursor-pointer hover:bg-rose-400 transition-all"
+            class="border border-gray-300 py-2 text-white cursor-pointer hover:bg-rose-400 transition-all min-w-[70px] "
             (click)="highlightColumn(player.playerId)"
-            [ngClass]="highlightedColumn == player.playerId ? 'bg-rose-400' : 'bg-rose-600'"
+            [ngClass]="
+              highlightedColumn == player.playerId
+                ? 'bg-rose-400'
+                : 'bg-rose-600'
+            "
           >
             {{ player.fullName }}
           </th>

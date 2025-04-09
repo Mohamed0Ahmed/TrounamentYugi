@@ -59,9 +59,7 @@
                 <th class="border border-gray-300 p-2 bg-gray-200">
                   عدد المباريات
                 </th>
-                <th
-                  class="border hidden sm:table-cell border-gray-300 p-2 bg-gray-200"
-                >
+                <th class="border border-gray-300 p-2 bg-gray-200">
                   نسبة الفوز
                 </th>
               </tr>
@@ -69,48 +67,44 @@
             <tbody>
               <tr
                 *ngFor="let player of league.players; let i = index"
-                class="text-center"
+                class="text-center font-bold text-sm md:text-[16px]"
                 [ngClass]="i % 2 === 0 ? 'bg-white' : 'bg-gray-100'"
               >
-                <td class="border border-gray-300 p-2 font-bold">
+                <td class="border border-gray-300 p-2 relative">
                   <i
-                    class="fa-solid fa-crown"
+                    class="fa-solid fa-crown absolute top-[50%] left-[10px] md:left-10 translate-y-[-50%]"
                     style="color: #ffd43b"
                     *ngIf="player.rank == 1"
                   ></i>
+
                   {{ player.rank }}
-                  <i
-                    class="fa-solid fa-crown"
-                    style="color: #ffd43b"
-                    *ngIf="player.rank == 1"
-                  ></i>
                 </td>
-                <td class="border border-gray-300 p-2 font-bold">
+                <td class="border border-gray-300 p-2">
                   {{ player.fullName }}
                 </td>
-                <td class="border border-gray-300 p-2 text-center font-bold">
+                <td class="border border-gray-300 p-2 text-center">
                   {{ player.points }}
                 </td>
                 <td
-                  class="border hidden sm:table-cell border-gray-300 p-2 text-center text-green-500 font-bold"
+                  class="border hidden sm:table-cell border-gray-300 p-2 text-center text-green-500"
                 >
                   {{ player.wins }}
                 </td>
                 <td
-                  class="border hidden sm:table-cell border-gray-300 p-2 text-center font-bold text-yellow-400"
+                  class="border hidden sm:table-cell border-gray-300 p-2 text-center text-yellow-400"
                 >
                   {{ player.draws }}
                 </td>
                 <td
-                  class="border hidden sm:table-cell border-gray-300 p-2 text-center font-bold text-red-600"
+                  class="border hidden sm:table-cell border-gray-300 p-2 text-center text-red-600"
                 >
                   {{ player.losses }}
                 </td>
-                <td class="border border-gray-300 p-2 text-center font-bold">
+                <td class="border border-gray-300 p-2 text-center">
                   {{ player.matchesPlayed }}
                 </td>
                 <td
-                  class="border hidden sm:table-cell border-gray-300 p-2 text-center font-bold"
+                  class="border border-gray-300 p-2 text-center"
                   [ngClass]="
                     player.winRate > 50 ? 'text-green-500' : 'text-red-600'
                   "
@@ -135,7 +129,7 @@
       <tr>
         <th
           *ngFor="let player of players"
-          class="border border-gray-300 py-2 text-white cursor-pointer hover:bg-rose-400 transition-all"
+          class="border border-gray-300 py-2 text-white cursor-pointer hover:bg-rose-400 transition-all min-w-[70px]"
           (click)="highlightColumn(player.playerId)"
           [ngClass]="
             highlightedColumn == player.playerId ? 'bg-rose-400' : 'bg-rose-600'
