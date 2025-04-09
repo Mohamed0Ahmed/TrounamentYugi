@@ -34,20 +34,34 @@
           </button>
 
           <table
-            class="table-auto border-collapse border border-gray-300 w-4/5 mx-auto"
+            class="table-auto border-collapse border border-gray-300 sm:w-4/5 mx-auto"
           >
             <thead>
               <tr class="text-center">
                 <th class="border border-gray-300 p-2 bg-gray-200">الترتيب</th>
                 <th class="border border-gray-300 p-2 bg-gray-200">الاسم</th>
                 <th class="border border-gray-300 p-2 bg-gray-200">النقاط</th>
-                <th class="border border-gray-300 p-2 bg-gray-200">فوز</th>
-                <th class="border border-gray-300 p-2 bg-gray-200">تعادل</th>
-                <th class="border border-gray-300 p-2 bg-gray-200">هزيمة</th>
+                <th
+                  class="border hidden sm:table-cell border-gray-300 p-2 bg-gray-200"
+                >
+                  فوز
+                </th>
+                <th
+                  class="border hidden sm:table-cell border-gray-300 p-2 bg-gray-200"
+                >
+                  تعادل
+                </th>
+                <th
+                  class="border hidden sm:table-cell border-gray-300 p-2 bg-gray-200"
+                >
+                  هزيمة
+                </th>
                 <th class="border border-gray-300 p-2 bg-gray-200">
                   عدد المباريات
                 </th>
-                <th class="border border-gray-300 p-2 bg-gray-200">
+                <th
+                  class="border hidden sm:table-cell border-gray-300 p-2 bg-gray-200"
+                >
                   نسبة الفوز
                 </th>
               </tr>
@@ -78,17 +92,17 @@
                   {{ player.points }}
                 </td>
                 <td
-                  class="border border-gray-300 p-2 text-center text-green-500 font-bold"
+                  class="border hidden sm:table-cell border-gray-300 p-2 text-center text-green-500 font-bold"
                 >
                   {{ player.wins }}
                 </td>
                 <td
-                  class="border border-gray-300 p-2 text-center font-bold text-yellow-400"
+                  class="border hidden sm:table-cell border-gray-300 p-2 text-center font-bold text-yellow-400"
                 >
                   {{ player.draws }}
                 </td>
                 <td
-                  class="border border-gray-300 p-2 text-center font-bold text-red-600"
+                  class="border hidden sm:table-cell border-gray-300 p-2 text-center font-bold text-red-600"
                 >
                   {{ player.losses }}
                 </td>
@@ -96,7 +110,7 @@
                   {{ player.matchesPlayed }}
                 </td>
                 <td
-                  class="border border-gray-300 p-2 text-center font-bold"
+                  class="border hidden sm:table-cell border-gray-300 p-2 text-center font-bold"
                   [ngClass]="
                     player.winRate > 50 ? 'text-green-500' : 'text-red-600'
                   "

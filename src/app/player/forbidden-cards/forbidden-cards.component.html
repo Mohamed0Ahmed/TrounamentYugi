@@ -106,7 +106,7 @@
       />
     </div>
   </div>
-  <!-- Modal for the Selected Image -->
+  <!-- Modal for All-->
   <div
     *ngIf="isModalOpenAll"
     class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
@@ -115,7 +115,7 @@
     <div class="relative">
       <img
         src="./assets/images/all2.png"
-        class="max-w-[250vw] max-h-[250vh] object-contain w-[700px]"
+        class="max-w-[250vw] max-h-[250vh] object-contain w-[400px] sm:w-[700px]"
         (click)="$event.stopPropagation()"
       />
     </div>

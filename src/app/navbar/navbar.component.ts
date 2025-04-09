@@ -14,6 +14,7 @@ export class NavbarComponent implements OnInit {
   isLoggedIn = false;
   isAdmin = false;
   notes: Note[] = [];
+  isMenuOpen = false;
 
   constructor(
     private authService: AuthService,
@@ -50,5 +51,8 @@ export class NavbarComponent implements OnInit {
     this.noteService.getNotes().subscribe((response) => {
       this.notes = response.notes.filter((n) => n.isHidden == false);
     });
+  }
+  toggleMenu() {
+    this.isMenuOpen = !this.isMenuOpen;
   }
 }

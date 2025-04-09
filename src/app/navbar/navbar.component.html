@@ -1,81 +1,185 @@
 <nav class="bg-gray-900 p-4">
-  <div class="container mx-auto flex justify-between items-center">
-    <!-- Logo -->
-    <div class="font-bold">
-      <a
-        class="text-xl bg-gradient-to-r from-indigo-400 to-cyan-400 text-transparent bg-clip-text"
-        *ngIf="!isAdmin"
-        >YuGi Tournament</a
-      >
-      <a
-        *ngIf="isAdmin"
-        routerLink="/admin/players"
-        routerLinkActive="!text-indigo-300 bg-white/10 border-b-2 border-white"
-        class="text-white hover:text-gray-300 hover:bg-gray-700 transition rounded py-2 px-2"
-      >
-        Admin Dashboard
-      </a>
-    </div>
-
-    <!-- Links -->
-    <div class="space-x-2 font-bold">
-      <a
-        routerLink="/player/forbidden"
-        routerLinkActive="!text-indigo-300 bg-white/10 border-b-2 border-white"
-        class="text-white hover:text-gray-300 hover:bg-gray-700 transition rounded py-2 px-2"
-        >Forbidden Cards</a
-      >
-      <a
-        routerLink="/player/allLeagues"
-        routerLinkActive="!text-indigo-300 bg-white/10 border-b-2 border-white"
-        class="text-white hover:text-gray-300 hover:bg-gray-700 transition rounded py-2 px-2"
-        >All Leagues</a
-      >
-      <a
-        routerLink="/player/league-table"
-        routerLinkActive="!text-indigo-300 bg-white/10 border-b-2 border-white"
-        class="text-white hover:text-gray-300 hover:bg-gray-700 transition rounded py-2 px-2"
-        >League Table</a
-      >
-      <a
-        routerLink="/player/ranking"
-        routerLinkActive="!text-indigo-300 bg-white/10 border-b-2 border-white"
-        class="text-white hover:text-gray-300 hover:bg-gray-700 transition rounded py-2 px-2"
-        >Ranking</a
-      >
-    </div>
-
-    <!-- Auth Buttons -->
-    <div class="space-x-4">
-      <a
-        *ngIf="!isAdmin"
-        (click)="openSendMessage()"
-        class="text-white hover:text-gray-300 hover:bg-gray-700 transition rounded py-2 px-2 cursor-pointer"
-        >Send Message</a
-      >
-      <ng-container *ngIf="!isLoggedIn">
+  <div class="container mx-auto flex flex-col md:flex-row md:items-center md:justify-between">
+    <!-- Row with 3 sections: logo | menu | auth -->
+    <div class="w-full flex items-center justify-between md:grid md:grid-cols-3 md:gap-4">
+      <!-- Left: Logo + Send Message (mobile) -->
+      <div class="flex items-center gap-4">
         <a
-          routerLink="/auth/login"
-          routerLinkActive="!text-indigo-300 bg-white/10 border-b-2 border-white"
-          class="text-white hover:text-gray-300 hover:bg-gray-700 transition rounded py-2 px-2 mr-4"
-          >Login</a
+          class="text-xl font-bold bg-gradient-to-r from-indigo-400 to-cyan-400 text-transparent bg-clip-text"
+          *ngIf="!isAdmin"
         >
+          YuGi Tournament
+        </a>
         <a
-          routerLink="/auth/register"
+          *ngIf="isAdmin"
+          routerLink="/admin/players"
           routerLinkActive="!text-indigo-300 bg-white/10 border-b-2 border-white"
           class="text-white hover:text-gray-300 hover:bg-gray-700 transition rounded py-2 px-2"
-          >Register</a
         >
-      </ng-container>
-      <a
-        *ngIf="isLoggedIn"
-        (click)="logout()"
-        class="text-white hover:text-gray-300 hover:bg-gray-700 transition rounded py-2 px-2 cursor-pointer"
-        >Logout</a
+          Admin Dashboard
+        </a>
+
+        <!-- Send Message (small screen only) -->
+        <a
+          *ngIf="!isAdmin"
+          (click)="openSendMessage()"
+          class="md:hidden text-white hover:text-gray-300 hover:bg-gray-700 transition rounded py-2 px-2 cursor-pointer"
+        >
+          Send Message
+        </a>
+      </div>
+
+      <!-- Center: Navigation links -->
+      <div
+        class="hidden md:flex justify-center space-x-2 font-bold"
       >
+        <a
+          routerLink="/player/forbidden"
+          routerLinkActive="!text-indigo-300 bg-white/10 border-b-2 border-white"
+          class="text-white hover:text-gray-300 hover:bg-gray-700 transition rounded py-2 px-2"
+        >
+          Forbidden Cards
+        </a>
+        <a
+          routerLink="/player/allLeagues"
+          routerLinkActive="!text-indigo-300 bg-white/10 border-b-2 border-white"
+          class="text-white hover:text-gray-300 hover:bg-gray-700 transition rounded py-2 px-2"
+        >
+          All Leagues
+        </a>
+        <a
+          routerLink="/player/league-table"
+          routerLinkActive="!text-indigo-300 bg-white/10 border-b-2 border-white"
+          class="text-white hover:text-gray-300 hover:bg-gray-700 transition rounded py-2 px-2"
+        >
+          League Table
+        </a>
+        <a
+          routerLink="/player/ranking"
+          routerLinkActive="!text-indigo-300 bg-white/10 border-b-2 border-white"
+          class="text-white hover:text-gray-300 hover:bg-gray-700 transition rounded py-2 px-2"
+        >
+          Ranking
+        </a>
+      </div>
+
+      <!-- Right: Auth Buttons -->
+      <div class="hidden md:flex justify-end items-center space-x-4">
+        <!-- Send Message (only on large screens) -->
+        <a
+          *ngIf="!isAdmin"
+          (click)="openSendMessage()"
+          class="text-white hover:text-gray-300 hover:bg-gray-700 transition rounded py-2 px-2 cursor-pointer"
+        >
+          Send Message
+        </a>
+
+        <ng-container *ngIf="!isLoggedIn">
+          <a
+            routerLink="/auth/login"
+            routerLinkActive="!text-indigo-300 bg-white/10 border-b-2 border-white"
+            class="text-white hover:text-gray-300 hover:bg-gray-700 transition rounded py-2 px-2"
+          >
+            Login
+          </a>
+          <a
+            routerLink="/auth/register"
+            routerLinkActive="!text-indigo-300 bg-white/10 border-b-2 border-white"
+            class="text-white hover:text-gray-300 hover:bg-gray-700 transition rounded py-2 px-2"
+          >
+            Register
+          </a>
+        </ng-container>
+
+        <a
+          *ngIf="isLoggedIn"
+          (click)="logout()"
+          class="text-white hover:text-gray-300 hover:bg-gray-700 transition rounded py-2 px-2 cursor-pointer"
+        >
+          Logout
+        </a>
+      </div>
+
+      <!-- Hamburger Button (small screen only) -->
+      <div class="md:hidden">
+        <button (click)="toggleMenu()" class="text-white ml-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+            viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Menu (below full row) -->
+    <div
+      class="w-full mt-4 md:hidden"
+      [ngClass]="{ 'block': isMenuOpen, 'hidden': !isMenuOpen }"
+    >
+      <div class="flex flex-col space-y-2 font-bold text-center">
+        <a
+          routerLink="/player/forbidden"
+          routerLinkActive="!text-indigo-300 bg-white/10 border-b-2 border-white"
+          class="text-white hover:text-gray-300 hover:bg-gray-700 transition rounded py-2 px-2"
+        >
+          Forbidden Cards
+        </a>
+        <a
+          routerLink="/player/allLeagues"
+          routerLinkActive="!text-indigo-300 bg-white/10 border-b-2 border-white"
+          class="text-white hover:text-gray-300 hover:bg-gray-700 transition rounded py-2 px-2"
+        >
+          All Leagues
+        </a>
+        <a
+          routerLink="/player/league-table"
+          routerLinkActive="!text-indigo-300 bg-white/10 border-b-2 border-white"
+          class="text-white hover:text-gray-300 hover:bg-gray-700 transition rounded py-2 px-2"
+        >
+          League Table
+        </a>
+        <a
+          routerLink="/player/ranking"
+          routerLinkActive="!text-indigo-300 bg-white/10 border-b-2 border-white"
+          class="text-white hover:text-gray-300 hover:bg-gray-700 transition rounded py-2 px-2"
+        >
+          Ranking
+        </a>
+
+        <ng-container *ngIf="!isLoggedIn">
+          <a
+            routerLink="/auth/login"
+            class="text-white hover:text-gray-300 hover:bg-gray-700 transition rounded py-2 px-2"
+          >
+            Login
+          </a>
+          <a
+            routerLink="/auth/register"
+            class="text-white hover:text-gray-300 hover:bg-gray-700 transition rounded py-2 px-2"
+          >
+            Register
+          </a>
+        </ng-container>
+
+        <a
+          *ngIf="isLoggedIn"
+          (click)="logout()"
+          class="text-white hover:text-gray-300 hover:bg-gray-700 transition rounded py-2 px-2 cursor-pointer"
+        >
+          Logout
+        </a>
+      </div>
     </div>
   </div>
 </nav>
+
+
+
+
+<!-- ***************** -->
+
+
 <div class="min-h-[30px] bg-yellow-200 w-full" *ngIf="notes.length > 0">
   <div *ngFor="let note of notes" class="pt-1">
     <h2 class="text-center font-bold">{{ note.content }}</h2>
