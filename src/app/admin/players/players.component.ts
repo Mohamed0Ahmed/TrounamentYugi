@@ -366,6 +366,8 @@ export class PlayersComponent implements OnInit {
       next: (response) => {
         if (response) {
           this.leagues = response.reverse();
+          console.log(response);
+
         } else {
           this.toastr.error(response);
         }
@@ -449,6 +451,8 @@ export class PlayersComponent implements OnInit {
   getNotes(): void {
     this.noteService.getNotes().subscribe((response) => {
       this.notes = response.notes;
+      console.log(response);
+
     });
   }
 

@@ -39,7 +39,9 @@
   </div>
 
   <!-- Main Content -->
-  <div class="sm:flex-1 sm:p-2 transition-all duration-600 sm:container sm:mx-auto">
+  <div
+    class="sm:flex-1 sm:p-2 transition-all duration-600 sm:container sm:mx-auto"
+  >
     <div *ngIf="selectedPlayer" class="sm:w-4/6 mx-auto">
       <h2 class="text-2xl font-bold mb-4 text-center">
         Matches for {{ selectedPlayer.fullName }}
@@ -216,7 +218,7 @@
 
       <div class="max-h-[350px] overflow-x-auto">
         <table class="min-w-full divide-y-2 divide-gray-200">
-          <thead class="sticky top-0 bg-white ">
+          <thead class="sticky top-0 bg-white">
             <tr class="*:font-medium *:text-gray-900">
               <th class="px-3 py-2 whitespace-nowrap">اسم البطولة</th>
               <th class="px-3 py-2 whitespace-nowrap">حالة البطولة</th>
@@ -258,7 +260,11 @@
 
               <!-- اسم الفائز -->
               <td class="px-3 py-2 whitespace-nowrap">
-                {{ league.players[0].fullName }}
+                {{
+                  league.players && league.players.length > 0
+                    ? league.players[0].fullName
+                    : "لا يوجد فائز حاليا"
+                }}
               </td>
 
               <!-- زر الحذف -->
