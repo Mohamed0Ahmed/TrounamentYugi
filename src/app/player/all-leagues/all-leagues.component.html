@@ -7,23 +7,25 @@
           class="p-4 border rounded-lg shadow-md mx-auto text-center bg-white container"
         >
           <h3 class="text-xl font-bold text-center">
-            اسم البطولة : {{ league.leagueName }}
+            {{ league.leagueName }}
           </h3>
           <p class="text-gray-600 text-center">
-            وصف البطولة : {{ league.leagueDescription }}
+            {{ league.leagueDescription }}
+          </p>
+          <p class=" font-bold text-center">
+          {{ league.createdOn | date : "yyyy / MM / dd " }} بدأت البطولة
           </p>
           <p
             class="text-gray-600 text-center font-bold"
             *ngIf="league.isFinished == false"
           >
-            حالة البطولة :
             <span class="font-bold text-green-600">جارية الان</span>
           </p>
           <p
             class="text-gray-600 font-bold text-center"
             *ngIf="league.isFinished == true"
           >
-            حالة البطولة : <span class="font-bold text-red-600">منتهية</span>
+            <span class="font-bold text-red-600">منتهية</span>
           </p>
 
           <button
