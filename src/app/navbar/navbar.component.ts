@@ -31,16 +31,6 @@ export class NavbarComponent implements OnInit {
     this.getNotes();
   }
 
-  openSendMessage() {
-    if (!this.isLoggedIn) {
-      this.toastr.error('أنت مش مسجل، لازم تسجل دخول');
-    } else if (this.isAdmin) {
-      this.toastr.info('الـ Admin مش بيبعت رسايل');
-    } else {
-      this.router.navigate(['/player/send-message']);
-    }
-  }
-
   logout() {
     this.authService.logout();
     this.toastr.success('تم تسجيل الخروج بنجاح');

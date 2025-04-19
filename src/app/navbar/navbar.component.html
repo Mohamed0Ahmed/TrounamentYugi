@@ -1,7 +1,11 @@
 <nav class="bg-gray-900 p-4">
-  <div class="container mx-auto flex flex-col md:flex-row md:items-center md:justify-between">
+  <div
+    class="container mx-auto flex flex-col md:flex-row md:items-center md:justify-between"
+  >
     <!-- Row with 3 sections: logo | menu | auth -->
-    <div class="w-full flex items-center justify-between md:grid md:grid-cols-3 md:gap-4">
+    <div
+      class="w-full flex items-center justify-between md:grid md:grid-cols-3 md:gap-4"
+    >
       <!-- Left: Logo + Send Message (mobile) -->
       <div class="flex items-center gap-4">
         <a
@@ -20,19 +24,19 @@
         </a>
 
         <!-- Send Message (small screen only) -->
+
         <a
-          *ngIf="!isAdmin"
-          (click)="openSendMessage()"
+          *ngIf="isLoggedIn && !isAdmin"
+          routerLink="/player/inbox"
+          routerLinkActive="!text-indigo-300 bg-white/10 border-b-2 border-white"
           class="md:hidden text-white hover:text-gray-300 hover:bg-gray-700 transition rounded py-2 px-2 cursor-pointer"
         >
-          Send Message
+          inbox
         </a>
       </div>
 
       <!-- Center: Navigation links -->
-      <div
-        class="hidden md:flex justify-center space-x-2 font-bold"
-      >
+      <div class="hidden md:flex justify-center space-x-2 font-bold">
         <a
           routerLink="/player/forbidden"
           routerLinkActive="!text-indigo-300 bg-white/10 border-b-2 border-white"
@@ -67,11 +71,12 @@
       <div class="hidden md:flex justify-end items-center space-x-4">
         <!-- Send Message (only on large screens) -->
         <a
-          *ngIf="!isAdmin"
-          (click)="openSendMessage()"
+          *ngIf="isLoggedIn && !isAdmin"
+          routerLink="/player/inbox"
+          routerLinkActive="!text-indigo-300 bg-white/10 border-b-2 border-white"
           class="text-white hover:text-gray-300 hover:bg-gray-700 transition rounded py-2 px-2 cursor-pointer"
         >
-          Send Message
+          inbox
         </a>
 
         <ng-container *ngIf="!isLoggedIn">
@@ -103,10 +108,19 @@
       <!-- Hamburger Button (small screen only) -->
       <div class="md:hidden">
         <button (click)="toggleMenu()" class="text-white ml-2">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
-            viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M4 6h16M4 12h16M4 18h16"/>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M4 6h16M4 12h16M4 18h16"
+            />
           </svg>
         </button>
       </div>
@@ -115,7 +129,7 @@
     <!-- Mobile Menu (below full row) -->
     <div
       class="w-full mt-4 md:hidden"
-      [ngClass]="{ 'block': isMenuOpen, 'hidden': !isMenuOpen }"
+      [ngClass]="{ block: isMenuOpen, hidden: !isMenuOpen }"
     >
       <div class="flex flex-col space-y-2 font-bold text-center">
         <a
@@ -174,11 +188,7 @@
   </div>
 </nav>
 
-
-
-
 <!-- ***************** -->
-
 
 <div class="min-h-[30px] bg-yellow-200 w-full" *ngIf="notes.length > 0">
   <div *ngFor="let note of notes" class="pt-1">

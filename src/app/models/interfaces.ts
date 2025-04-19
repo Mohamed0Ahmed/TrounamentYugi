@@ -52,6 +52,7 @@ export interface Message {
   isRead: boolean;
   isDeleted: boolean;
   sentAt: string;
+  isFromAdmin: boolean;
 }
 
 export interface Match {

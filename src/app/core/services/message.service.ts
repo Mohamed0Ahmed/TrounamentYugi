@@ -41,4 +41,20 @@ export class MessageService {
       { Marked: marked }
     );
   }
+
+  getPlayerMessages(): Observable<MessagesResponse> {
+    return this.http.get<MessagesResponse>(
+      `${this.baseUrl}/Message/my-messages`
+    );
+  }
+
+  sendAdminReply(
+    playerId: string,
+    message: string
+  ): Observable<CommonResponse> {
+    return this.http.post<CommonResponse>(
+      `${this.baseUrl}/Message/reply/${playerId}`,
+      { Content: message }
+    );
+  }
 }

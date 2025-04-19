@@ -12,6 +12,7 @@ export class InboxComponent implements OnInit {
   messages: Message[] = [];
   filteredMessages: Message[] = [];
   activeTab: 'all' | 'read' | 'unread' = 'unread';
+  replyMessages: { [messageId: number]: string } = {};
 
   constructor(
     private messageService: MessageService,
@@ -21,16 +22,18 @@ export class InboxComponent implements OnInit {
   ngOnInit(): void {
     this.loadMessages();
   }
+
   loadMessages(): void {
     this.messageService.getMessages().subscribe({
       next: (response) => {
         if (response) {
           this.messages = response.messages
-            .filter((message) => message.isDeleted == false)
+            .filter((message) => message.isDeleted == false && message.isFromAdmin == false)
             .sort(
               (a, b) =>
                 new Date(b.sentAt).getTime() - new Date(a.sentAt).getTime()
-            );
+          );
+          console.log(this.messages);
 
           this.filterMessages();
         } else {
@@ -92,6 +95,30 @@ export class InboxComponent implements OnInit {
         error: (err) => {
           this.toastr.error('حدث خطأ أثناء الحذف ');
           console.error(err);
+        },
+      });
+  }
+
+  sendReply(message: Message): void {
+    const replyContent = this.replyMessages[message.id]?.trim();
+    if (!replyContent) {
+      this.toastr.warning('الرجاء كتابة رد');
+      return;
+    }
+
+    this.messageService
+      .sendAdminReply(message.senderId, replyContent)
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.toastr.success('تم إرسال الرد');
+            this.replyMessages[message.id] = '';
+          } else {
+            this.toastr.error(response.message || 'فشل إرسال الرد');
+          }
+        },
+        error: (err) => {
+          this.toastr.error('حصل خطأ أثناء إرسال الرد');
         },
       });
   }

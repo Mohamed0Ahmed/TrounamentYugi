@@ -57,13 +57,11 @@ export class AllLeaguesComponent implements OnInit {
 
     this.leagueService.GetAllLeaguesMatches().subscribe({
       next: (response) => {
-        console.log('GetAllLeaguesMatches response:', response);
         if (Array.isArray(response)) {
           this.leaguesMatches = response;
           const league = response.find((l) => l.leagueId === id);
           this.matches = league ? league.matches : [];
         } else {
-          console.error('Response is not an array:', response);
           this.matches = [];
         }
       },
@@ -72,7 +70,6 @@ export class AllLeaguesComponent implements OnInit {
 
     this.leagueService.GetAllLeaguesRank().subscribe({
       next: (response) => {
-        console.log('GetAllLeaguesRank response:', response);
         if (Array.isArray(response)) {
           const league = response.find((l) => l.leagueId === id);
           this.players = league ? league.players : [];

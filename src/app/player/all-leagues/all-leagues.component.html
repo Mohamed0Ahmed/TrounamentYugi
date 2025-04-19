@@ -12,8 +12,8 @@
           <p class="text-gray-600 text-center">
             {{ league.leagueDescription }}
           </p>
-          <p class=" font-bold text-center">
-          {{ league.createdOn | date : "yyyy / MM / dd " }} بدأت البطولة
+          <p class="text-center">
+            بدأت البطولة : {{ league.createdOn | date : "dd -MM -yyyy " }}
           </p>
           <p
             class="text-gray-600 text-center font-bold"

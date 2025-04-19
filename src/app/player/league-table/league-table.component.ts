@@ -31,13 +31,11 @@ export class LeagueTableComponent implements OnInit {
       next: (response) => {
         if (response) {
           this.players = response;
-          console.log(response);
 
         }
       },
       error: (err) => {
         this.toastr.error('حصل خطأ أثناء جلب اللاعبين');
-        console.error(err);
       },
     });
   }
@@ -54,7 +52,6 @@ export class LeagueTableComponent implements OnInit {
       },
       error: (err) => {
         this.toastr.error('حصل خطأ أثناء جلب الماتشات');
-        console.error(err);
       },
     });
   }
