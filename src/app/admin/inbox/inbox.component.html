@@ -1,99 +1,122 @@
-<div class="container mx-auto p-4">
-  <h2 class="text-2xl font-bold text-center mb-6">📥 صندوق الوارد</h2>
+<div
+  class="container mx-auto p-4 flex flex-col sm:flex-row min-h-[60vh] overflow-hidden"
+>
+  <!-- Chats List -->
+  <div
+    class="w-full sm:w-1/3 border-r border-gray-200 sm:block"
+    [ngClass]="{ hidden: selectedChat }"
+  >
+    <h2 class="text-2xl font-bold text-center mb-6">📥 صندوق الوارد</h2>
 
-  <!-- Tabs -->
-  <div class="flex justify-center mb-6">
-    <button
-      class="px-4 py-2 mx-2 rounded-md border border-gray-300"
-      [ngClass]="{
-        'bg-green-500 text-white': activeTab === 'read',
-        'bg-gray-200': activeTab !== 'read'
-      }"
-      (click)="changeTab('read')"
-    >
-      المقروءة ✅
-    </button>
-    <button
-      class="px-4 py-2 mx-2 rounded-md border border-gray-300"
-      [ngClass]="{
-        'bg-red-500 text-white': activeTab === 'unread',
-        'bg-gray-200': activeTab !== 'unread'
-      }"
-      (click)="changeTab('unread')"
-    >
-      غير المقروءة ❌
-    </button>
-    <button
-      class="px-4 py-2 mx-2 rounded-md border border-gray-300"
-      [ngClass]="{
-        'bg-blue-500 text-white': activeTab === 'all',
-        'bg-gray-200': activeTab !== 'all'
-      }"
-      (click)="changeTab('all')"
-    >
-      كل الرسائل
-    </button>
-  </div>
+    <!-- No Chats -->
+    <div *ngIf="playerChats.length === 0" class="text-center text-gray-500">
+      لا يوجد رسائل هنا 📭
+    </div>
 
-  <!-- No Messages -->
-  <div *ngIf="filteredMessages.length === 0" class="text-center text-gray-500">
-    لا يوجد رسائل هنا 📭
-  </div>
-
-  <!-- Messages List -->
-  <div *ngIf="filteredMessages.length > 0" class="space-y-4">
-    <div
-      *ngFor="let message of filteredMessages"
-      class="bg-white shadow-md rounded p-4 border-l-4 w-4/5 mx-auto relative"
-      [ngClass]="{
-        'border-green-500': message.isRead,
-        'border-red-500': !message.isRead
-      }"
-    >
-      <button
-        class="absolute top-3 right-3 px-3 py-1 rounded-md text-white text-sm"
-        [ngClass]="{
-          'bg-red-500': !message.isRead,
-          'bg-green-500': message.isRead
-        }"
-        (click)="toggleMarkMessage(message)"
+    <!-- Chats List -->
+    <div *ngIf="playerChats.length > 0" class="space-y-2">
+      <div
+        *ngFor="let chat of playerChats; trackBy: trackByPlayerId"
+        class="p-4 bg-white border rounded-lg hover:bg-gray-100 cursor-pointer flex items-center justify-between"
+        (click)="openChat(chat.senderId)"
       >
-        {{ message.isRead ? "Mark Unread " : "Mark as Read " }}
-      </button>
-      <button
-        class="absolute top-3 ledt-3 px-3 py-1 rounded-md text-white text-sm bg-red-700"
-        (click)="toggleDeleteMessage(message)"
-      >
-        Delete
-      </button>
-
-      <p class="text-gray-700 mt-6">{{ message.content }}</p>
-      <p class="text-sm text-gray-500 mt-2">
-        من: {{ message.senderFullName }} ({{ message.senderPhoneNumber }})
-      </p>
-      <p class="text-sm text-gray-500">
-        {{ message.sentAt | utcToLocal }} : بتاريخ
-      </p>
-
-      <!-- Reply Input -->
-      <div class="mt-4">
-        <form (ngSubmit)="sendReply(message)" class="flex items-center gap-2">
-          <input
-            type="text"
-            [(ngModel)]="replyMessages[message.id]"
-            [ngModelOptions]="{ standalone: true }"
-            placeholder="اكتب ردك..."
-            class="flex-1 p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <button
-            type="submit"
-            class="bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600 disabled:bg-gray-400"
-            [disabled]="!replyMessages[message.id]"
-          >
-            رد
-          </button>
-        </form>
+        <div>
+          <p class="font-bold text-gray-800">{{ chat.senderFullName }}</p>
+          <p class="text-sm text-gray-500 truncate">{{ chat.lastMessage }}</p>
+        </div>
+        <span
+          *ngIf="chat.unreadCount > 0"
+          class="bg-green-500 text-white text-xs font-bold rounded-full px-2 py-1"
+        >
+          {{ chat.unreadCount }}
+        </span>
       </div>
     </div>
+  </div>
+
+  <!-- Chat View -->
+  <div
+    class="w-full sm:w-2/3 flex flex-col"
+    [ngClass]="{ block: selectedChat, 'hidden sm:flex': !selectedChat }"
+  >
+    <div *ngIf="selectedChat; else noChatSelected">
+      <!-- Chat Header -->
+      <div
+        class="p-4 bg-gray-100 border-b border-gray-200 flex items-center justify-between"
+      >
+        <div class="flex items-center">
+          <button
+            (click)="closeChat()"
+            class="mr-4 text-gray-600 hover:text-gray-800"
+          >
+            ⬅️
+          </button>
+          <p class="font-bold text-gray-800">
+            {{ selectedChat.senderFullName }}
+          </p>
+        </div>
+      </div>
+
+      <!-- Messages -->
+      <div
+        #messagesContainer
+        class="flex-1 p-4 overflow-y-auto max-h-[calc(100vh-200px)]"
+      >
+        <div
+          *ngFor="
+            let message of selectedChat.messages;
+            trackBy: trackByMessageId
+          "
+          class="mb-4"
+          [ngClass]="{
+            'text-right': !message.isFromAdmin,
+            'text-left': message.isFromAdmin
+          }"
+        >
+          <div
+            class="inline-block p-3 rounded-lg max-w-xs"
+            [ngClass]="{
+              'bg-blue-500 text-white': !message.isFromAdmin,
+              'bg-gray-300 text-gray-800': message.isFromAdmin
+            }"
+          >
+            <p>{{ message.content }}</p>
+            <p class="text-xs mt-1 opacity-75">
+              {{ message.sentAt | utcToLocal }}
+            </p>
+          </div>
+        </div>
+
+        <!-- Reply Input -->
+        <div class="p-4 bg-gray-100 border-t border-gray-200">
+          <form (ngSubmit)="sendReply()" class="flex items-center gap-2">
+            <input
+              type="text"
+              [(ngModel)]="replyMessages[selectedChat.messages[0].id]"
+              [ngModelOptions]="{ standalone: true }"
+              (ngModelChange)="
+                replyMessages[selectedChat.messages[0].id] = $event
+              "
+              placeholder="اكتب ردك..."
+              class="flex-1 p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <button
+              type="submit"
+              class="bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600 disabled:bg-gray-400"
+              [disabled]="!replyMessages[selectedChat.messages[0].id]"
+            >
+              رد
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Placeholder when no chat is selected -->
+    <ng-template #noChatSelected>
+      <div class="w-full flex items-center justify-center text-gray-500">
+        اختر محادثة لعرض الرسائل 📩
+      </div>
+    </ng-template>
   </div>
 </div>

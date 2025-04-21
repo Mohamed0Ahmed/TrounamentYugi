@@ -4,6 +4,7 @@ import {
   ViewChild,
   ElementRef,
   AfterViewChecked,
+  ChangeDetectorRef,
 } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { MessageService } from 'src/app/core/services/message.service';
@@ -14,9 +15,6 @@ import { Message } from 'src/app/models/interfaces';
   templateUrl: './player-inbox.component.html',
   styleUrls: ['./player-inbox.component.css'],
 })
-
-
-
 export class PlayerInboxComponent implements OnInit, AfterViewChecked {
   messages: Message[] = [];
   newMessage: string = '';
@@ -24,7 +22,8 @@ export class PlayerInboxComponent implements OnInit, AfterViewChecked {
 
   constructor(
     private messageService: MessageService,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -32,7 +31,8 @@ export class PlayerInboxComponent implements OnInit, AfterViewChecked {
   }
 
   ngAfterViewChecked(): void {
-    this.scrollToBottom();
+    this.cdr.detectChanges();
+  this.scrollToBottom();
   }
 
   loadMessages(): void {
@@ -45,6 +45,7 @@ export class PlayerInboxComponent implements OnInit, AfterViewChecked {
               (a, b) =>
                 new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime()
             );
+          this.cdr.detectChanges();
         } else {
           this.toastr.info('لا يوجد رسائل الآن');
         }
@@ -65,8 +66,9 @@ export class PlayerInboxComponent implements OnInit, AfterViewChecked {
       next: (response) => {
         if (response.success) {
           this.toastr.success('تم إرسال الرسالة');
-          this.newMessage = ''; // Clear input
-          this.loadMessages(); // Reload messages
+          this.newMessage = '';
+          this.loadMessages();
+          this.cdr.detectChanges();
         } else {
           this.toastr.error(response.message || 'فشل إرسال الرسالة');
         }
@@ -79,8 +81,8 @@ export class PlayerInboxComponent implements OnInit, AfterViewChecked {
 
   private scrollToBottom(): void {
     if (this.messagesContainer) {
-      this.messagesContainer.nativeElement.scrollTop =
-        this.messagesContainer.nativeElement.scrollHeight;
+      const container = this.messagesContainer.nativeElement;
+      container.scrollTop = container.scrollHeight;
     }
   }
 }
