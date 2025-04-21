@@ -1,32 +1,32 @@
 <div
-  class="container mx-auto p-4 flex flex-col sm:flex-row min-h-[60vh] overflow-hidden"
+  class="container mx-auto p-4 flex flex-col min-h-[calc(100vh-80px)] sm:flex-row overflow-hidden"
 >
   <!-- Chats List -->
   <div
-    class="w-full sm:w-1/3 border-r border-gray-200 sm:block"
+    class="w-full sm:w-1/3 border-r border-gray-600 sm:block"
     [ngClass]="{ hidden: selectedChat }"
   >
-    <h2 class="text-2xl font-bold text-center mb-6">📥 صندوق الوارد</h2>
+    <h2 class="text-2xl font-bold text-center mb-6 text-white">📥 Inbox</h2>
 
     <!-- No Chats -->
-    <div *ngIf="playerChats.length === 0" class="text-center text-gray-500">
-      لا يوجد رسائل هنا 📭
+    <div *ngIf="playerChats.length === 0" class="text-center text-gray-300">
+      No messages here 📭
     </div>
 
     <!-- Chats List -->
     <div *ngIf="playerChats.length > 0" class="space-y-2">
       <div
         *ngFor="let chat of playerChats; trackBy: trackByPlayerId"
-        class="p-4 bg-white border rounded-lg hover:bg-gray-100 cursor-pointer flex items-center justify-between"
+        class="p-4 backdrop-blur-sm border border-gray-600 rounded-lg hover:bg-gray-700 cursor-pointer flex items-center justify-between"
         (click)="openChat(chat.senderId)"
       >
         <div>
-          <p class="font-bold text-gray-800">{{ chat.senderFullName }}</p>
-          <p class="text-sm text-gray-500 truncate">{{ chat.lastMessage }}</p>
+          <p class="font-bold text-white">{{ chat.senderFullName }}</p>
+          <p class="text-sm text-gray-300 truncate">{{ chat.lastMessage }}</p>
         </div>
         <span
           *ngIf="chat.unreadCount > 0"
-          class="bg-green-500 text-white text-xs font-bold rounded-full px-2 py-1"
+          class="bg-green-600 text-white text-xs font-bold rounded-full px-2 py-1"
         >
           {{ chat.unreadCount }}
         </span>
@@ -42,16 +42,16 @@
     <div *ngIf="selectedChat; else noChatSelected">
       <!-- Chat Header -->
       <div
-        class="p-4 bg-gray-100 border-b border-gray-200 flex items-center justify-between"
+        class="p-4 backdrop-blur-sm border-b border-gray-600 flex items-center justify-between"
       >
         <div class="flex items-center">
           <button
             (click)="closeChat()"
-            class="mr-4 text-gray-600 hover:text-gray-800"
+            class="mr-4 text-gray-300 hover:text-white transition"
           >
-            ⬅️
+            <i class="fa-solid fa-arrow-left" style="color: #ffffff"></i>
           </button>
-          <p class="font-bold text-gray-800">
+          <p class="font-bold text-white">
             {{ selectedChat.senderFullName }}
           </p>
         </div>
@@ -60,7 +60,7 @@
       <!-- Messages -->
       <div
         #messagesContainer
-        class="flex-1 p-4 overflow-y-auto max-h-[calc(100vh-200px)]"
+        class="flex-1 p-4 overflow-y-auto max-h-[calc(100vh-200px)] backdrop-blur-sm"
       >
         <div
           *ngFor="
@@ -76,46 +76,48 @@
           <div
             class="inline-block p-3 rounded-lg max-w-xs"
             [ngClass]="{
-              'bg-blue-500 text-white': !message.isFromAdmin,
-              'bg-gray-300 text-gray-800': message.isFromAdmin
+              'bg-green-700': !message.isFromAdmin,
+              'bg-gray-700 ': message.isFromAdmin
             }"
           >
-            <p>{{ message.content }}</p>
-            <p class="text-xs mt-1 opacity-75">
-              {{ message.sentAt | utcToLocal }}
+            <p class="text-white">{{ message.content }}</p>
+            <p class="text-xs mt-1 text-gray-300">
+              {{ message.sentAt | date : "MMM d, y, hh:mm a" }}
             </p>
           </div>
         </div>
+      </div>
 
-        <!-- Reply Input -->
-        <div class="p-4 bg-gray-100 border-t border-gray-200">
-          <form (ngSubmit)="sendReply()" class="flex items-center gap-2">
-            <input
-              type="text"
-              [(ngModel)]="replyMessages[selectedChat.messages[0].id]"
-              [ngModelOptions]="{ standalone: true }"
-              (ngModelChange)="
-                replyMessages[selectedChat.messages[0].id] = $event
-              "
-              placeholder="اكتب ردك..."
-              class="flex-1 p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <button
-              type="submit"
-              class="bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600 disabled:bg-gray-400"
-              [disabled]="!replyMessages[selectedChat.messages[0].id]"
-            >
-              رد
-            </button>
-          </form>
-        </div>
+      <!-- Reply Input -->
+      <div
+        class="p-4 bg-black bg-opacity-50 backdrop-blur-sm border-t border-gray-600"
+      >
+        <form (ngSubmit)="sendReply()" class="flex items-center gap-2">
+          <input
+            type="text"
+            [(ngModel)]="replyMessages[selectedChat.messages[0].id]"
+            [ngModelOptions]="{ standalone: true }"
+            (ngModelChange)="
+              replyMessages[selectedChat.messages[0].id] = $event
+            "
+            placeholder="Write your reply..."
+            class="flex-1 p-2 border border-gray-600 rounded-lg bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-blue-600 placeholder-gray-400"
+          />
+          <button
+            type="submit"
+            class="bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-700 transition disabled:bg-gray-600"
+            [disabled]="!replyMessages[selectedChat.messages[0].id]"
+          >
+            Reply
+          </button>
+        </form>
       </div>
     </div>
 
     <!-- Placeholder when no chat is selected -->
     <ng-template #noChatSelected>
-      <div class="w-full flex items-center justify-center text-gray-500">
-        اختر محادثة لعرض الرسائل 📩
+      <div class="w-full flex items-center justify-center text-gray-300">
+        Select a chat to view messages 📩
       </div>
     </ng-template>
   </div>

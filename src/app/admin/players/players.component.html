@@ -1,15 +1,17 @@
 <div class="block sm:flex transition-all duration-600">
   <!-- Sidebar -->
   <div
-    class="bg-gray-800 text-white transition-all duration-600"
+    class="bg-black bg-opacity-50 backdrop-blur-sm text-white transition-all duration-600"
     [ngClass]="{
       'w-64 p-4 sm:min-h-screen': isSidebarOpen,
       'w-0 p-0': !isSidebarOpen
     }"
   >
-    <h2 class="text-lg font-bold mb-4 flex justify-between overflow-hidden">
+    <h2
+      class="text-lg font-bold mb-4 flex justify-between overflow-hidden text-white"
+    >
       Players
-      <button (click)="toggleSidebar()" class="text-gray-200 text-3xl">
+      <button (click)="toggleSidebar()" class="text-gray-300 text-3xl">
         ×
       </button>
     </h2>
@@ -20,10 +22,10 @@
         [class.bg-blue-600]="selectedPlayer?.playerId === player.playerId"
         (click)="selectPlayer(player)"
       >
-        {{ player.fullName }}
+        <span class="text-white">{{ player.fullName }}</span>
         <button
           (click)="confirmDelete(player, $event)"
-          class="bg-red-500 px-2 py-1 text-sm rounded"
+          class="bg-red-600 px-2 py-1 text-sm rounded text-white hover:bg-red-700 transition"
         >
           X
         </button>
@@ -31,7 +33,7 @@
     </ul>
     <button
       *ngIf="isSidebarOpen"
-      class="mt-4 w-full bg-green-500 p-2 rounded"
+      class="mt-4 w-full bg-green-600 p-2 rounded text-white hover:bg-green-700 transition"
       (click)="openModal()"
     >
       Add Player
@@ -43,33 +45,33 @@
     class="sm:flex-1 sm:p-2 transition-all duration-600 sm:container sm:mx-auto"
   >
     <div *ngIf="selectedPlayer" class="sm:w-4/6 mx-auto">
-      <h2 class="text-2xl font-bold mb-4 text-center">
+      <h2 class="text-2xl font-bold mb-4 text-center text-white">
         Matches for {{ selectedPlayer.fullName }}
       </h2>
 
-      <table class="w-full border-collapse border border-gray-300 text-center">
+      <table class="w-full border-collapse border border-gray-600 text-center">
         <thead>
-          <tr class="bg-gray-200">
-            <th class="border p-2">Player 1</th>
-            <th class="border p-2">Player 2</th>
-            <th class="border p-2">Result</th>
-            <th class="border p-2">Actions</th>
+          <tr class="bg-black bg-opacity-50 backdrop-blur-sm text-white">
+            <th class="border border-gray-600 p-2">Player 1</th>
+            <th class="border border-gray-600 p-2">Player 2</th>
+            <th class="border border-gray-600 p-2">Result</th>
+            <th class="border border-gray-600 p-2">Actions</th>
           </tr>
         </thead>
         <tbody>
           <tr
             *ngFor="let match of displayMatches; let i = index"
-            class="border"
-            [ngClass]="i % 2 === 0 ? 'bg-white' : 'bg-gray-100'"
+            class="border border-gray-600"
+            [ngClass]="i % 2 === 0 ? 'bg-gray-900' : 'bg-gray-950'"
           >
-            <td class="p-2 font-bold">{{ match.player1Name }}</td>
-            <td class="p-2 font-bold">{{ match.player2Name }}</td>
-            <td class="p-2 font-bold">
+            <td class="p-2 font-bold text-white">{{ match.player1Name }}</td>
+            <td class="p-2 font-bold text-white">{{ match.player2Name }}</td>
+            <td class="p-2 font-bold text-white">
               {{ match.score1 }} - {{ match.score2 }}
             </td>
             <td class="p-2">
               <button
-                class="bg-blue-500 px-2 py-1 rounded text-white hover:bg-blue-400 transition-all"
+                class="bg-blue-600 px-2 py-1 rounded text-white hover:bg-blue-700 transition-all"
                 (click)="updateMatch(match.matchId, match.player1Id)"
                 [disabled]="match.isCompleted"
                 [ngClass]="{
@@ -79,7 +81,7 @@
                 {{ loadingMatches[match.matchId] ? "Load.." : "Win P1" }}
               </button>
               <button
-                class="bg-blue-500 px-2 py-1 rounded text-white mx-1 hover:bg-blue-400 transition-all"
+                class="bg-blue-600 px-2 py-1 rounded text-white mx-1 hover:bg-blue-700 transition-all"
                 (click)="updateMatch(match.matchId, match.player2Id)"
                 [disabled]="match.isCompleted"
                 [ngClass]="{
@@ -89,7 +91,7 @@
                 {{ loadingMatches[match.matchId] ? "Load.." : "Win P2" }}
               </button>
               <button
-                class="bg-yellow-500 px-2 py-1 rounded text-white hover:bg-yellow-400 transition-all"
+                class="bg-yellow-600 px-2 py-1 rounded text-white hover:bg-yellow-700 transition-all"
                 (click)="updateMatch(match.matchId, null)"
                 [disabled]="match.isCompleted"
                 [ngClass]="{
@@ -99,7 +101,7 @@
                 {{ loadingMatches[match.matchId] ? "Load.." : "Draw" }}
               </button>
               <button
-                class="bg-gray-500 px-2 py-1 rounded text-white ml-2 hover:bg-gray-400 transition-all"
+                class="bg-gray-600 px-2 py-1 rounded text-white ml-2 hover:bg-gray-700 transition-all"
                 (click)="resetMatch(match.matchId)"
               >
                 {{ loadingMatches[match.matchId] ? "Load.." : "Undo" }}
@@ -109,50 +111,48 @@
         </tbody>
       </table>
     </div>
-    <hr class="my-3" />
+    <hr class="my-3 border-gray-600" />
 
-    <!--* القائمة الاولية-->
+    <!-- القائمة الأولية -->
     <div>
       <div class="flex justify-evenly pt-5">
         <button
           (click)="toggleSidebar()"
-          class="bg-blue-500 text-white px-3 py-2 rounded mb-4"
+          class="bg-blue-600 text-white px-3 py-2 rounded mb-4 hover:bg-blue-700 transition"
         >
           ☰ Players
         </button>
         <button
           routerLink="/admin/inbox"
-          class="bg-orange-400 hover:bg-orange-500 text-white mb-4 px-3 py-2 rounded transition-all relative"
+          class="bg-orange-600 hover:bg-orange-700 text-white mb-4 px-3 py-2 rounded transition-all relative"
         >
-          صندوق الوارد
+          Inbox
           <div
-            class="absolute -top-2 -right-2 w-[30px] h-[30px] rounded-full bg-green-500 flex justify-center items-center"
+            class="absolute -top-2 -right-2 w-[30px] h-[30px] rounded-full bg-green-600 flex justify-center items-center"
             *ngIf="totalMessagesLeft > 0"
           >
             <h2 class="text-white font-bold">{{ totalMessagesLeft }}</h2>
           </div>
         </button>
         <button
-          class="bg-green-500 text-white px-3 py-2 rounded mb-4"
+          class="bg-green-600 text-white px-3 py-2 rounded mb-4 hover:bg-green-700 transition"
           (click)="openStartLeagueModal()"
           *ngIf="leagueData == null"
         >
-          بدأ دوري جديد
+          Start New League
         </button>
-
         <button
-          class="bg-red-500 text-white px-3 py-2 rounded mb-4"
+          class="bg-red-600 text-white px-3 py-2 rounded mb-4 hover:bg-red-700 transition"
           *ngIf="leagueData != null"
           (click)="showEndLeagueModal = true"
         >
-          انهاء الدوري
+          End League
         </button>
-
         <button
-          class="bg-indigo-700 text-white px-3 py-2 rounded mb-4"
+          class="bg-indigo-600 text-white px-3 py-2 rounded mb-4 hover:bg-indigo-700 transition"
           (click)="openNoteModal()"
         >
-          الملاحظات
+          Notes
         </button>
       </div>
 
@@ -160,120 +160,133 @@
         class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8"
         *ngIf="leagueData"
       >
-        <div class="bg-white shadow-md rounded p-6 text-center">
-          <h3 class="text-lg font-semibold mb-2">وصف البطولة</h3>
-          <pre class="font-bold text-sm text-gray-800">{{
+        <div
+          class="bg-black bg-opacity-50 backdrop-blur-sm shadow-md rounded p-6 text-center"
+        >
+          <h3 class="text-lg font-semibold mb-2 text-white">
+            League Description
+          </h3>
+          <h2 class="font-bold  text-gray-300">{{
             leagueData.description
-          }}</pre>
+          }}</h2>
         </div>
-        <div class="bg-white shadow-md rounded p-6 text-center">
-          <h3 class="text-lg font-semibold mb-2">نظام البطولة</h3>
+        <div
+          class="bg-black bg-opacity-50 backdrop-blur-sm shadow-md rounded p-6 text-center"
+        >
+          <h3 class="text-lg font-semibold mb-2 text-white">League Type</h3>
           <p
             *ngIf="leagueData.typeOfLeague === 0"
-            class="font-bold text-gray-800"
+            class="font-bold text-gray-300"
           >
-            فردية
+            Single
           </p>
           <p
             *ngIf="leagueData.typeOfLeague === 1"
-            lass="font-bold text-gray-800"
+            class="font-bold text-gray-300"
           >
-            بطولة فرق
+            Multi
           </p>
         </div>
-        <div class="bg-white shadow-md rounded p-6 text-center">
-          <h3 class="text-lg font-semibold mb-2">تاريخ بدأ البطولة</h3>
-          <p class="font-bold text-gray-800">
+        <div
+          class="bg-black bg-opacity-50 backdrop-blur-sm shadow-md rounded p-6 text-center"
+        >
+          <h3 class="text-lg font-semibold mb-2 text-white">Start Date</h3>
+          <p class="font-bold text-gray-300">
             {{ leagueData.createdOn | date : "fullDate" }}
           </p>
         </div>
-
-        <div class="bg-white shadow-md rounded p-6 text-center">
-          <h3 class="text-lg font-semibold mb-2">اسم البطولة الحالية</h3>
-          <p class="font-bold text-gray-800">{{ leagueData.name }}</p>
+        <div
+          class="bg-black bg-opacity-50 backdrop-blur-sm shadow-md rounded p-6 text-center"
+        >
+          <h3 class="text-lg font-semibold mb-2 text-white">
+             League Name
+          </h3>
+          <p class="font-bold text-gray-300">{{ leagueData.name }}</p>
         </div>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 container mx-auto">
-        <div class="bg-white shadow-md rounded p-6 text-center">
-          <h3 class="text-lg font-semibold mb-2">عدد الماتشات المتبقية</h3>
-          <p class="text-3xl font-bold text-red-600">{{ totalMatchesLeft }}</p>
+        <div
+          class="bg-black bg-opacity-50 backdrop-blur-sm shadow-md rounded p-6 text-center"
+        >
+          <h3 class="text-lg font-semibold mb-2 text-white">
+            Remaining Matches
+          </h3>
+          <p class="text-3xl font-bold text-red-500">{{ totalMatchesLeft }}</p>
         </div>
-        <div class="bg-white shadow-md rounded p-6 text-center">
-          <h3 class="text-lg font-semibold mb-2">عدد الماتشات</h3>
-          <p class="text-3xl font-bold text-green-600">{{ totalMatches }}</p>
+        <div
+          class="bg-black bg-opacity-50 backdrop-blur-sm shadow-md rounded p-6 text-center"
+        >
+          <h3 class="text-lg font-semibold mb-2 text-white">Total Matches</h3>
+          <p class="text-3xl font-bold text-green-500">{{ totalMatches }}</p>
         </div>
-        <div class="bg-white shadow-md rounded p-6 text-center">
-          <h3 class="text-lg font-semibold mb-2">عدد اللاعبين</h3>
-          <p class="text-3xl font-bold text-blue-600">{{ totalPlayers }}</p>
+        <div
+          class="bg-black bg-opacity-50 backdrop-blur-sm shadow-md rounded p-6 text-center"
+        >
+          <h3 class="text-lg font-semibold mb-2 text-white">Total Players</h3>
+          <p class="text-3xl font-bold text-blue-500">{{ totalPlayers }}</p>
         </div>
       </div>
     </div>
 
     <!-- كل البطولات -->
     <div class="text-center">
-      <button class="bg-green-500 text-white px-3 py-2 rounded mb-4">
-        عرض كل البطولات
-      </button>
+      <h2
+        class="mb-4 text-4xl font-extrabold leading-none tracking-tight md:text-4xl lg:text-4xl text-white"
+      >
+        All Leagues
+      </h2>
 
       <div class="max-h-[350px] overflow-x-auto">
-        <table class="min-w-full divide-y-2 divide-gray-200">
-          <thead class="sticky top-0 bg-white">
-            <tr class="*:font-medium *:text-gray-900">
-              <th class="px-3 py-2 whitespace-nowrap">اسم البطولة</th>
-              <th class="px-3 py-2 whitespace-nowrap">حالة البطولة</th>
-              <th class="px-3 py-2 whitespace-nowrap">نوع البطولة</th>
-              <th class="px-3 py-2 whitespace-nowrap">تاريخ البطولة</th>
-              <th class="px-3 py-2 whitespace-nowrap">الفائز</th>
-              <th class="px-3 py-2 whitespace-nowrap">حذف</th>
+        <table class="min-w-full divide-y-2 divide-gray-600">
+          <thead class="sticky top-0 bg-black bg-opacity-50 backdrop-blur-sm">
+            <tr class="*:font-medium *:text-white">
+              <th class="px-3 py-2 whitespace-nowrap">League Name</th>
+              <th class="px-3 py-2 whitespace-nowrap">League Status</th>
+              <th class="px-3 py-2 whitespace-nowrap">League Type</th>
+              <th class="px-3 py-2 whitespace-nowrap">League Date</th>
+              <th class="px-3 py-2 whitespace-nowrap">Winner</th>
+              <th class="px-3 py-2 whitespace-nowrap">Delete</th>
             </tr>
           </thead>
-
-          <tbody class="divide-y divide-gray-200">
+          <tbody class="divide-y divide-gray-600">
             <tr
-              *ngFor="let league of leagues"
+              *ngFor="let league of leagues; let i = index"
               class="*:font-bold *:first:font-medium"
+              [ngClass]="{
+                'bg-gray-900': i % 2 === 0,
+                'bg-gray-950': i % 2 !== 0
+              }"
             >
-              <!-- اسم البطولة -->
-              <td class="px-3 py-2 whitespace-nowrap">
+              <td class="px-3 py-2 whitespace-nowrap text-white">
                 {{ league.leagueName }}
               </td>
-
-              <!-- حالة البطولة -->
               <td
                 class="px-3 py-2 whitespace-nowrap"
                 [class.text-green-500]="!league.isFinished"
                 [class.text-red-500]="league.isFinished"
               >
-                {{ !league.isFinished ? "مستمرة" : "انتهت" }}
+                {{ !league.isFinished ? "Live Now!!" : "Finished" }}
               </td>
-
-              <!-- نوع البطولة -->
-              <td class="px-3 py-2 whitespace-nowrap">
-                {{ league.leagueType === 0 ? "فردية" : "جماعية" }}
+              <td class="px-3 py-2 whitespace-nowrap text-white">
+                {{ league.leagueType === 0 ? "Single" : "Multi" }}
               </td>
-
-              <!-- تاريخ البطولة -->
-              <td class="px-3 py-2 whitespace-nowrap">
-                {{ league.createdOn | date : "yyyy/MM/dd " }}
+              <td class="px-3 py-2 whitespace-nowrap text-white">
+                {{ league.createdOn | date : "yyyy/MM/dd" }}
               </td>
-
-              <!-- اسم الفائز -->
-              <td class="px-3 py-2 whitespace-nowrap">
+              <td class="px-3 py-2 whitespace-nowrap text-white">
                 {{
                   league.players && league.players.length > 0
                     ? league.players[0].fullName
-                    : "لا يوجد فائز حاليا"
+                    : "No Winner Yet"
                 }}
               </td>
-
-              <!-- زر الحذف -->
               <td class="px-3 py-2 whitespace-nowrap">
                 <button
                   (click)="openDeleteLeagueModal(league.leagueId)"
-                  class="bg-red-500 text-white px-3 py-2 rounded hover:bg-red-600 transition"
+                  class="bg-red-600 text-white px-3 py-2 rounded hover:bg-red-700 transition"
                 >
-                  حذف البطولة
+                  Delete League
                 </button>
               </td>
             </tr>
@@ -286,27 +299,29 @@
   <!-- Delete League Modal -->
   <div
     *ngIf="showDeleteLeagueModal"
-    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50"
   >
-    <div class="bg-white p-6 rounded-lg shadow-lg w-96">
-      <h2 class="text-xl font-bold text-gray-900 mb-4">تأكيد الحذف</h2>
-      <p class="text-gray-700 mb-6">
-        هل أنت متأكد أنك تريد حذف بطولة "{{
+    <div
+      class="bg-black bg-opacity-50 backdrop-blur-sm p-6 rounded-lg shadow-lg w-96"
+    >
+      <h2 class="text-xl font-bold text-white mb-4">Confirm Delete</h2>
+      <p class="text-gray-300 mb-6">
+        Are you sure you want to delete league "{{
           selectedLeagueToDelete?.leagueName
-        }}"؟
+        }}"?
       </p>
       <div class="flex justify-end space-x-4">
         <button
           (click)="closeDeleteLeagueModal()"
-          class="bg-gray-300 text-gray-900 px-4 py-2 rounded hover:bg-gray-400 transition"
+          class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 transition"
         >
-          إلغاء
+          Cancel
         </button>
         <button
           (click)="deleteConfirmedLeague()"
-          class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
+          class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition"
         >
-          حذف
+          Delete
         </button>
       </div>
     </div>
@@ -315,24 +330,24 @@
   <!-- Delete Confirmation Modal -->
   <div
     *ngIf="showDeleteModal"
-    class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
+    class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75 z-50"
   >
-    <div class="bg-white p-6 rounded-lg">
-      <h2 class="text-lg font-bold mb-4">Confirm Delete</h2>
-      <p>
+    <div class="bg-black bg-opacity-50 backdrop-blur-sm p-6 rounded-lg">
+      <h2 class="text-lg font-bold mb-4 text-white">Confirm Delete</h2>
+      <p class="text-gray-300">
         Are you sure you want to delete
         <strong>{{ selectedPlayerToDelete?.fullName }}</strong
         >?
       </p>
       <div class="mt-4 flex justify-end">
         <button
-          class="bg-gray-500 px-4 py-2 text-white rounded mr-2"
+          class="bg-gray-600 px-4 py-2 text-white rounded mr-2 hover:bg-gray-700 transition"
           (click)="showDeleteModal = false"
         >
           Cancel
         </button>
         <button
-          class="bg-red-500 px-4 py-2 text-white rounded"
+          class="bg-red-600 px-4 py-2 text-white rounded hover:bg-red-700 transition"
           (click)="deleteConfirmedPlayer()"
         >
           Delete
@@ -344,25 +359,25 @@
   <!-- Add Player Modal -->
   <div
     *ngIf="showModal"
-    class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
+    class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75 z-50"
   >
-    <div class="bg-white p-6 rounded-lg">
-      <h2 class="text-lg font-bold mb-4">Add New Player</h2>
+    <div class="bg-black bg-opacity-50 backdrop-blur-sm p-6 rounded-lg">
+      <h2 class="text-lg font-bold mb-4 text-white">Add New Player</h2>
       <input
         type="text"
         [(ngModel)]="newPlayerName"
-        class="border p-2 w-full"
+        class="border border-gray-600 p-2 w-full bg-gray-800 text-white rounded placeholder-gray-400"
         placeholder="Enter player name"
       />
       <div class="mt-4 flex justify-end">
         <button
-          class="bg-red-500 px-4 py-2 text-white rounded mr-2"
+          class="bg-red-600 px-4 py-2 text-white rounded mr-2 hover:bg-red-700 transition"
           (click)="closeModal()"
         >
           Cancel
         </button>
         <button
-          class="bg-green-500 px-4 py-2 text-white rounded"
+          class="bg-green-600 px-4 py-2 text-white rounded hover:bg-green-700 transition"
           (click)="addPlayer()"
         >
           Add
@@ -374,114 +389,111 @@
   <!-- Start League Modal -->
   <div
     *ngIf="showStartLeagueModal"
-    class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
+    class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75 z-50"
   >
-    <div class="bg-white p-6 rounded-lg w-96">
-      <h2 class="text-lg font-bold mb-4">بدأ دوري جديد</h2>
-
-      <!-- League Name -->
+    <div class="bg-black bg-opacity-50 backdrop-blur-sm p-6 rounded-lg w-96">
+      <h2 class="text-lg font-bold mb-4 text-white">Start New League</h2>
       <div class="mb-4">
-        <label class="block text-sm font-medium mb-1">اسم البطولة</label>
+        <label class="block text-sm font-medium mb-1 text-gray-300"
+          >League Name</label
+        >
         <input
           type="text"
           [(ngModel)]="newLeague.Name"
-          class="border p-2 w-full rounded"
+          class="border border-gray-600 p-2 w-full rounded bg-gray-800 text-white placeholder-gray-400"
           placeholder="Enter league name"
         />
       </div>
-
-      <!-- League Description -->
       <div class="mb-4">
-        <label class="block text-sm font-medium mb-1">وصف البطولة</label>
+        <label class="block text-sm font-medium mb-1 text-gray-300"
+          >League Description</label
+        >
         <textarea
           [(ngModel)]="newLeague.Description"
-          class="border p-2 w-full rounded"
+          class="border border-gray-600 p-2 w-full rounded bg-gray-800 text-white placeholder-gray-400"
           placeholder="Enter league description"
           rows="3"
         ></textarea>
       </div>
-
-      <!-- League Type -->
       <div class="mb-4">
-        <label class="block text-sm font-medium mb-1">نوع البطولة</label>
+        <label class="block text-sm font-medium mb-1 text-gray-300"
+          >League Type</label
+        >
         <select
           [(ngModel)]="newLeague.TypeOfLeague"
-          class="border p-2 w-full rounded"
+          class="border border-gray-600 p-2 w-full rounded bg-gray-800 text-white"
         >
           <option [ngValue]="0">Single</option>
           <option [ngValue]="1">Multi</option>
         </select>
       </div>
-
-      <!-- Buttons -->
       <div class="mt-4 flex justify-end">
         <button
-          class="bg-gray-500 px-4 py-2 text-white rounded mr-2"
+          class="bg-gray-600 px-4 py-2 text-white rounded mr-2 hover:bg-gray-700 transition"
           (click)="closeStartLeagueModal()"
         >
-          الفاء
+          Cancel
         </button>
         <button
-          class="bg-green-500 px-4 py-2 text-white rounded"
+          class="bg-green-600 px-4 py-2 text-white rounded hover:bg-green-700 transition"
           (click)="startLeague()"
         >
-          بدأ الدوري
+          Start League
         </button>
       </div>
     </div>
   </div>
+
   <!-- End League Confirmation Modal -->
   <div
     *ngIf="showEndLeagueModal"
-    class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
+    class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75 z-50"
   >
-    <div class="bg-white p-6 rounded-lg">
-      <h2 class="text-lg font-bold mb-4">تأكيد إنهاء الدوري</h2>
-      <p>
-        هل أنت متأكد أنك تريد إنهاء البطولة الحالية؟ لا يمكن التراجع عن هذا
-        الإجراء.
+    <div class="bg-black bg-opacity-50 backdrop-blur-sm p-6 rounded-lg">
+      <h2 class="text-lg font-bold mb-4 text-white">Confirm End League</h2>
+      <p class="text-gray-300">
+        Are you sure you want to end the current league? This action cannot be
+        undone.
       </p>
       <div class="mt-4 flex justify-end">
         <button
-          class="bg-gray-500 px-4 py-2 text-white rounded mr-2"
+          class="bg-gray-600 px-4 py-2 text-white rounded mr-2 hover:bg-gray-700 transition"
           (click)="showEndLeagueModal = false"
         >
-          إلغاء
+          Cancel
         </button>
         <button
-          class="bg-red-500 px-4 py-2 text-white rounded"
+          class="bg-red-600 px-4 py-2 text-white rounded hover:bg-red-700 transition"
           (click)="resetTournament(leagueData.id)"
         >
-          تأكيد الإنهاء
+          Confirm End
         </button>
       </div>
     </div>
   </div>
 
-  <!--** Notes  -->
+  <!-- Notes Modal -->
   <div
-    class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
+    class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75 z-50"
     *ngIf="showNoteModal"
   >
-    <div class="bg-white p-4">
+    <div class="bg-black bg-opacity-50 backdrop-blur-sm p-4 rounded-lg">
       <div>
-        <h2 class="font-bold text-gray-800 text-center">اضافة ملاحظة جديدة</h2>
+        <h2 class="font-bold text-white text-center">Add New Note</h2>
         <div>
           <label for="Notes">
-            <span class="text-sm font-medium text-gray-700"> Notes </span>
-
-            <div class="relative m-2 overflow-hidden rounded border-gray-300">
+            <span class="text-sm font-medium text-gray-300">Notes</span>
+            <div class="relative m-2 overflow-hidden rounded border-gray-600">
               <textarea
                 id="Notes"
-                class="w-full resize-none p-3 border border-x-2"
+                class="w-full resize-none p-3 border border-gray-600 bg-gray-800 text-white placeholder-gray-400"
                 rows="4"
                 [(ngModel)]="newNote"
               ></textarea>
-
               <div class="flex items-center justify-end gap-2 p-1.5">
                 <button
                   type="button"
-                  class="rounded p-2 font-bold text-gray-900 transition-colors hover:bg-gray-100"
+                  class="rounded p-2 font-bold text-white bg-green-600 hover:bg-green-700 transition"
                   (click)="sendNote()"
                 >
                   Save
@@ -491,43 +503,43 @@
           </label>
         </div>
       </div>
-      <div class="bg-white p-6 rounded-lg">
+      <div class="p-6">
         <div *ngFor="let note of notes">
           <div
             class="mt-4 flex items-center justify-end"
             *ngIf="note.isDeleted == false"
           >
-            <h2 class="font-bold px-3">
+            <h2 class="font-bold px-3 text-white">
               {{ note.content }}
             </h2>
             <button
-              class="bg-red-500 px-4 py-2 text-white rounded mr-2"
+              class="bg-red-600 px-4 py-2 text-white rounded mr-2 hover:bg-red-700 transition"
               (click)="toggleDeleteNote(note.id)"
             >
-              حذف
+              Delete
             </button>
             <button
-              class="bg-green-500 px-4 py-2 text-white rounded"
+              class="bg-green-600 px-4 py-2 text-white rounded hover:bg-green-700 transition"
               (click)="toggleHideNote(note)"
               *ngIf="note.isHidden == true"
             >
-              عرض
+              Show
             </button>
             <button
-              class="bg-purple-600 px-4 py-2 text-white rounded"
+              class="bg-purple-600 px-4 py-2 text-white rounded hover:bg-purple-700 transition"
               (click)="toggleHideNote(note)"
               *ngIf="note.isHidden == false"
             >
-              اخفاء
+              Hide
             </button>
           </div>
         </div>
       </div>
       <button
-        class="bg-gray-400 px-4 py-2 text-white rounded"
+        class="bg-gray-600 px-4 py-2 text-white rounded hover:bg-gray-700 transition"
         (click)="closeNoteModal()"
       >
-        الغاء
+        Cancel
       </button>
     </div>
   </div>
