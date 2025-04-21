@@ -19,7 +19,8 @@ export class AllLeaguesComponent implements OnInit {
   players: Player[] = [];
   highlightedColumn: number | null = null;
   matches: Match[] = [];
-  LeagueId: number = 0; // هيستخدم للتحكم في إظهار الجدول
+  LeagueId: number = 0;
+  isModalOpen: boolean = false;
 
   constructor(private leagueService: LeagueService) {}
 
@@ -49,11 +50,11 @@ export class AllLeaguesComponent implements OnInit {
       600: { items: 1 },
       1000: { items: 1 },
     },
-    nav: true,
   };
 
-  getLeagueId(id: number): void {
+  openModal(id: number): void {
     this.LeagueId = id;
+    this.isModalOpen = true;
 
     this.leagueService.GetAllLeaguesMatches().subscribe({
       next: (response) => {
@@ -82,6 +83,14 @@ export class AllLeaguesComponent implements OnInit {
     });
   }
 
+  closeModal(): void {
+    this.isModalOpen = false;
+    this.LeagueId = 0;
+    this.highlightedColumn = null;
+    this.players = [];
+    this.matches = [];
+  }
+
   getMatchResult(player1: Player, player2: Player) {
     if (player1.playerId === player2.playerId) {
       return { result: 'N/A', color: 'text-gray-400' };
@@ -104,7 +113,7 @@ export class AllLeaguesComponent implements OnInit {
     const player2Score =
       match.player2Name === player2.fullName ? match.score2 : match.score1;
 
-    let colorClass = 'text-black';
+    let colorClass = 'text-white';
     if (player1Score > player2Score) {
       colorClass = 'text-green-600 font-bold';
     } else if (player1Score < player2Score) {
@@ -124,7 +133,7 @@ export class AllLeaguesComponent implements OnInit {
   @HostListener('document:click', ['$event'])
   onClickOutside(event: Event) {
     const table = document.querySelector('table');
-    if (table && !table.contains(event.target as Node)) {
+    if (table && !table.contains(event.target as Node) && this.isModalOpen) {
       this.highlightedColumn = null;
     }
   }

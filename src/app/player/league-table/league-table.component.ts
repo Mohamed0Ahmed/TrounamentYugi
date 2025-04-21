@@ -58,7 +58,7 @@ export class LeagueTableComponent implements OnInit {
 
   getMatchResult(player1: Player, player2: Player) {
     if (player1.playerId === player2.playerId) {
-      return { result: 'N/A', color: 'text-gray-400' };
+      return { result: 'N/A', color: 'text-gray-800' };
     }
 
     const match = this.matches.find(
@@ -78,7 +78,7 @@ export class LeagueTableComponent implements OnInit {
     const player2Score =
       match.player2Name === player2.fullName ? match.score2 : match.score1;
 
-    let colorClass = 'text-black ';
+    let colorClass = 'text-white ';
     if (player1Score > player2Score) {
       colorClass = 'text-green-600 font-bold';
     } else if (player1Score < player2Score) {

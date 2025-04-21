@@ -1,6 +1,6 @@
 <div class="container mx-auto">
   <div class="text-center my-[30px]">
-    <h2 class="font-bold fa-1 text-gray-950-800">
+    <h2 class="font-bold fa-1 text-white">
       هذه الكروت الممنوعة من الموقع الرسمي للعبة يوغي للتأكد
       <a
         href="https://www.db.yugioh-card.com/yugiohdb/forbidden_limited.action"
@@ -12,7 +12,7 @@
       للذهاب الي الموقع
     </h2>
 
-    <h2 class="font-bold fa-1 text-gray-950-800">
+    <h2 class="font-bold fa-1 text-white">
       لعرض الورق الممنوع الخاص بنسخة جوي فقط
       <span
         class="text-blue-600 hover:text-blue-800 cursor-pointer"
@@ -25,20 +25,18 @@
 
   <!-- Spell Cards Section -->
   <div class="text-center my-[30px]">
-    <h2 class="font-bold fa-2xl text-green-800">Spell Cards</h2>
+    <h2 class="font-bold fa-2xl text-green-500 custom-outline">Spell Cards</h2>
   </div>
   <owl-carousel-o [options]="customOptions">
     <ng-container *ngFor="let spell of spellCards">
       <ng-template carouselSlide>
-        <div
-          class="p-2 relative border-2 hover:border-red-500 transition max-w-[150px] cursor-pointer "
-        >
+        <div class="p-2 relative transition max-w-[150px] cursor-pointer">
           <img [src]="spell" class="w-fit min-h-[190px]" />
         </div>
         <div class="text-center">
           <i
             class="fa-solid fa-eye cursor-pointer"
-            style="color: #26354f"
+            style="color: #fff"
             (click)="openModal(spell)"
           ></i>
         </div>
@@ -48,20 +46,18 @@
 
   <!-- Trap Cards Section -->
   <div class="text-center my-[30px]">
-    <h2 class="font-bold fa-2xl text-rose-800">Trap Cards</h2>
+    <h2 class="font-bold text-3xl text-rose-500 custom-outline">Trap Cards</h2>
   </div>
   <owl-carousel-o [options]="customOptions">
     <ng-container *ngFor="let trap of trapCards">
       <ng-template carouselSlide>
-        <div
-          class="p-2 relative border-2 hover:border-red-500 transition max-w-[150px] cursor-pointer"
-        >
+        <div class="p-2 relative transition max-w-[150px] cursor-pointer">
           <img [src]="trap" class="w-fit min-h-[190px]" />
         </div>
         <div class="text-center">
           <i
             class="fa-solid fa-eye cursor-pointer"
-            style="color: #26354f"
+            style="color: #fff"
             (click)="openModal(trap)"
           ></i>
         </div>
@@ -71,20 +67,20 @@
 
   <!-- Monsters Section -->
   <div class="text-center my-[30px]">
-    <h2 class="font-bold fa-2xl text-yellow-700">Monsters</h2>
+    <h2 class="font-bold fa-2xl text-yellow-500 custom-outline">Monsters</h2>
   </div>
   <owl-carousel-o [options]="customOptions">
     <ng-container *ngFor="let monster of monsters">
       <ng-template carouselSlide>
         <div
-          class="p-2 relative border-2 hover:border-red-500 transition max-w-[150px] cursor-pointer"
+          class="p-2 relative transition max-w-[150px] cursor-pointer"
         >
           <img [src]="monster" class="w-fit min-h-[190px]" />
         </div>
         <div class="text-center">
           <i
             class="fa-solid fa-eye cursor-pointer"
-            style="color: #26354f"
+            style="color: #fff"
             (click)="openModal(monster)"
           ></i>
         </div>

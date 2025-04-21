@@ -1,174 +1,194 @@
 <div class="my-8">
-  <h2 class="text-2xl font-bold text-center mb-4">كل الدوريات</h2>
+  <h2 class="text-2xl font-bold text-center mb-4 text-white">All Leagues</h2>
   <owl-carousel-o [options]="customOptions">
     <ng-container *ngFor="let league of leaguesRank">
       <ng-template carouselSlide>
         <div
-          class="p-4 border rounded-lg shadow-md mx-auto text-center bg-white container"
+          class="p-4 border rounded-lg shadow-md mx-auto text-center bg-black bg-opacity-50 backdrop-blur-sm container"
         >
-          <h3 class="text-xl font-bold text-center">
+          <h3 class="text-xl font-bold text-center text-white">
             {{ league.leagueName }}
           </h3>
-          <p class="text-gray-600 text-center">
+          <p class="text-gray-300 text-center">
             {{ league.leagueDescription }}
           </p>
-          <p class="text-center">
-            بدأت البطولة : {{ league.createdOn | date : "dd -MM -yyyy " }}
+          <p class="text-center text-gray-300">
+            Date Of League: {{ league.createdOn | date : "dd -MM -yyyy" }}
           </p>
           <p
-            class="text-gray-600 text-center font-bold"
+            class="text-gray-300 text-center font-bold"
             *ngIf="league.isFinished == false"
           >
-            <span class="font-bold text-green-600">جارية الان</span>
+            <span class="font-bold text-green-500">Live Now</span>
           </p>
           <p
-            class="text-gray-600 font-bold text-center"
+            class="text-gray-300 font-bold text-center"
             *ngIf="league.isFinished == true"
           >
-            <span class="font-bold text-red-600">منتهية</span>
+            <span class="font-bold text-red-500">Finished</span>
           </p>
 
           <button
-            class="my-4 px-2 bg-blue-500 hover:bg-blue-600 text-white py-2 rounded"
-            (click)="getLeagueId(league.leagueId)"
+            class="my-4 px-2 bg-gray-600 hover:bg-gray-700 transition-all text-white py-2 rounded"
+            (click)="openModal(league.leagueId)"
           >
-            عرض المباريات
+            Show Games With League
           </button>
 
-          <table
-            class="table-auto border-collapse border border-gray-300 sm:w-4/5 mx-auto"
-          >
-            <thead>
-              <tr class="text-center">
-                <th class="border border-gray-300 p-2 bg-gray-200">الترتيب</th>
-                <th class="border border-gray-300 p-2 bg-gray-200">الاسم</th>
-                <th class="border border-gray-300 p-2 bg-gray-200">النقاط</th>
-                <th
-                  class="border hidden sm:table-cell border-gray-300 p-2 bg-gray-200"
-                >
-                  فوز
-                </th>
-                <th
-                  class="border hidden sm:table-cell border-gray-300 p-2 bg-gray-200"
-                >
-                  تعادل
-                </th>
-                <th
-                  class="border hidden sm:table-cell border-gray-300 p-2 bg-gray-200"
-                >
-                  هزيمة
-                </th>
-                <th class="border border-gray-300 p-2 bg-gray-200">
-                  عدد المباريات
-                </th>
-                <th class="border border-gray-300 p-2 bg-gray-200">
-                  نسبة الفوز
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr
-                *ngFor="let player of league.players; let i = index"
-                class="text-center font-bold text-sm md:text-[16px]"
-                [ngClass]="i % 2 === 0 ? 'bg-white' : 'bg-gray-100'"
+          <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+            <table
+              class="w-full text-sm text-left rtl:text-right text-gray-400"
+            >
+              <thead
+                class="text-xs uppercase bg-black bg-opacity-50 backdrop-blur-sm text-white"
               >
-                <td class="border border-gray-300 p-2 relative">
-                  <i
-                    class="fa-solid fa-crown absolute top-[50%] left-[10px] md:left-10 translate-y-[-50%]"
-                    style="color: #ffd43b"
-                    *ngIf="player.rank == 1"
-                  ></i>
-
-                  {{ player.rank }}
-                </td>
-                <td class="border border-gray-300 p-2">
-                  {{ player.fullName }}
-                </td>
-                <td class="border border-gray-300 p-2 text-center">
-                  {{ player.points }}
-                </td>
-                <td
-                  class="border hidden sm:table-cell border-gray-300 p-2 text-center text-green-500"
+                <tr class="text-center">
+                  <th scope="col" class="px-2 py-3">Rank</th>
+                  <th scope="col" class="px-2 py-3">Name</th>
+                  <th scope="col" class="px-2 py-3">Points</th>
+                  <th scope="col" class="px-2 py-3 hidden sm:table-cell">
+                    Win
+                  </th>
+                  <th scope="col" class="px-2 py-3 hidden sm:table-cell">
+                    Draw
+                  </th>
+                  <th scope="col" class="px-2 py-3 hidden sm:table-cell">
+                    Loss
+                  </th>
+                  <th scope="col" class="px-2 py-3">Games</th>
+                  <th scope="col" class="px-2 py-3">Win Rate</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  *ngFor="let player of league.players; let i = index"
+                  class="border-b text-center border-gray-700 hover:bg-gray-600 font-bold text-sm md:text-[16px]"
+                  [ngClass]="i % 2 === 0 ? 'bg-gray-900' : 'bg-gray-950'"
                 >
-                  {{ player.wins }}
-                </td>
-                <td
-                  class="border hidden sm:table-cell border-gray-300 p-2 text-center text-yellow-400"
-                >
-                  {{ player.draws }}
-                </td>
-                <td
-                  class="border hidden sm:table-cell border-gray-300 p-2 text-center text-red-600"
-                >
-                  {{ player.losses }}
-                </td>
-                <td class="border border-gray-300 p-2 text-center">
-                  {{ player.matchesPlayed }}
-                </td>
-                <td
-                  class="border border-gray-300 p-2 text-center"
-                  [ngClass]="
-                    player.winRate > 50 ? 'text-green-500' : 'text-red-600'
-                  "
-                >
-                  {{ player.winRate | number : "1.2-2" }} %
-                </td>
-              </tr>
-            </tbody>
-          </table>
+                  <th
+                    scope="row"
+                    class="px-2 py-4 font-medium whitespace-nowrap text-white relative"
+                  >
+                    <i
+                      class="fa-solid fa-crown absolute top-[50%] left-[10px] md:left-10 translate-y-[-50%]"
+                      style="color: #ffd43b"
+                      *ngIf="player.rank == 1"
+                    ></i>
+                    {{ player.rank }}
+                  </th>
+                  <td class="px-2 py-4 text-white">{{ player.fullName }}</td>
+                  <td class="px-2 py-4 text-center text-white">
+                    {{ player.points }}
+                  </td>
+                  <td
+                    class="px-2 py-4 text-center text-green-500 hidden sm:table-cell"
+                  >
+                    {{ player.wins }}
+                  </td>
+                  <td
+                    class="px-2 py-4 text-center text-yellow-400 hidden sm:table-cell"
+                  >
+                    {{ player.draws }}
+                  </td>
+                  <td
+                    class="px-2 py-4 text-center text-red-500 hidden sm:table-cell"
+                  >
+                    {{ player.losses }}
+                  </td>
+                  <td class="px-2 py-4 text-center text-white">
+                    {{ player.matchesPlayed }}
+                  </td>
+                  <td
+                    class="px-2 py-4 text-center"
+                    [ngClass]="
+                      player.winRate > 50 ? 'text-green-500' : 'text-red-500'
+                    "
+                  >
+                    {{ player.winRate | number : "1.2-2" }} %
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </ng-template>
     </ng-container>
   </owl-carousel-o>
 </div>
 
-<div *ngIf="LeagueId !== 0" class="container mx-auto p-4 text-center">
-  <h2 class="text-xl font-bold mb-4 text-center">مباريات الدوري</h2>
-  <table
-    class="table-auto border-collapse border border-gray-300 w-5/6 mx-auto"
+<!-- Modal for League Games -->
+<div
+  *ngIf="isModalOpen"
+  class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50"
+>
+  <div
+    class="bg-black bg-opacity-50 backdrop-blur-sm p-6 rounded-lg shadow-lg w-full max-w-4xl mx-4 max-h-[80vh] overflow-y-auto"
   >
-    <thead>
-      <tr>
-        <th
-          *ngFor="let player of players"
-          class="border border-gray-300 py-2 text-white cursor-pointer hover:bg-rose-400 transition-all min-w-[70px]"
-          (click)="highlightColumn(player.playerId)"
-          [ngClass]="
-            highlightedColumn == player.playerId ? 'bg-rose-400' : 'bg-rose-600'
-          "
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-xl font-bold  text-white">League Games</h2>
+      <button class="text-white hover:text-gray-300" (click)="closeModal()">
+        <i class="fa-solid fa-times text-2xl"></i>
+      </button>
+    </div>
+    <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+      <table class="w-full text-sm text-left rtl:text-right text-gray-400">
+        <thead
+          class="text-xs uppercase bg-black bg-opacity-50 backdrop-blur-sm text-white"
         >
-          {{ player.fullName }}
-        </th>
-        <th class="border border-gray-300 py-2 bg-rose-600 text-white">
-          المباراة
-        </th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr
-        *ngFor="let player1 of players; let i = index"
-        [ngClass]="i % 2 === 0 ? 'bg-white' : 'bg-gray-100'"
-      >
-        <td
-          *ngFor="let player2 of players"
-          class="border border-gray-300 py-2 transition-all"
-          [ngClass]="{
-            'shadow-lg shadow-blue-900': highlightedColumn === player2.playerId
-          }"
-        >
-          <span *ngIf="player1.playerId === player2.playerId" class="font-bold"
-            >N/A</span
+          <tr>
+            <th
+              *ngFor="let player of players"
+              scope="col"
+              class="px-2 py-3 text-center text-white cursor-pointer hover:bg-gray-500 transition-all min-w-[70px]"
+              (click)="highlightColumn(player.playerId)"
+              [ngClass]="
+                highlightedColumn == player.playerId
+                  ? 'bg-gray-500'
+                  : 'bg-gray-700'
+              "
+            >
+              {{ player.fullName }}
+            </th>
+            <th
+              scope="col"
+              class="px-2 py-3 bg-gray-700 text-center text-white"
+            >
+              المباراة
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            *ngFor="let player1 of players; let i = index"
+            class="border-b text-center border-gray-700 hover:bg-gray-600"
+            [ngClass]="i % 2 === 0 ? 'bg-gray-900' : 'bg-gray-950'"
           >
-          <span *ngIf="player1.playerId !== player2.playerId">
-            <span [ngClass]="getMatchResult(player2, player1).color">
-              {{ getMatchResult(player2, player1).result }}
-            </span>
-          </span>
-        </td>
-        <td class="border border-gray-300 py-2 font-bold">
-          {{ player1.fullName }}
-        </td>
-      </tr>
-    </tbody>
-  </table>
+            <td
+              *ngFor="let player2 of players"
+              class="px-2 py-4 transition-all"
+              [ngClass]="{
+                'shadow-lg shadow-blue-900':
+                  highlightedColumn === player2.playerId
+              }"
+            >
+              <span
+                *ngIf="player1.playerId === player2.playerId"
+                class="font-bold text-white"
+              >
+                N/A
+              </span>
+              <span *ngIf="player1.playerId !== player2.playerId">
+                <span [ngClass]="getMatchResult(player2, player1).color">
+                  {{ getMatchResult(player2, player1).result }}
+                </span>
+              </span>
+            </td>
+            <td class="px-2 py-4 font-bold text-white">
+              {{ player1.fullName }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 </div>

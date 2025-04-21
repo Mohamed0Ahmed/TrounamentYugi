@@ -1,11 +1,7 @@
-<nav class="bg-gray-900 p-4">
-  <div
-    class="container mx-auto flex flex-col md:flex-row md:items-center md:justify-between"
-  >
+<nav class="fixed top-0 left-0 w-full z-50 bg-black  backdrop-blur-sm transition-all duration-300" >
+  <div class="container mx-auto flex flex-col md:flex-row md:items-center md:justify-between p-4">
     <!-- Row with 3 sections: logo | menu | auth -->
-    <div
-      class="w-full flex items-center justify-between md:grid md:grid-cols-3 md:gap-4"
-    >
+    <div class="w-full flex items-center justify-between md:gap-4">
       <!-- Left: Logo + Send Message (mobile) -->
       <div class="flex items-center gap-4">
         <a
@@ -24,14 +20,13 @@
         </a>
 
         <!-- Send Message (small screen only) -->
-
         <a
           *ngIf="isLoggedIn && !isAdmin"
           routerLink="/player/inbox"
           routerLinkActive="!text-indigo-300 bg-white/10 border-b-2 border-white"
-          class="md:hidden text-white hover:text-gray-300 hover:bg-gray-700 transition rounded py-2 px-2 cursor-pointer"
+          class="md:hidden font-bold text-white hover:text-gray-300 hover:bg-gray-700 transition rounded py-2 px-2 cursor-pointer"
         >
-          inbox
+          Inbox
         </a>
       </div>
 
@@ -74,9 +69,9 @@
           *ngIf="isLoggedIn && !isAdmin"
           routerLink="/player/inbox"
           routerLinkActive="!text-indigo-300 bg-white/10 border-b-2 border-white"
-          class="text-white hover:text-gray-300 hover:bg-gray-700 transition rounded py-2 px-2 cursor-pointer"
+          class="text-white font-bold hover:text-gray-300 hover:bg-gray-700 transition rounded py-2 px-2 cursor-pointer"
         >
-          inbox
+          Inbox
         </a>
 
         <ng-container *ngIf="!isLoggedIn">
@@ -188,10 +183,9 @@
   </div>
 </nav>
 
-<!-- ***************** -->
-
-<div class="min-h-[30px] bg-yellow-200 w-full" *ngIf="notes.length > 0">
+<!-- Notes Section -->
+<div class="min-h-[30px] w-full pt-16" *ngIf="notes.length > 0">
   <div *ngFor="let note of notes" class="pt-1">
-    <h2 class="text-center font-bold">{{ note.content }}</h2>
+    <h2 class="text-center text-white font-bold">{{ note.content }}</h2>
   </div>
 </div>
