@@ -21,6 +21,7 @@ import { NoteService } from 'src/app/core/services/note.service';
 })
 export class PlayersComponent implements OnInit {
   players: Player[] = [];
+  private playerOrder: number[] = []; // حفظ ترتيب اللاعبين الحالي
   selectedPlayer: Player | null = null;
   playerMatches: Match[] = [];
   displayMatches: Match[] = [];
@@ -82,11 +83,25 @@ export class PlayersComponent implements OnInit {
   loadMatches(): void {
     if (!this.selectedPlayer) return;
     this.matchService.getMatches().subscribe((matches) => {
-      this.playerMatches = matches.filter(
-        (m) =>
-          m.player1Id === this.selectedPlayer!.playerId ||
-          m.player2Id === this.selectedPlayer!.playerId
-      );
+      this.playerMatches = matches
+        .filter(
+          (m) =>
+            m.player1Id === this.selectedPlayer!.playerId ||
+            m.player2Id === this.selectedPlayer!.playerId
+        )
+        .sort((a, b) => {
+          const nameA =
+            (a.player1Id === this.selectedPlayer!.playerId
+              ? a.player2Name
+              : a.player1Name
+            )?.toLowerCase() ?? '';
+          const nameB =
+            (b.player1Id === this.selectedPlayer!.playerId
+              ? b.player2Name
+              : b.player1Name
+            )?.toLowerCase() ?? '';
+          return nameA.localeCompare(nameB);
+        });
       this.displayMatches = this.playerMatches.map((match) => {
         if (match.player2Id === this.selectedPlayer!.playerId) {
           return {
@@ -249,10 +264,26 @@ export class PlayersComponent implements OnInit {
   }
 
   getPlayers(): void {
+    // حفظ الترتيب الحالي قبل الجلب
+    this.playerOrder = this.players.map((p) => p.playerId);
+
     this.playerService.getPlayers().subscribe({
       next: (players) => {
-        this.players = players;
-        this.totalPlayers = players.length;
+        const typedPlayers = players as Player[];
+        // إعادة ترتيب اللاعبين حسب الترتيب السابق إذا كان موجود
+        if (this.playerOrder.length) {
+          typedPlayers.sort((a, b) => {
+            const aIndex = this.playerOrder.indexOf(a.playerId);
+            const bIndex = this.playerOrder.indexOf(b.playerId);
+            // إذا اللاعب جديد (غير موجود في الترتيب السابق)، ضعه في نهاية القائمة
+            return (
+              (aIndex === -1 ? Number.MAX_SAFE_INTEGER : aIndex) -
+              (bIndex === -1 ? Number.MAX_SAFE_INTEGER : bIndex)
+            );
+          });
+        }
+        this.players = typedPlayers;
+        this.totalPlayers = typedPlayers.length;
       },
       error: (err) => {
         this.toastr.error(err.message);
@@ -367,7 +398,6 @@ export class PlayersComponent implements OnInit {
         if (response) {
           this.leagues = response.reverse();
           console.log(response);
-
         } else {
           this.toastr.error(response);
         }
@@ -452,7 +482,6 @@ export class PlayersComponent implements OnInit {
     this.noteService.getNotes().subscribe((response) => {
       this.notes = response.notes;
       console.log(response);
-
     });
   }
 

@@ -14,6 +14,7 @@ interface PlayerChat {
   senderId: string;
   senderFullName: string;
   lastMessage: string;
+  lastMessageDate: string;
   unreadCount: number;
   messages: Message[];
 }
@@ -54,10 +55,11 @@ export class InboxComponent implements OnInit, AfterViewChecked {
         if (response && response.messages) {
           console.log('Loaded messages:', response.messages);
           const groupedMessages = this.groupMessagesBySender(response.messages);
+          // ترتيب حسب الأحدث (آخر رسالة)
           this.playerChats = groupedMessages.sort(
             (a, b) =>
-              new Date(b.messages[0].sentAt).getTime() -
-              new Date(a.messages[0].sentAt).getTime()
+              new Date(b.lastMessageDate).getTime() -
+              new Date(a.lastMessageDate).getTime()
           );
           this.cdr.detectChanges();
         } else {
@@ -81,26 +83,28 @@ export class InboxComponent implements OnInit, AfterViewChecked {
             senderId: playerId,
             senderFullName: msg.senderFullName,
             lastMessage: '',
+            lastMessageDate: '',
             unreadCount: 0,
             messages: [],
           };
         }
         chatMap[playerId].messages.push(msg);
-        if (!msg.isFromAdmin) {
-          chatMap[playerId].lastMessage = msg.content;
-          if (!msg.isRead) {
-            chatMap[playerId].unreadCount++;
-          }
+        if (!msg.isFromAdmin && !msg.isRead) {
+          chatMap[playerId].unreadCount++;
         }
       });
-    return Object.values(chatMap)
-      .filter((chat) => chat.messages.some((msg) => !msg.isFromAdmin))
-      .map((chat) => ({
-        ...chat,
-        messages: chat.messages.sort(
-          (a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime()
-        ),
-      }));
+
+    return Object.values(chatMap).map((chat) => {
+      // ترتيب الرسائل من الأقدم للأحدث
+      chat.messages = chat.messages.sort(
+        (a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime()
+      );
+      // آخر رسالة
+      const lastMsg = chat.messages[chat.messages.length - 1];
+      chat.lastMessage = lastMsg?.content ?? '';
+      chat.lastMessageDate = lastMsg?.sentAt ?? '';
+      return chat;
+    });
   }
 
   openChat(playerId: string): void {
