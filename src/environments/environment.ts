@@ -1,4 +1,4 @@
-var api = 'http://yugiapp.runasp.net/api';
+var api = 'https://yugiapp.runasp.net/api';
 
 // api = 'https://localhost:7144/api';
 
