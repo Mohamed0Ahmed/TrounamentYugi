@@ -1,6 +1,6 @@
-var api = 'https://yugiapp-hmapbahhh5gshwht.uaenorth-01.azurewebsites.net/api';
+var api = 'http://yugiapp.runasp.net/api';
 
-api = 'https://localhost:7144/api';
+// api = 'https://localhost:7144/api';
 
 export const environment = {
   production: false,

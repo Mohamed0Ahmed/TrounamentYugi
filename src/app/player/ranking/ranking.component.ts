@@ -24,8 +24,7 @@ export class RankingComponent implements OnInit {
         this.players = response;
         this.last = response.length - 1;
         this.started = this.players.every((match) => match.matchesPlayed === 0);
-        console.log(response);
-
+        // console.log(response);
       },
       error: (err) => {
         this.toastr.error('حدث خطا اثناء جلب اللاعبين');

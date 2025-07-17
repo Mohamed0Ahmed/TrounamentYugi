@@ -53,7 +53,7 @@ export class InboxComponent implements OnInit, AfterViewChecked {
     this.messageService.getMessages().subscribe({
       next: (response) => {
         if (response && response.messages) {
-          console.log('Loaded messages:', response.messages);
+          // console.log('Loaded messages:', response.messages);
           const groupedMessages = this.groupMessagesBySender(response.messages);
           // ترتيب حسب الأحدث (آخر رسالة)
           this.playerChats = groupedMessages.sort(
