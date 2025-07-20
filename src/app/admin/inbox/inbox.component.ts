@@ -12,7 +12,7 @@ import { ToastrService } from 'ngx-toastr';
 import { Message } from 'src/app/models/interfaces';
 import { CacheService } from 'src/app/core/services/cache.service';
 import { AdminBackgroundService } from 'src/app/core/services/admin-background.service';
-import { Subscription } from 'rxjs';
+import { Subscription, interval } from 'rxjs';
 
 interface PlayerChat {
   senderId: string;
@@ -34,6 +34,7 @@ export class InboxComponent implements OnInit, AfterViewChecked, OnDestroy {
   selectedChat: PlayerChat | null = null;
   replyMessages: { [messageId: number]: string } = {};
   private updateStatusSubscription?: Subscription;
+  private refreshSubscription?: Subscription;
 
   @ViewChild('messagesContainer')
   messagesContainer!: ElementRef<HTMLDivElement>;
@@ -49,23 +50,44 @@ export class InboxComponent implements OnInit, AfterViewChecked, OnDestroy {
   ngOnInit(): void {
     this.loadAdminMessages();
     this.subscribeToUpdates();
+    this.startPeriodicRefresh();
   }
 
   ngOnDestroy(): void {
     if (this.updateStatusSubscription) {
       this.updateStatusSubscription.unsubscribe();
     }
+    if (this.refreshSubscription) {
+      this.refreshSubscription.unsubscribe();
+    }
+  }
+
+  private startPeriodicRefresh(): void {
+    // Refresh messages every 30 seconds for immediate updates
+    this.refreshSubscription = interval(30000).subscribe(() => {
+      this.messageService.getAdminMessages().subscribe({
+        next: (response) => {
+          if (response && response.messages) {
+            const groupedMessages = this.groupMessagesBySender(response.messages);
+            // ترتيب المحادثات حسب الأحدث (آخر رسالة)
+            this.playerChats = groupedMessages.sort(
+              (a, b) =>
+                new Date(b.lastMessageDate).getTime() -
+                new Date(a.lastMessageDate).getTime()
+            );
+            // console.log('🔄 Periodic refresh completed');
+          }
+        },
+        error: (err) => {
+          // console.log('❌ Periodic refresh failed:', err);
+        },
+      });
+    });
   }
 
   private loadAdminMessages(): void {
-    // Check cache first
-    if (this.cacheService.has('admin-messages-list')) {
-      // console.log('📦 Loading messages from cache...');
-      this.loadFromCache();
-    } else {
-      // console.log('🌐 Loading messages from server...');
-      this.loadFromServer();
-    }
+    // Always load fresh data from server for immediate updates
+    this.loadFromServer();
   }
 
   private loadFromCache(): void {
@@ -84,7 +106,37 @@ export class InboxComponent implements OnInit, AfterViewChecked, OnDestroy {
     this.messageService.getAdminMessages().subscribe({
       next: (response) => {
         if (response && response.messages) {
-          this.playerChats = this.groupMessagesBySender(response.messages);
+          const groupedMessages = this.groupMessagesBySender(response.messages);
+          // ترتيب المحادثات حسب الأحدث (آخر رسالة)
+          this.playerChats = groupedMessages.sort(
+            (a, b) =>
+              new Date(b.lastMessageDate).getTime() -
+              new Date(a.lastMessageDate).getTime()
+          );
+          // console.log('🌐 Fresh messages loaded from server');
+        } else {
+          this.toastr.error('لا يوجد رسائل');
+        }
+      },
+      error: (err) => {
+        this.toastr.error(err.message);
+      },
+    });
+  }
+
+  // Add refresh method for immediate updates
+  refreshMessages(): void {
+    this.messageService.getAdminMessages().subscribe({
+      next: (response) => {
+        if (response && response.messages) {
+          const groupedMessages = this.groupMessagesBySender(response.messages);
+          // ترتيب المحادثات حسب الأحدث (آخر رسالة)
+          this.playerChats = groupedMessages.sort(
+            (a, b) =>
+              new Date(b.lastMessageDate).getTime() -
+              new Date(a.lastMessageDate).getTime()
+          );
+          // console.log('🔄 Messages refreshed from server');
         } else {
           this.toastr.error('لا يوجد رسائل');
         }
@@ -96,11 +148,10 @@ export class InboxComponent implements OnInit, AfterViewChecked, OnDestroy {
   }
 
   private subscribeToUpdates(): void {
-    this.updateStatusSubscription = this.adminBackgroundService.updateStatus$.subscribe(
-      (status) => {
+    this.updateStatusSubscription =
+      this.adminBackgroundService.updateStatus$.subscribe((status) => {
         // console.log('🔄 Admin inbox update status:', status);
-      }
-    );
+      });
   }
 
   ngAfterViewChecked(): void {

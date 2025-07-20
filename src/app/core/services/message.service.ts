@@ -11,10 +11,7 @@ import { CacheService } from './cache.service';
 export class MessageService {
   private baseUrl = environment.apiUrl;
 
-  constructor(
-    private http: HttpClient,
-    private cacheService: CacheService
-  ) {}
+  constructor(private http: HttpClient, private cacheService: CacheService) {}
 
   sendMessage(message: string): Observable<CommonResponse> {
     return this.http.post<CommonResponse>(`${this.baseUrl}/Message/send`, {
@@ -26,12 +23,9 @@ export class MessageService {
     return this.http.get<MessagesResponse>(`${this.baseUrl}/Message/inbox`);
   }
 
-  // Admin-specific method with 30-minute cache
+  // Admin-specific method - now loads fresh data immediately without caching
   getAdminMessages(): Observable<MessagesResponse> {
-    return this.cacheService.cacheAdminRequest(
-      'admin-messages-list',
-      this.http.get<MessagesResponse>(`${this.baseUrl}/Message/inbox`)
-    );
+    return this.http.get<MessagesResponse>(`${this.baseUrl}/Message/inbox`);
   }
 
   toggleMarkMessage(

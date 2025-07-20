@@ -21,18 +21,18 @@ export class AdminBackgroundService {
   private updateStatusSubject = new BehaviorSubject<AdminUpdateStatus>({
     isUpdating: false,
     lastUpdateTime: new Date(
-      this.getNextHalfHourTime().getTime() - 30 * 60 * 1000
+      this.getNextTwoMinuteTime().getTime() - 2 * 60 * 1000
     ),
-    nextUpdateTime: this.getNextHalfHourTime(),
+    nextUpdateTime: this.getNextTwoMinuteTime(),
     timeUntilNextUpdate: '',
   });
 
   public updateStatus$ = this.updateStatusSubject.asObservable();
 
   constructor(private http: HttpClient, private cacheService: CacheService) {
-    // Initialize lastUpdateTime to be 30 minutes before nextUpdateTime
-    const nextUpdateTime = this.getNextHalfHourTime();
-    const lastUpdateTime = new Date(nextUpdateTime.getTime() - 30 * 60 * 1000);
+    // Initialize lastUpdateTime to be 2 minutes before nextUpdateTime
+    const nextUpdateTime = this.getNextTwoMinuteTime();
+    const lastUpdateTime = new Date(nextUpdateTime.getTime() - 2 * 60 * 1000);
 
     // Update the initial status with proper lastUpdateTime
     this.updateStatusSubject.next({
@@ -64,23 +64,38 @@ export class AdminBackgroundService {
     );
   }
 
-  private startAutoUpdate() {
-    // Calculate time until next half hour
+  private getNextTwoMinuteTime(): Date {
     const now = new Date();
-    const nextHalfHour = this.getNextHalfHourTime();
-    const timeUntilNextHalfHour = nextHalfHour.getTime() - now.getTime();
-
-    // Start first update after time until next half hour
-    setTimeout(() => {
-      this.updateAdminData();
-      this.startHalfHourlyUpdates();
-    }, timeUntilNextHalfHour);
+    const minutes = now.getMinutes();
+    const nextTwoMinute = Math.ceil(minutes / 2) * 2;
+    return new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+      now.getHours(),
+      nextTwoMinute,
+      0,
+      0
+    );
   }
 
-  private startHalfHourlyUpdates() {
+  private startAutoUpdate() {
+    // Calculate time until next two minute interval
+    const now = new Date();
+    const nextTwoMinute = this.getNextTwoMinuteTime();
+    const timeUntilNextTwoMinute = nextTwoMinute.getTime() - now.getTime();
+
+    // Start first update after time until next two minute interval
+    setTimeout(() => {
+      this.updateAdminData();
+      this.startTwoMinuteUpdates();
+    }, timeUntilNextTwoMinute);
+  }
+
+  private startTwoMinuteUpdates() {
     this.updateInterval = setInterval(() => {
       this.updateAdminData();
-    }, 30 * 60 * 1000); // Every 30 minutes
+    }, 2 * 60 * 1000); // Every 2 minutes instead of 30 minutes
   }
 
   private updateAdminData() {
@@ -120,7 +135,7 @@ export class AdminBackgroundService {
     this.http.get<[]>(`${this.baseUrl}/Message/inbox`).subscribe({
       next: (data) => {
         // console.log('✅ Messages updated');
-        this.cacheService.set('admin-messages-list', data, 30 * 60 * 1000);
+        this.cacheService.set('admin-messages-list', data, 2 * 60 * 1000); // 2 minutes cache instead of 30
       },
       error: (error) => {
         console.error('❌ Failed to update messages:', error);
@@ -164,10 +179,10 @@ export class AdminBackgroundService {
 
     setTimeout(() => {
       this.isUpdating = false;
-      const nextUpdateTime = this.getNextHalfHourTime();
-      // Set lastUpdateTime to be exactly 30 minutes before nextUpdateTime
+      const nextUpdateTime = this.getNextTwoMinuteTime();
+      // Set lastUpdateTime to be exactly 2 minutes before nextUpdateTime
       const lastUpdateTime = new Date(
-        nextUpdateTime.getTime() - 30 * 60 * 1000
+        nextUpdateTime.getTime() - 2 * 60 * 1000
       );
 
       this.updateStatusSubject.next({
