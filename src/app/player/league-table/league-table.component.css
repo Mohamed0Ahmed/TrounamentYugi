@@ -1,0 +1,40 @@
+/* Sticky last column for player names */
+.sticky-column {
+  position: sticky;
+  right: 0;
+  z-index: 50;
+  box-shadow: -2px 0 4px rgba(0, 0, 0, 0.3);
+  /* Ensure the background covers any content underneath */
+  backdrop-filter: blur(0px);
+}
+
+/* Override background for header sticky column */
+thead .sticky-column {
+  background-color: rgb(0 0 0); /* bg-black */
+}
+
+/* Override background for body sticky columns based on row index */
+tbody tr:nth-child(even) .sticky-column {
+  background-color: rgb(3 7 18); /* bg-gray-950 */
+}
+
+tbody tr:nth-child(odd) .sticky-column {
+  background-color: rgb(17 24 39); /* bg-gray-900 */
+}
+
+/* Ensure the table container has proper overflow */
+.table-container {
+  overflow-x: auto;
+  position: relative;
+}
+
+/* Add some padding to the right to prevent content from being hidden behind sticky column */
+.table-container::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 2px;
+  height: 100%;
+  background: transparent;
+}
