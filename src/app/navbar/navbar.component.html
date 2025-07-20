@@ -135,6 +135,7 @@
           routerLink="/player/forbidden"
           routerLinkActive="!text-indigo-300 bg-white/10 border-b-2 border-white"
           class="text-white hover:text-gray-300 hover:bg-gray-700 transition rounded py-2 px-2"
+          (click)="closeMenu()"
         >
           Forbidden Cards
         </a>
@@ -142,6 +143,7 @@
           routerLink="/player/allLeagues"
           routerLinkActive="!text-indigo-300 bg-white/10 border-b-2 border-white"
           class="text-white hover:text-gray-300 hover:bg-gray-700 transition rounded py-2 px-2"
+          (click)="closeMenu()"
         >
           All Leagues
         </a>
@@ -149,6 +151,7 @@
           routerLink="/player/league-table"
           routerLinkActive="!text-indigo-300 bg-white/10 border-b-2 border-white"
           class="text-white hover:text-gray-300 hover:bg-gray-700 transition rounded py-2 px-2"
+          (click)="closeMenu()"
         >
           League Table
         </a>
@@ -156,6 +159,7 @@
           routerLink="/player/ranking"
           routerLinkActive="!text-indigo-300 bg-white/10 border-b-2 border-white"
           class="text-white hover:text-gray-300 hover:bg-gray-700 transition rounded py-2 px-2"
+          (click)="closeMenu()"
         >
           Ranking
         </a>
@@ -164,12 +168,14 @@
           <a
             routerLink="/auth/login"
             class="text-white hover:text-gray-300 hover:bg-gray-700 transition rounded py-2 px-2"
+            (click)="closeMenu()"
           >
             Login
           </a>
           <a
             routerLink="/auth/register"
             class="text-white hover:text-gray-300 hover:bg-gray-700 transition rounded py-2 px-2"
+            (click)="closeMenu()"
           >
             Register
           </a>
@@ -177,7 +183,7 @@
 
         <a
           *ngIf="isLoggedIn"
-          (click)="logout()"
+          (click)="logout(); closeMenu()"
           class="text-white hover:text-gray-300 hover:bg-gray-700 transition rounded py-2 px-2 cursor-pointer"
         >
           Logout

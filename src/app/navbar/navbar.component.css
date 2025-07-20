@@ -1,0 +1,11 @@
+/* Navbar with highest z-index to appear above everything */
+.navbar {
+  position: relative;
+  z-index: 9999;
+}
+
+/* Override the z-index for the nav element to ensure it's above everything */
+nav {
+  position: fixed !important;
+  z-index: 9999 !important;
+}
