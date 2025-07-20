@@ -7,6 +7,7 @@ import {
   Match,
 } from './../../models/interfaces';
 import { OwlOptions } from 'ngx-owl-carousel-o';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-all-leagues',
@@ -22,18 +23,37 @@ export class AllLeaguesComponent implements OnInit {
   LeagueId: number = 0;
   isModalOpen: boolean = false;
 
-  constructor(private leagueService: LeagueService) {}
+  constructor(
+    private leagueService: LeagueService,
+    private toastr: ToastrService
+  ) {}
 
   ngOnInit(): void {
-    this.loadData();
+    this.leagueService.GetAllLeaguesRank().subscribe({
+      next: (response) => {
+        if (response) {
+          this.leaguesRank = response.reverse();
+          // console.log('All leagues data loaded from cache or server');
+        } else {
+          this.toastr.error(response);
+        }
+      },
+      error: (err) => {
+        this.toastr.error(err.message);
+      },
+    });
   }
 
   loadData() {
     this.leagueService.GetAllLeaguesRank().subscribe({
       next: (response) => {
         this.leaguesRank = response.reverse();
+        // console.log('All leagues data loaded from cache or server');
       },
-      error: (error) => console.error('Error fetching leagues rank:', error),
+      error: (error) => {
+        // console.error('Error fetching leagues rank:', error);
+        this.toastr.error('حدث خطأ أثناء تحميل بيانات الدوريات');
+      },
     });
   }
 
@@ -66,7 +86,10 @@ export class AllLeaguesComponent implements OnInit {
           this.matches = [];
         }
       },
-      error: (error) => console.error('Error fetching leagues matches:', error),
+      error: (error) => {
+        // console.error('Error fetching leagues matches:', error);
+        this.toastr.error('حدث خطأ أثناء تحميل مباريات الدوري');
+      },
     });
 
     this.leagueService.GetAllLeaguesRank().subscribe({
@@ -75,11 +98,14 @@ export class AllLeaguesComponent implements OnInit {
           const league = response.find((l) => l.leagueId === id);
           this.players = league ? league.players : [];
         } else {
-          console.error('Response is not an array:', response);
+          // console.error('Response is not an array:', response);
           this.players = [];
         }
       },
-      error: (error) => console.error('Error fetching leagues rank:', error),
+      error: (error) => {
+        // console.error('Error fetching leagues rank:', error);
+        this.toastr.error('حدث خطأ أثناء تحميل ترتيب الدوري');
+      },
     });
   }
 

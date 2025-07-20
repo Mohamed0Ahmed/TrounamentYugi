@@ -5,10 +5,14 @@ import {
   ViewChild,
   ElementRef,
   AfterViewChecked,
+  OnDestroy,
 } from '@angular/core';
 import { MessageService } from 'src/app/core/services/message.service';
 import { ToastrService } from 'ngx-toastr';
 import { Message } from 'src/app/models/interfaces';
+import { CacheService } from 'src/app/core/services/cache.service';
+import { AdminBackgroundService } from 'src/app/core/services/admin-background.service';
+import { Subscription } from 'rxjs';
 
 interface PlayerChat {
   senderId: string;
@@ -24,11 +28,12 @@ interface PlayerChat {
   templateUrl: './inbox.component.html',
   styleUrls: ['./inbox.component.css'],
 })
-export class InboxComponent implements OnInit, AfterViewChecked {
+export class InboxComponent implements OnInit, AfterViewChecked, OnDestroy {
   playerChats: PlayerChat[] = [];
   selectedPlayerId: string | null = null;
   selectedChat: PlayerChat | null = null;
   replyMessages: { [messageId: number]: string } = {};
+  private updateStatusSubscription?: Subscription;
 
   @ViewChild('messagesContainer')
   messagesContainer!: ElementRef<HTMLDivElement>;
@@ -36,11 +41,66 @@ export class InboxComponent implements OnInit, AfterViewChecked {
   constructor(
     private messageService: MessageService,
     private toastr: ToastrService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private cacheService: CacheService,
+    private adminBackgroundService: AdminBackgroundService
   ) {}
 
   ngOnInit(): void {
-    this.loadMessages();
+    this.loadAdminMessages();
+    this.subscribeToUpdates();
+  }
+
+  ngOnDestroy(): void {
+    if (this.updateStatusSubscription) {
+      this.updateStatusSubscription.unsubscribe();
+    }
+  }
+
+  private loadAdminMessages(): void {
+    // Check cache first
+    if (this.cacheService.has('admin-messages-list')) {
+      // console.log('📦 Loading messages from cache...');
+      this.loadFromCache();
+    } else {
+      // console.log('🌐 Loading messages from server...');
+      this.loadFromServer();
+    }
+  }
+
+  private loadFromCache(): void {
+    // Load messages from cache
+    const cachedMessages = this.cacheService.get<any>('admin-messages-list');
+    if (cachedMessages && cachedMessages.messages) {
+      this.playerChats = this.groupMessagesBySender(cachedMessages.messages);
+      // console.log('📦 Loading messages from cache...');
+    } else {
+      // console.log('🌐 Loading messages from server...');
+      this.loadFromServer();
+    }
+  }
+
+  private loadFromServer(): void {
+    this.messageService.getAdminMessages().subscribe({
+      next: (response) => {
+        if (response && response.messages) {
+          this.playerChats = this.groupMessagesBySender(response.messages);
+        } else {
+          this.toastr.error('لا يوجد رسائل');
+        }
+      },
+      error: (err) => {
+        this.toastr.error(err.message);
+      },
+    });
+  }
+
+  private subscribeToUpdates(): void {
+    this.updateStatusSubscription = this.adminBackgroundService.updateStatus$.subscribe(
+      (status) => {
+        // console.log('🔄 Admin inbox update status:', status);
+      }
+    );
   }
 
   ngAfterViewChecked(): void {
@@ -53,15 +113,7 @@ export class InboxComponent implements OnInit, AfterViewChecked {
     this.messageService.getMessages().subscribe({
       next: (response) => {
         if (response && response.messages) {
-          // console.log('Loaded messages:', response.messages);
-          const groupedMessages = this.groupMessagesBySender(response.messages);
-          // ترتيب حسب الأحدث (آخر رسالة)
-          this.playerChats = groupedMessages.sort(
-            (a, b) =>
-              new Date(b.lastMessageDate).getTime() -
-              new Date(a.lastMessageDate).getTime()
-          );
-          this.cdr.detectChanges();
+          this.processMessages(response.messages);
         } else {
           this.toastr.error('لا يوجد رسائل الآن');
         }
@@ -70,6 +122,17 @@ export class InboxComponent implements OnInit, AfterViewChecked {
         this.toastr.error('حصل خطأ أثناء جلب الرسائل');
       },
     });
+  }
+
+  private processMessages(messages: Message[]): void {
+    const groupedMessages = this.groupMessagesBySender(messages);
+    // ترتيب حسب الأحدث (آخر رسالة)
+    this.playerChats = groupedMessages.sort(
+      (a, b) =>
+        new Date(b.lastMessageDate).getTime() -
+        new Date(a.lastMessageDate).getTime()
+    );
+    this.cdr.detectChanges();
   }
 
   groupMessagesBySender(messages: Message[]): PlayerChat[] {

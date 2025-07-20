@@ -1,6 +1,6 @@
 import { MatchService } from 'src/app/core/services/match.service';
 import { PlayerService } from './../../core/services/player.service';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import {
   Player,
   Match,
@@ -13,13 +13,16 @@ import { ToastrService } from 'ngx-toastr';
 import { LeagueService } from 'src/app/core/services/league.service';
 import { MessageService } from 'src/app/core/services/message.service';
 import { NoteService } from 'src/app/core/services/note.service';
+import { AdminBackgroundService } from 'src/app/core/services/admin-background.service';
+import { CacheService } from 'src/app/core/services/cache.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-players',
   templateUrl: './players.component.html',
   styleUrls: ['./players.component.css'],
 })
-export class PlayersComponent implements OnInit {
+export class PlayersComponent implements OnInit, OnDestroy {
   players: Player[] = [];
   private playerOrder: number[] = []; // حفظ ترتيب اللاعبين الحالي
   selectedPlayer: Player | null = null;
@@ -37,7 +40,7 @@ export class PlayersComponent implements OnInit {
   private requestQueue: Array<() => Promise<void>> = [];
   private isProcessingQueue = false;
   showResetModal: boolean = false;
-  leagueData!: League;
+  leagueData: League | null = null;
   showStartLeagueModal: boolean = false;
   newLeague: StartLeagueDto = {
     Name: '',
@@ -52,22 +55,128 @@ export class PlayersComponent implements OnInit {
   leagues: AllLeagueRank[] = [];
   newNote: string = '';
   selectedLeagueToDelete: AllLeagueRank | null = null;
+  private updateStatusSubscription?: Subscription;
+
   constructor(
     private playerService: PlayerService,
     private matchService: MatchService,
     private toastr: ToastrService,
     private leagueService: LeagueService,
     private messageService: MessageService,
-    private noteService: NoteService
+    private noteService: NoteService,
+    private adminBackgroundService: AdminBackgroundService,
+    private cacheService: CacheService
   ) {}
 
   ngOnInit(): void {
-    this.getPlayers();
-    this.getCurrentLeague();
-    this.getMatches();
-    this.getMessages();
-    this.GetAllLeagyes();
-    this.getNotes();
+    this.loadAdminData();
+    this.subscribeToUpdates();
+  }
+
+  ngOnDestroy(): void {
+    if (this.updateStatusSubscription) {
+      this.updateStatusSubscription.unsubscribe();
+    }
+  }
+
+  private loadAdminData(): void {
+    // Check cache first
+    const hasCachedData =
+      this.cacheService.has('admin-players-list') &&
+      this.cacheService.has('admin-matches-list') &&
+      this.cacheService.has('admin-messages-list') &&
+      this.cacheService.has('admin-notes-list') &&
+      this.cacheService.has('admin-all-leagues-list');
+
+    if (hasCachedData) {
+      // console.log('📦 Loading admin data from cache...');
+      this.loadFromCache();
+    } else {
+      // console.log('🌐 Loading admin data from server...');
+      this.loadFromServer();
+    }
+  }
+
+  private loadFromCache(): void {
+    // Load players from cache
+    const cachedPlayers = this.cacheService.get<Player[]>('admin-players-list');
+    if (cachedPlayers) {
+      this.players = cachedPlayers;
+      this.totalPlayers = cachedPlayers.length;
+    }
+
+    // Load matches from cache
+    const cachedMatches = this.cacheService.get<Match[]>('admin-matches-list');
+    if (cachedMatches) {
+      this.totalMatches = cachedMatches.length;
+      this.totalMatchesLeft = cachedMatches.filter(
+        (match) => match.isCompleted == false
+      ).length;
+    }
+
+    // Load messages from cache
+    const cachedMessages = this.cacheService.get<any>('admin-messages-list');
+    if (cachedMessages) {
+      this.totalMessagesLeft = cachedMessages.messages.filter(
+        (m: any) => m.isRead == false
+      ).length;
+    }
+
+    // Load notes from cache
+    const cachedNotes = this.cacheService.get<any>('admin-notes-list');
+    if (cachedNotes) {
+      this.notes = cachedNotes.notes;
+    }
+
+    // Load leagues from cache
+    const cachedLeagues = this.cacheService.get<AllLeagueRank[]>(
+      'admin-all-leagues-list'
+    );
+    if (cachedLeagues) {
+      this.leagues = cachedLeagues;
+    }
+
+    // Load current league from cache
+    const cachedCurrentLeague = this.cacheService.get<any>(
+      'admin-current-league'
+    );
+    if (cachedCurrentLeague) {
+      this.leagueData = cachedCurrentLeague.league;
+      // console.log('📦 Loaded current league from cache:', this.leagueData);
+    } else {
+      // If not in cache, load from server
+      // console.log('🌐 Loading current league from server...');
+      this.loadCurrentLeagueFromServer();
+    }
+  }
+
+  private loadCurrentLeagueFromServer(): void {
+    this.leagueService.GetCurrentLeague().subscribe({
+      next: (data) => {
+        this.leagueData = data.league;
+        // console.log('✅ Loaded current league from server:', this.leagueData);
+      },
+      error: (err) => {
+        console.error('❌ Failed to load current league:', err);
+        this.leagueData = null;
+      },
+    });
+  }
+
+  private loadFromServer(): void {
+    this.getAdminPlayers();
+    this.getAdminMatches();
+    this.getAdminMessages();
+    this.getAdminAllLeagues();
+    this.getAdminNotes();
+  }
+
+  private subscribeToUpdates(): void {
+    this.updateStatusSubscription =
+      this.adminBackgroundService.updateStatus$.subscribe((status) => {
+        // You can add UI updates here if needed
+        // console.log('🔄 Admin update status:', status);
+      });
   }
 
   toggleSidebar(): void {
@@ -155,8 +264,10 @@ export class PlayersComponent implements OnInit {
             next: (response) => {
               if (response.success) {
                 this.toastr.success(response.message);
+                // Invalidate admin cache and reload data
+                this.adminBackgroundService.invalidateAdminCache();
                 this.loadMatches();
-                this.getMatches();
+                this.getAdminMatches();
               } else {
                 this.toastr.error(response.message);
               }
@@ -204,7 +315,9 @@ export class PlayersComponent implements OnInit {
     event.stopPropagation();
     this.playerService.deletePlayer(playerId).subscribe(() => {
       this.toastr.warning('Player deleted!', 'Deleted');
-      this.getPlayers();
+      // Invalidate admin cache and reload data
+      this.adminBackgroundService.invalidateAdminCache();
+      this.getAdminPlayers();
       if (this.selectedPlayer?.playerId === playerId) {
         this.selectedPlayer = null;
         this.playerMatches = [];
@@ -227,7 +340,9 @@ export class PlayersComponent implements OnInit {
     this.playerService.addPlayer(this.newPlayerName).subscribe((response) => {
       if (response.success) {
         this.toastr.success(response.message);
-        this.getPlayers();
+        // Invalidate admin cache and reload data
+        this.adminBackgroundService.invalidateAdminCache();
+        this.getAdminPlayers();
         this.loadMatches();
         this.closeModal();
       } else this.toastr.warning(response.message);
@@ -312,9 +427,10 @@ export class PlayersComponent implements OnInit {
         if (response.success) {
           this.toastr.success(response.message);
           this.showResetModal = false;
-          this.getCurrentLeague();
+          // Invalidate admin cache and reload data
+          this.adminBackgroundService.invalidateAdminCache();
           this.loadMatches();
-          this.getPlayers();
+          this.getAdminPlayers();
           this.showEndLeagueModal = false;
         } else {
           this.toastr.error(response.message);
@@ -352,7 +468,8 @@ export class PlayersComponent implements OnInit {
         if (response.success) {
           this.toastr.success(response.message);
           this.closeStartLeagueModal();
-          this.getCurrentLeague();
+          // Invalidate admin cache and reload data
+          this.adminBackgroundService.invalidateAdminCache();
         } else {
           this.toastr.error(response.message, 'Error');
         }
@@ -360,17 +477,6 @@ export class PlayersComponent implements OnInit {
       error: (err) => {
         this.toastr.error('Failed to start league');
         console.error(err);
-      },
-    });
-  }
-
-  getCurrentLeague(): void {
-    this.leagueService.GetCurrentLeague().subscribe({
-      next: (data) => {
-        this.leagueData = data.league;
-      },
-      error: (err) => {
-        this.toastr.error(err.message);
       },
     });
   }
@@ -482,6 +588,80 @@ export class PlayersComponent implements OnInit {
     this.noteService.getNotes().subscribe((response) => {
       this.notes = response.notes;
       // console.log(response);
+    });
+  }
+
+  // Admin-specific methods with cache
+  getAdminPlayers(): void {
+    this.playerService.getAdminPlayers().subscribe({
+      next: (players) => {
+        const typedPlayers = players as Player[];
+        if (this.playerOrder.length) {
+          typedPlayers.sort((a, b) => {
+            const aIndex = this.playerOrder.indexOf(a.playerId);
+            const bIndex = this.playerOrder.indexOf(b.playerId);
+            return (
+              (aIndex === -1 ? Number.MAX_SAFE_INTEGER : aIndex) -
+              (bIndex === -1 ? Number.MAX_SAFE_INTEGER : bIndex)
+            );
+          });
+        }
+        this.players = typedPlayers;
+        this.totalPlayers = typedPlayers.length;
+      },
+      error: (err) => {
+        this.toastr.error(err.message);
+      },
+    });
+  }
+
+  getAdminMatches(): void {
+    this.matchService.getAdminMatches().subscribe({
+      next: (response) => {
+        if (response) {
+          this.totalMatches = response.length;
+          this.totalMatchesLeft = response.filter(
+            (match) => match.isCompleted == false
+          ).length;
+        }
+      },
+      error: (err) => {
+        this.toastr.error(err.message);
+      },
+    });
+  }
+
+  getAdminMessages(): void {
+    this.messageService.getAdminMessages().subscribe({
+      next: (response) => {
+        if (response) {
+          this.totalMessagesLeft = response.messages.filter(
+            (m) => m.isRead == false
+          ).length;
+        } else {
+          this.toastr.error('لا يوجد رسائل');
+        }
+      },
+      error: (err) => {
+        this.toastr.error(err.message);
+      },
+    });
+  }
+
+  getAdminAllLeagues(): void {
+    this.leagueService.getAdminAllLeagues().subscribe({
+      next: (response) => {
+        this.leagues = response;
+      },
+      error: (err) => {
+        this.toastr.error(err.message);
+      },
+    });
+  }
+
+  getAdminNotes(): void {
+    this.noteService.getAdminNotes().subscribe((response) => {
+      this.notes = response.notes;
     });
   }
 

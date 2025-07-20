@@ -1,10 +1,13 @@
 <div class="sm:container mx-auto p-4">
   <h2 class="text-3xl text-white text-center mb-6 font-bold">Rank Table</h2>
 
+  <!-- Update Status Component -->
+  <app-update-status></app-update-status>
+
   <div *ngIf="started" class="flex justify-center text-white">
     <div class="w-1/2 text-center mt-10">
       <h1
-        class="mb-4 text-4xl font-extrabold leading-none tracking-tight  md:text-5xl lg:text-6xl text-white"
+        class="mb-4 text-4xl font-extrabold leading-none tracking-tight md:text-5xl lg:text-6xl text-white"
       >
         The League Will Start Soon !
       </h1>
@@ -13,13 +16,9 @@
 
   <div *ngIf="!started" class="overflow-x-auto">
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
-      <table
-        class="w-full text-sm text-left rtl:text-right text-gray-100"
-      >
-        <thead
-          class="text-xs font-bold text-gray-100 uppercase bg-black "
-        >
-          <tr class="text-center ">
+      <table class="w-full text-sm text-left rtl:text-right text-gray-100">
+        <thead class="text-xs font-bold text-gray-100 uppercase bg-black">
+          <tr class="text-center">
             <th scope="col" class="px-2 py-3">Rank</th>
             <th scope="col" class="px-2 py-3">Name</th>
             <th scope="col" class="px-2 py-3">points</th>
@@ -33,16 +32,12 @@
         <tbody>
           <tr
             *ngFor="let player of players; let i = index"
-            class="border-b text-center  border-gray-700  hover:bg-gray-600 font-bold text-sm md:text-[16px] "
-            [ngClass]="
-              i % 2 === 0
-                ? 'bg-gray-900'
-                : 'bg-gray-950'
-            "
+            class="border-b text-center border-gray-700 hover:bg-gray-600 font-bold text-sm md:text-[16px]"
+            [ngClass]="i % 2 === 0 ? 'bg-gray-900' : 'bg-gray-950'"
           >
             <th
               scope="row"
-              class="px-2 py-4 font-medium text-white whitespace-nowrap  relative"
+              class="px-2 py-4 font-medium text-white whitespace-nowrap relative"
             >
               <i
                 class="fa-solid fa-crown absolute top-[50%] left-[10px] md:left-10 translate-y-[-50%]"
@@ -74,7 +69,7 @@
               {{ player.matchesPlayed }}
             </td>
             <td
-              class="px-2 py-4 text-center "
+              class="px-2 py-4 text-center"
               [ngClass]="
                 player.winRate > 50 ? 'text-green-500' : 'text-red-600'
               "

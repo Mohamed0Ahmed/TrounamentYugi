@@ -7,8 +7,11 @@ import { ToastrModule } from 'ngx-toastr';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NavbarComponent } from './navbar/navbar.component';
 import { AuthInterceptor } from './interceptors/auth-interceptor.service';
+import { CacheInterceptor } from './core/interceptors/cache-interceptor.service';
 import { PlayerModule } from './player/player.module';
 import { NgxSpinnerModule } from 'ngx-spinner';
+import { BackgroundUpdateService } from './core/services/background-update.service';
+import { AdminBackgroundService } from './core/services/admin-background.service';
 
 @NgModule({
   declarations: [AppComponent, NavbarComponent],
@@ -27,6 +30,7 @@ import { NgxSpinnerModule } from 'ngx-spinner';
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: CacheInterceptor, multi: true },
     NgxSpinnerModule,
   ],
   bootstrap: [AppComponent],

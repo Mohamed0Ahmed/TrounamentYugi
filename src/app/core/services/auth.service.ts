@@ -23,22 +23,22 @@ export class AuthService {
     }
   }
 
-  login(email: string, password: string): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(`${this.baseUrl}/auth/login`, { email, password }).pipe(
-      tap(response => {
-        if (response.success && response.token) {
-          localStorage.setItem('token', response.token);
-          this.userRole = this.getRoleFromToken(response.token);
-
-          this.isLoggedInSubject.next(true);
-          if (this.userRole === 'Admin') {
-            this.router.navigate(['/admin']);
-          } else {
-            this.router.navigate(['/player']);
-          }
-        }
+  login(phoneNumber: string, password: string): Observable<any> {
+    return this.http
+      .post<any>(`${this.baseUrl}/auth/login`, {
+        phoneNumber,
+        password,
       })
-    );
+      .pipe(
+        tap((response) => {
+          if (response.success) {
+            localStorage.setItem('token', response.token);
+            localStorage.setItem('userRole', response.userRole);
+            this.userRole = response.userRole;
+            // console.log (this.userRole);
+          }
+        })
+      );
   }
 
   playerLogin(phoneNumber: string, password: string): Observable<LoginResponse> {
@@ -51,7 +51,7 @@ export class AuthService {
 
           this.isLoggedInSubject.next(true);
           this.router.navigate(['/player']);
-          console.log (this.userRole);
+          // console.log (this.userRole);
 
         }
       })

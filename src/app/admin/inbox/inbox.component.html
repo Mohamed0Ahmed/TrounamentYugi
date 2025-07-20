@@ -7,6 +7,9 @@
     [ngClass]="{ hidden: selectedChat }"
   >
     <h2 class="text-2xl font-bold text-center mb-6 text-white">📥 Inbox</h2>
+    
+    <!-- Admin Update Status -->
+    <app-admin-update-status></app-admin-update-status>
 
     <!-- No Chats -->
     <div *ngIf="playerChats.length === 0" class="text-center text-gray-300">

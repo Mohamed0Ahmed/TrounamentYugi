@@ -8,7 +8,8 @@ import { FormsModule } from '@angular/forms';
 import { FindPlayerPipe } from '../pipes/find-player.pipe';
 import { HttpClientModule } from '@angular/common/http';
 import { UtcToLocalPipe } from '../pipes/utcToLocal.pipe';
-import { PlayerModule } from "../player/player.module";
+import { PlayerModule } from '../player/player.module';
+import { SharedModule } from '../shared/shared.module';
 
 @NgModule({
   declarations: [
@@ -17,6 +18,13 @@ import { PlayerModule } from "../player/player.module";
     FindPlayerPipe,
     UtcToLocalPipe,
   ],
-  imports: [CommonModule, AdminRoutingModule, FormsModule, HttpClientModule, PlayerModule],
+  imports: [
+    CommonModule,
+    AdminRoutingModule,
+    FormsModule,
+    HttpClientModule,
+    PlayerModule,
+    SharedModule,
+  ],
 })
 export class AdminModule {}
