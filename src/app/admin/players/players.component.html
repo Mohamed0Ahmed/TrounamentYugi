@@ -133,7 +133,7 @@
             class="absolute -top-2 -right-2 w-[30px] h-[30px] rounded-full bg-green-600 flex justify-center items-center"
             *ngIf="totalMessagesLeft > 0"
           >
-            <h2 class="text-white font-bold">{{ totalMessagesLeft }}</h2>
+            <h4 class="text-white font-bold">{{ totalMessagesLeft }}</h4>
           </div>
         </button>
         <button
@@ -554,9 +554,9 @@
             class="mt-4 flex items-center justify-end"
             *ngIf="note.isDeleted == false"
           >
-            <h2 class="font-bold px-3 text-white">
+            <p class="font-bold px-3 text-white">
               {{ note.content }}
-            </h2>
+            </p>
             <button
               class="bg-red-600 px-4 py-2 text-white rounded mr-2 hover:bg-red-700 transition"
               (click)="toggleDeleteNote(note.id)"

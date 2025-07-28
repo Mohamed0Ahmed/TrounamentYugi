@@ -1,11 +1,13 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { UpdateStatusComponent } from './update-status/update-status.component';
-import { AdminUpdateStatusComponent } from './admin-update-status/admin-update-status.component';
 
 @NgModule({
-  declarations: [UpdateStatusComponent, AdminUpdateStatusComponent],
+  declarations: [
+    // ✅ تم حذف UpdateStatusComponent و AdminUpdateStatusComponent - مالهمش لازمة
+  ],
   imports: [CommonModule],
-  exports: [UpdateStatusComponent, AdminUpdateStatusComponent],
+  exports: [
+    // ✅ تم تنظيف exports
+  ],
 })
 export class SharedModule {}

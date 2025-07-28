@@ -15,8 +15,12 @@ import { ToastrService } from 'ngx-toastr';
 import { LeagueService } from 'src/app/core/services/league.service';
 import { MessageService } from 'src/app/core/services/message.service';
 import { NoteService } from 'src/app/core/services/note.service';
-import { AdminBackgroundService } from 'src/app/core/services/admin-background.service';
-import { Subscription } from 'rxjs';
+// ✅ تم حذف AdminBackgroundService - مالوش لازمة
+import {
+  AdminDashboardService,
+  AdminDashboardData,
+} from 'src/app/core/services/admin-dashboard.service';
+import { Subscription, interval } from 'rxjs';
 
 @Component({
   selector: 'app-players',
@@ -57,7 +61,7 @@ export class PlayersComponent implements OnInit, OnDestroy {
   leagues: AllLeagueRank[] = [];
   newNote: string = '';
   selectedLeagueToDelete: AllLeagueRank | null = null;
-  private updateStatusSubscription?: Subscription;
+  // ✅ تم حذف updateStatusSubscription - مالوش لازمة
 
   // New properties for tournament stage management
   currentMatches: Match[] = [];
@@ -72,19 +76,19 @@ export class PlayersComponent implements OnInit, OnDestroy {
     private leagueService: LeagueService,
     private messageService: MessageService,
     private noteService: NoteService,
-    private adminBackgroundService: AdminBackgroundService
+    // ✅ تم حذف adminBackgroundService
+    private adminDashboardService: AdminDashboardService
   ) {}
 
   ngOnInit(): void {
-    // استدعاء التحميل من السيرفر فقط
-    this.loadFromServer();
+    // تحميل البيانات الأساسية مع Smart Caching
+    this.loadEssentialData();
     this.subscribeToUpdates();
+    // ✅ تم إلغاء Background refresh تماماً - مالوش لازمة
   }
 
   ngOnDestroy(): void {
-    if (this.updateStatusSubscription) {
-      this.updateStatusSubscription.unsubscribe();
-    }
+    // ✅ لا توجد subscriptions للإلغاء - تم حذف AdminBackgroundService
   }
 
   private loadCurrentLeagueFromServer(): void {
@@ -101,23 +105,55 @@ export class PlayersComponent implements OnInit, OnDestroy {
     });
   }
 
-  private loadFromServer(): void {
-    this.getAdminPlayers();
-    this.getAdminMatches();
-    this.getAdminMessages();
-    this.getAdminAllLeagues();
-    this.getAdminNotes();
-    this.loadCurrentLeagueFromServer();
-    this.loadCurrentMatches(); // Add this line
+  /**
+   * 🚀 Cache First Strategy - عرض فوري للبيانات من الكاش
+   * تحميل ALL البيانات بدون انتظار أو spinner
+   */
+  private loadEssentialData(): void {
+    this.adminDashboardService.getEssentialData().subscribe({
+      next: (data: AdminDashboardData) => {
+        // ✅ عرض جميع البيانات فوراً من الكاش
+        this.players = data.players;
+        this.currentMatches = data.matches;
+        this.leagueData = data.currentLeague;
+        this.leagues = data.allLeagues;
+        this.notes = data.notes;
+
+        // ✅ عرض إحصائيات كاملة بما فيها عدد الرسائل
+        this.totalPlayers = data.stats.totalPlayers;
+        this.totalMatches = data.stats.totalMatches;
+        this.totalMatchesLeft = data.stats.totalMatchesLeft;
+        this.totalMessagesLeft = data.stats.totalMessagesLeft;
+
+        // Update tournament stage button
+        this.updateTournamentStageButton();
+
+        console.log('🚀 ALL data loaded instantly from cache:', {
+          players: data.players.length,
+          matches: data.matches.length,
+          leagues: data.allLeagues.length,
+          notes: data.notes.length,
+          messages: data.messages.length,
+          messagesUnread: data.stats.totalMessagesLeft,
+        });
+      },
+      error: (err) => {
+        console.error('❌ Failed to load data:', err);
+        this.toastr.error('حدث خطأ أثناء تحميل البيانات');
+      },
+    });
   }
 
   private subscribeToUpdates(): void {
-    this.updateStatusSubscription =
-      this.adminBackgroundService.updateStatus$.subscribe((status) => {
-        // You can add UI updates here if needed
-        // console.log('🔄 Admin update status:', status);
-      });
+    // ✅ تم حذف AdminBackgroundService subscriptions - مالهاش لازمة
   }
+
+  // ✅ تم حذف Background refresh تماماً - مالوش لازمة أصلاً
+
+  /**
+   * ✅ لا حاجة للـ lazy loading - البيانات متاحة فوراً من الكاش
+   * تم استبدال هذه الـ methods بـ Cache First Strategy في loadEssentialData()
+   */
 
   toggleSidebar(): void {
     this.isSidebarOpen = !this.isSidebarOpen;
@@ -206,9 +242,10 @@ export class PlayersComponent implements OnInit, OnDestroy {
             next: (response) => {
               if (response.success) {
                 this.toastr.success(response.message);
-                // Invalidate admin cache and reload data
+                // Invalidate cache and reload essential data
+                this.adminDashboardService.invalidateCache('essential');
+                this.loadEssentialData();
                 this.loadMatches();
-                this.getAdminMatches();
               } else {
                 this.toastr.error(response.message);
               }
@@ -257,7 +294,9 @@ export class PlayersComponent implements OnInit, OnDestroy {
     this.playerService.deletePlayer(playerId).subscribe(() => {
       this.toastr.warning('Player deleted!', 'Deleted');
       this.loadMatches();
-      this.getAdminPlayers();
+      // Invalidate cache and reload essential data
+      this.adminDashboardService.invalidateCache('essential');
+      this.loadEssentialData();
       this.updateTournamentStageButton(); // Update button state after deleting player
       if (this.selectedPlayer?.playerId === playerId) {
         this.selectedPlayer = null;
@@ -281,9 +320,10 @@ export class PlayersComponent implements OnInit, OnDestroy {
     this.playerService.addPlayer(this.newPlayerName).subscribe((response) => {
       if (response.success) {
         this.toastr.success(response.message);
+        // Invalidate cache and reload essential data
+        this.adminDashboardService.invalidateCache('essential');
+        this.loadEssentialData();
         this.loadMatches();
-        this.getAdminPlayers();
-        this.updateTournamentStageButton(); // Update button state after adding player
         this.closeModal();
       } else this.toastr.warning(response.message);
     });
@@ -303,12 +343,11 @@ export class PlayersComponent implements OnInit, OnDestroy {
         .deletePlayer(this.selectedPlayerToDelete.playerId)
         .subscribe((response) => {
           if (response.success) {
-            this.players = this.players.filter(
-              (p) => p.playerId !== this.selectedPlayerToDelete?.playerId
-            );
             this.toastr.success(response.message);
-            this.getPlayers();
-            this.updateTournamentStageButton(); // Update button state after deleting player
+            // Invalidate cache and reload essential data
+            this.adminDashboardService.invalidateCache('essential');
+            this.loadEssentialData();
+            this.loadMatches();
           } else {
             this.toastr.error(response.message, 'Error');
           }
@@ -319,48 +358,8 @@ export class PlayersComponent implements OnInit, OnDestroy {
     }
   }
 
-  getPlayers(): void {
-    // حفظ الترتيب الحالي قبل الجلب
-    this.playerOrder = this.players.map((p) => p.playerId);
-
-    this.playerService.getPlayers().subscribe({
-      next: (players) => {
-        const typedPlayers = players as Player[];
-        // إعادة ترتيب اللاعبين حسب الترتيب السابق إذا كان موجود
-        if (this.playerOrder.length) {
-          typedPlayers.sort((a, b) => {
-            const aIndex = this.playerOrder.indexOf(a.playerId);
-            const bIndex = this.playerOrder.indexOf(b.playerId);
-            // إذا اللاعب جديد (غير موجود في الترتيب السابق)، ضعه في نهاية القائمة
-            return (
-              (aIndex === -1 ? Number.MAX_SAFE_INTEGER : aIndex) -
-              (bIndex === -1 ? Number.MAX_SAFE_INTEGER : bIndex)
-            );
-          });
-        }
-        this.players = typedPlayers;
-        this.totalPlayers = typedPlayers.length;
-      },
-      error: (err) => {
-        this.toastr.error(err.error.message);
-      },
-    });
-  }
-  getMatches(): void {
-    this.matchService.getAdminMatches().subscribe({
-      next: (response) => {
-        if (response) {
-          this.totalMatches = response.length;
-          this.totalMatchesLeft = response.filter(
-            (match) => match.isCompleted == false
-          ).length;
-        }
-      },
-      error: (err) => {
-        this.toastr.error(err.error.message);
-      },
-    });
-  }
+  // ✅ تم حذف getPlayers() - محلها loadEssentialData()
+  // ✅ تم حذف getMatches() - محلها loadEssentialData()
 
   resetTournament(id: number): void {
     this.leagueService.resetLeague(id).subscribe({
@@ -369,7 +368,9 @@ export class PlayersComponent implements OnInit, OnDestroy {
           this.toastr.success(response.message);
           this.showResetModal = false;
           this.loadMatches();
-          this.getAdminPlayers();
+          // Invalidate cache and reload essential data
+          this.adminDashboardService.invalidateCache('essential');
+          this.loadEssentialData();
           this.showEndLeagueModal = false;
         } else {
           this.toastr.error(response.message);
@@ -409,7 +410,9 @@ export class PlayersComponent implements OnInit, OnDestroy {
           this.toastr.success(response.message);
           this.closeStartLeagueModal();
           this.loadMatches();
-          this.getAdminPlayers();
+          // Invalidate cache and reload essential data
+          this.adminDashboardService.invalidateCache('essential');
+          this.loadEssentialData();
         } else {
           this.toastr.error(response.message, 'Error');
         }
@@ -421,38 +424,9 @@ export class PlayersComponent implements OnInit, OnDestroy {
     });
   }
 
-  getMessages(): void {
-    this.messageService.getMessages().subscribe({
-      next: (response) => {
-        if (response) {
-          this.totalMessagesLeft = response.messages.filter(
-            (m) => m.isRead == false
-          ).length;
-        } else {
-          this.toastr.error('لا يوجد رسائل');
-        }
-      },
-      error: (err) => {
-        this.toastr.error(err.message);
-      },
-    });
-  }
+  // ✅ تم حذف getMessages() - محلها loadEssentialData()
 
-  GetAllLeagyes(): void {
-    this.leagueService.GetAllLeaguesRank().subscribe({
-      next: (response) => {
-        if (response) {
-          this.leagues = response.reverse();
-          // console.log(response);
-        } else {
-          this.toastr.error(response);
-        }
-      },
-      error: (err) => {
-        this.toastr.error(err.error.message);
-      },
-    });
-  }
+  // ✅ تم حذف GetAllLeagyes() - محلها loadEssentialData()
 
   DeleteLeague(id: number): void {
     this.leagueService.DeleteLeague(id).subscribe({
@@ -498,7 +472,9 @@ export class PlayersComponent implements OnInit, OnDestroy {
       next: (res) => {
         this.toastr.success(res.message);
         this.newNote = '';
-        this.getNotes();
+        // Invalidate cache and reload all data
+        this.adminDashboardService.invalidateCache('essential');
+        this.loadEssentialData();
       },
       error: () => this.toastr.error('حصل مشكلة وانت بتبعت الملاحظة'),
     });
@@ -508,7 +484,7 @@ export class PlayersComponent implements OnInit, OnDestroy {
     this.noteService.toggleMarHide(note.id, !note.isHidden).subscribe({
       next: (res) => {
         this.toastr.success(res.message);
-        this.getNotes();
+        this.loadEssentialData(); // ✅ محل getNotes()
       },
       error: () => this.toastr.error('حصل مشكلة وانت بتغير الظهور'),
     });
@@ -518,98 +494,20 @@ export class PlayersComponent implements OnInit, OnDestroy {
     this.noteService.DeleteNote(noteId, false).subscribe({
       next: (res) => {
         this.toastr.warning(res.message);
-        this.getNotes();
+        this.loadEssentialData(); // ✅ محل getNotes()
       },
       error: () => this.toastr.error('حصل مشكلة وانت بتحذف '),
     });
   }
 
-  getNotes(): void {
-    this.noteService.getNotes().subscribe((response) => {
-      this.notes = response.notes;
-      // console.log(response);
-    });
-  }
+  // ✅ تم حذف getNotes() - محلها loadEssentialData()
 
-  // Admin-specific methods
-  getAdminPlayers(): void {
-    this.playerService.getAdminPlayers().subscribe({
-      next: (players) => {
-        const typedPlayers = players as Player[];
-        if (this.playerOrder.length) {
-          typedPlayers.sort((a, b) => {
-            const aIndex = this.playerOrder.indexOf(a.playerId);
-            const bIndex = this.playerOrder.indexOf(b.playerId);
-            return (
-              (aIndex === -1 ? Number.MAX_SAFE_INTEGER : aIndex) -
-              (bIndex === -1 ? Number.MAX_SAFE_INTEGER : bIndex)
-            );
-          });
-        }
-        this.players = typedPlayers;
-        this.totalPlayers = typedPlayers.length;
-        this.updateTournamentStageButton(); // Update button state when players count changes
-      },
-      error: (err) => {
-        this.toastr.error(err.error.message);
-      },
-    });
-  }
-
-  getAdminMatches(): void {
-    this.matchService.getAdminMatches().subscribe({
-      next: (response) => {
-        if (response) {
-          this.totalMatches = response.length;
-          this.totalMatchesLeft = response.filter(
-            (match) => match.isCompleted == false
-          ).length;
-          this.currentMatches = response; // Update current matches
-          this.updateTournamentStageButton(); // Update button state
-        }
-      },
-      error: (err) => {
-        this.toastr.error(err.error.message);
-      },
-    });
-  }
-
-  getAdminMessages(): void {
-    this.messageService.getAdminMessages().subscribe({
-      next: (response) => {
-        if (response) {
-          this.totalMessagesLeft = response.messages.filter(
-            (m) => m.isRead == false
-          ).length;
-        } else {
-          this.toastr.error('لا يوجد رسائل');
-        }
-      },
-      error: (err) => {
-        this.toastr.error(err.error.message);
-      },
-    });
-  }
-
-  getAdminAllLeagues(): void {
-    this.leagueService.getAdminAllLeagues().subscribe({
-      next: (response) => {
-        this.leagues = response;
-      },
-      error: (err) => {
-        this.toastr.error(err.message);
-      },
-    });
-  }
-
-  getAdminNotes(): void {
-    this.noteService.getAdminNotes().subscribe((response) => {
-      this.notes = response.notes;
-    });
-  }
+  // تم استبدال هذه الـ methods بـ Smart Caching في AdminDashboardService
+  // للحفاظ على التوافق مع باقي الكود، إذا تم استدعاؤها ستستخدم الـ cache
 
   openNoteModal(): void {
     this.showNoteModal = true;
+    // ✅ Notes are already loaded from cache - no need to fetch
   }
   closeNoteModal(): void {
     this.showNoteModal = false;
@@ -689,8 +587,6 @@ export class PlayersComponent implements OnInit, OnDestroy {
     const allSemiMatchesCompleted =
       semiMatches.length > 0 && semiMatches.every((match) => match.isCompleted);
 
-
-
     // Show quarter button when group stage is completed and no quarter matches exist
     if (
       groupMatches.length > 0 &&
@@ -745,8 +641,9 @@ export class PlayersComponent implements OnInit, OnDestroy {
       next: (response) => {
         if (response.success) {
           this.toastr.success(response.message);
-          this.loadCurrentMatches(); // Reload matches to update button state
-          this.getAdminMatches(); // Update match count
+          // Invalidate cache and reload essential data
+          this.adminDashboardService.invalidateCache('essential');
+          this.loadEssentialData();
         } else {
           this.toastr.error(response.message);
         }
@@ -764,8 +661,9 @@ export class PlayersComponent implements OnInit, OnDestroy {
       next: (response) => {
         if (response.success) {
           this.toastr.success(response.message);
-          this.loadCurrentMatches();
-          this.getAdminMatches();
+          // Invalidate cache and reload essential data
+          this.adminDashboardService.invalidateCache('essential');
+          this.loadEssentialData();
         } else {
           this.toastr.error(response.message);
         }
@@ -784,8 +682,9 @@ export class PlayersComponent implements OnInit, OnDestroy {
       next: (response) => {
         if (response.success) {
           this.toastr.success(response.message);
-          this.loadCurrentMatches();
-          this.getAdminMatches();
+          // Invalidate cache and reload essential data
+          this.adminDashboardService.invalidateCache('essential');
+          this.loadEssentialData();
         } else {
           this.toastr.error(response.message);
         }
@@ -804,8 +703,9 @@ export class PlayersComponent implements OnInit, OnDestroy {
       next: (response) => {
         if (response.success) {
           this.toastr.success(response.message);
-          this.loadCurrentMatches();
-          this.getAdminMatches();
+          // Invalidate cache and reload essential data
+          this.adminDashboardService.invalidateCache('essential');
+          this.loadEssentialData();
         } else {
           this.toastr.error(response.message);
         }

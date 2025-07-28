@@ -1,9 +1,0 @@
-/* Update Status Component Styles */
-.update-status-container {
-  transition: all 0.3s ease;
-}
-
-.update-status-container:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-} 

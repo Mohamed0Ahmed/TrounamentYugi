@@ -11,7 +11,8 @@ import { MessageService } from 'src/app/core/services/message.service';
 import { ToastrService } from 'ngx-toastr';
 import { Message } from 'src/app/models/interfaces';
 import { CacheService } from 'src/app/core/services/cache.service';
-import { AdminBackgroundService } from 'src/app/core/services/admin-background.service';
+// ✅ تم حذف AdminBackgroundService - مالوش لازمة
+import { AdminDashboardService } from 'src/app/core/services/admin-dashboard.service';
 import { Subscription, interval } from 'rxjs';
 
 interface PlayerChat {
@@ -44,13 +45,14 @@ export class InboxComponent implements OnInit, AfterViewChecked, OnDestroy {
     private toastr: ToastrService,
     private cdr: ChangeDetectorRef,
     private cacheService: CacheService,
-    private adminBackgroundService: AdminBackgroundService
+    // ✅ تم حذف adminBackgroundService
+    private adminDashboardService: AdminDashboardService
   ) {}
 
   ngOnInit(): void {
     this.loadAdminMessages();
     this.subscribeToUpdates();
-    this.startPeriodicRefresh();
+    // ✅ تم إلغاء Periodic refresh تماماً - مالوش لازمة
   }
 
   ngOnDestroy(): void {
@@ -62,28 +64,7 @@ export class InboxComponent implements OnInit, AfterViewChecked, OnDestroy {
     }
   }
 
-  private startPeriodicRefresh(): void {
-    // Refresh messages every 30 seconds for immediate updates
-    this.refreshSubscription = interval(30000).subscribe(() => {
-      this.messageService.getAdminMessages().subscribe({
-        next: (response) => {
-          if (response && response.messages) {
-            const groupedMessages = this.groupMessagesBySender(response.messages);
-            // ترتيب المحادثات حسب الأحدث (آخر رسالة)
-            this.playerChats = groupedMessages.sort(
-              (a, b) =>
-                new Date(b.lastMessageDate).getTime() -
-                new Date(a.lastMessageDate).getTime()
-            );
-            // console.log('🔄 Periodic refresh completed');
-          }
-        },
-        error: (err) => {
-          // console.log('❌ Periodic refresh failed:', err);
-        },
-      });
-    });
-  }
+  // ✅ تم حذف Periodic refresh تماماً - مالوش لازمة أصلاً
 
   private loadAdminMessages(): void {
     // Always load fresh data from server for immediate updates
@@ -96,17 +77,17 @@ export class InboxComponent implements OnInit, AfterViewChecked, OnDestroy {
   }
 
   private loadFromServer(): void {
-    this.messageService.getAdminMessages().subscribe({
-      next: (response) => {
-        if (response && response.messages) {
-          const groupedMessages = this.groupMessagesBySender(response.messages);
+    this.adminDashboardService.getSecondaryData('messages').subscribe({
+      next: (messages) => {
+        if (messages && messages.length > 0) {
+          const groupedMessages = this.groupMessagesBySender(messages);
           // ترتيب المحادثات حسب الأحدث (آخر رسالة)
           this.playerChats = groupedMessages.sort(
             (a, b) =>
               new Date(b.lastMessageDate).getTime() -
               new Date(a.lastMessageDate).getTime()
           );
-          // console.log('🌐 Fresh messages loaded from server');
+          // console.log('✅ Messages loaded with smart caching');
         } else {
           this.toastr.error('لا يوجد رسائل');
         }
@@ -141,10 +122,7 @@ export class InboxComponent implements OnInit, AfterViewChecked, OnDestroy {
   }
 
   private subscribeToUpdates(): void {
-    this.updateStatusSubscription =
-      this.adminBackgroundService.updateStatus$.subscribe((status) => {
-        // console.log('🔄 Admin inbox update status:', status);
-      });
+    // ✅ تم حذف AdminBackgroundService subscriptions - مالهاش لازمة
   }
 
   ngAfterViewChecked(): void {

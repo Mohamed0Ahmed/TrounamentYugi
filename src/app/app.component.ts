@@ -1,23 +1,12 @@
-import { Component, OnInit } from '@angular/core';
-import { PerformanceOptimizationService } from './core/services/performance-optimization.service';
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
 })
-export class AppComponent implements OnInit {
+export class AppComponent {
   title = 'YugiTournamnet';
 
-  constructor(
-    private performanceOptimization: PerformanceOptimizationService
-  ) {}
-
-  ngOnInit(): void {
-    // تطبيق جميع تحسينات الأداء
-    this.performanceOptimization.applyAllOptimizations();
-
-    // بدء مراقبة الأداء
-    this.performanceOptimization.monitorPerformance();
-  }
+  // ✅ تم تبسيط AppComponent - حذف performance optimizations الغير ضرورية
 }

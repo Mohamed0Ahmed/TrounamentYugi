@@ -39,8 +39,8 @@
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "6kb",
-                  "maximumError": "10kb"
+                  "maximumWarning": "2kb",
+                  "maximumError": "4kb"
                 }
               ],
               "outputHashing": "all",
@@ -49,7 +49,7 @@
               "extractLicenses": true,
               "vendorChunk": true,
               "namedChunks": false,
-              "sourceMap": false
+              "sourceMap": true
             },
             "development": {
               "buildOptimizer": false,
