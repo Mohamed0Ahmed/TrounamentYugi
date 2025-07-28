@@ -1,5 +1,5 @@
 <nav
-  class="fixed top-0 left-0 w-full z-50 bg-black backdrop-blur-sm transition-all duration-300"
+  class="fixed top-0 left-0 w-full z-50 bg-black backdrop-blur-sm transition-all duration-300 p-2"
 >
   <div
     class="container mx-auto flex flex-col md:flex-row md:items-center md:justify-between p-4"
@@ -195,7 +195,7 @@
 
 <!-- Notes Section -->
 <div class="min-h-[30px] w-full mt-16" *ngIf="notes.length > 0">
-  <div *ngFor="let note of notes" class="pt-3">
-    <h2 class="text-center text-white font-bold">{{ note.content }}</h2>
+  <div *ngFor="let note of notes" class="">
+    <h4 class="text-center text-[20px] text-white font-bold">{{ note.content }}</h4>
   </div>
 </div>

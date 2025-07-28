@@ -1,0 +1,137 @@
+/* تنسيقات عامة */
+.tournament-info {
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+  border-radius: 8px;
+  padding: 24px;
+  margin-bottom: 32px;
+}
+
+/* تنسيق البطاقات */
+.info-card {
+  background: rgba(31, 41, 55, 0.5);
+  border-radius: 8px;
+  padding: 12px;
+  text-align: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.info-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+/* تنسيق العناوين */
+.info-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  color: white;
+}
+
+/* تنسيق النصوص */
+.info-text {
+  font-weight: bold;
+  font-size: 0.875rem;
+}
+
+.text-blue {
+  color: #60a5fa;
+}
+
+.text-green {
+  color: #34d399;
+}
+
+.text-yellow {
+  color: #fbbf24;
+}
+
+.text-red {
+  color: #f87171;
+}
+
+.text-gray {
+  color: #9ca3af;
+}
+
+/* تنسيق معلومات المجموعات */
+.groups-info {
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 24px;
+}
+
+.groups-title {
+  font-size: 1.125rem;
+  font-weight: bold;
+  color: white;
+  margin-bottom: 8px;
+}
+
+.groups-details {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  font-size: 0.875rem;
+}
+
+.groups-detail {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* تنسيق الأيقونات */
+.icon {
+  margin-right: 4px;
+}
+
+/* تنسيق الاستجابة */
+@media (max-width: 768px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .groups-details {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .info-card {
+    padding: 8px;
+  }
+}
+
+/* تنسيق التدرج */
+.gradient-bg {
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
+}
+
+/* تنسيق الظلال */
+.shadow-lg {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* تنسيق الانتقالات */
+.transition-all {
+  transition: all 0.2s ease;
+}
+
+/* تنسيق الحالة */
+.status-active {
+  color: #10b981;
+  font-weight: bold;
+}
+
+.status-finished {
+  color: #ef4444;
+  font-weight: bold;
+}
+
+.status-inactive {
+  color: #9ca3af;
+  font-weight: bold;
+}

@@ -25,10 +25,7 @@ export class NoteService {
 
   // Admin-specific method with 30-minute cache
   getAdminNotes(): Observable<NoteResponse> {
-    return this.cacheService.cacheAdminRequest(
-      'admin-notes-list',
-      this.http.get<NoteResponse>(`${this.baseUrl}/note/notes`)
-    );
+    return this.http.get<NoteResponse>(`${this.baseUrl}/note/notes`);
   }
 
   toggleMarHide(noteId: number, marked: boolean): Observable<CommonResponse> {

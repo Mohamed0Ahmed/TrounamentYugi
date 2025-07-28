@@ -10,8 +10,6 @@ import { AuthInterceptor } from './interceptors/auth-interceptor.service';
 import { CacheInterceptor } from './core/interceptors/cache-interceptor.service';
 import { PlayerModule } from './player/player.module';
 import { NgxSpinnerModule } from 'ngx-spinner';
-import { BackgroundUpdateService } from './core/services/background-update.service';
-import { AdminBackgroundService } from './core/services/admin-background.service';
 
 @NgModule({
   declarations: [AppComponent, NavbarComponent],

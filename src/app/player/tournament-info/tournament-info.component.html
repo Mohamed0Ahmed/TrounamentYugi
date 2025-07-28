@@ -1,0 +1,38 @@
+<div *ngIf="currentLeague" class="mb-8">
+  <div
+    class="bg-black bg-opacity-50 backdrop-blur-sm rounded-lg p-6 text-center"
+  >
+    <!-- معلومات إضافية للبطولات من نوع المجموعات -->
+    <div *ngIf="isGroupsTournament()" class="mt-6">
+      <div class="bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg p-4">
+        <h4 class="text-lg font-bold text-white mb-2">
+          Groups Tournament Info
+        </h4>
+        <div class="flex justify-center space-x-6 text-sm">
+          <span class="text-blue-200">
+            <i class="fas fa-users mr-1"></i>
+            Groups: 4
+          </span>
+          <span class="text-green-200">
+            <i class="fas fa-trophy mr-1"></i>
+            Winners Advance
+          </span>
+          <span class="text-yellow-200">
+            <i class="fas fa-calendar mr-1"></i>
+            Knockout Stage
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- رسالة عندما لا تكون هناك بطولة نشطة -->
+<div *ngIf="!currentLeague" class="mb-8">
+  <div
+    class="bg-black bg-opacity-50 backdrop-blur-sm rounded-lg p-6 text-center"
+  >
+    <h3 class="text-xl font-bold text-white mb-2">No Active Tournament</h3>
+    <p class="text-gray-300">There is currently no active tournament.</p>
+  </div>
+</div>

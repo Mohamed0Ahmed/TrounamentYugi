@@ -91,15 +91,8 @@ export class InboxComponent implements OnInit, AfterViewChecked, OnDestroy {
   }
 
   private loadFromCache(): void {
-    // Load messages from cache
-    const cachedMessages = this.cacheService.get<any>('admin-messages-list');
-    if (cachedMessages && cachedMessages.messages) {
-      this.playerChats = this.groupMessagesBySender(cachedMessages.messages);
-      // console.log('📦 Loading messages from cache...');
-    } else {
-      // console.log('🌐 Loading messages from server...');
-      this.loadFromServer();
-    }
+    // تم إلغاء الكاش للادمن، سيتم التحميل دائماً من السيرفر
+    this.loadFromServer();
   }
 
   private loadFromServer(): void {

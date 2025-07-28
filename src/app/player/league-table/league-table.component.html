@@ -3,6 +3,7 @@
     Games Table
   </h2>
 
+
   <!-- Update Status Component -->
   <div class="container mx-auto">
     <app-update-status></app-update-status>
@@ -18,8 +19,14 @@
     </div>
   </div>
 
+  <!-- عرض مكون مواجهات المجموعات للبطولات من نوع Groups -->
+  <app-groups-matches-table
+    *ngIf="!started && currentLeague?.typeOfLeague === LeagueType.Groups"
+  ></app-groups-matches-table>
+
+  <!-- عرض الجدول العادي للبطولات الأخرى -->
   <div
-    *ngIf="!started"
+    *ngIf="!started && currentLeague?.typeOfLeague !== LeagueType.Groups"
     class="table-container relative overflow-x-auto shadow-md sm:rounded-lg"
   >
     <table class="w-full text-sm text-left rtl:text-right text-gray-400">
@@ -64,9 +71,21 @@
               N/A
             </span>
             <span *ngIf="player1.playerId !== player2.playerId">
-              <span [ngClass]="getMatchResult(player2, player1).color">
-                {{ getMatchResult(player2, player1).result }}
-              </span>
+              <ng-container
+                *ngIf="
+                  systemOfLeague === SystemOfLeague.Points;
+                  else classicResult
+                "
+              >
+                <span [ngClass]="getMatchResult(player2, player1).color">
+                  {{ getMatchResult(player2, player1).result }}
+                </span>
+              </ng-container>
+              <ng-template #classicResult>
+                <span [ngClass]="getClassicResult(player2, player1).color">
+                  {{ getClassicResult(player2, player1).result }}
+                </span>
+              </ng-template>
             </span>
           </td>
           <td class="px-6 py-4 font-bold text-white sticky-column">

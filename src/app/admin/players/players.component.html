@@ -1,7 +1,4 @@
 <!-- Admin Update Status Component -->
-<div class="container mx-auto">
-  <app-admin-update-status></app-admin-update-status>
-</div>
 
 <div class="block sm:flex transition-all duration-600">
   <!-- Sidebar -->
@@ -154,6 +151,14 @@
         >
           End League
         </button>
+        <!-- Tournament Stage Button -->
+        <button
+          class="bg-purple-600 text-white px-3 py-2 rounded mb-4 hover:bg-purple-700 transition"
+          *ngIf="showTournamentStageButton && leagueData != null"
+          (click)="onTournamentStageButtonClick()"
+        >
+          {{ tournamentStageButtonText }}
+        </button>
         <button
           class="bg-indigo-600 text-white px-3 py-2 rounded mb-4 hover:bg-indigo-700 transition"
           (click)="openNoteModal()"
@@ -189,6 +194,12 @@
             class="font-bold text-gray-300"
           >
             Multi
+          </p>
+          <p
+            *ngIf="leagueData.typeOfLeague === 2"
+            class="font-bold text-gray-300"
+          >
+            Groups
           </p>
         </div>
         <div
@@ -246,6 +257,7 @@
               <th class="px-3 py-2 whitespace-nowrap">League Name</th>
               <th class="px-3 py-2 whitespace-nowrap">League Status</th>
               <th class="px-3 py-2 whitespace-nowrap">League Type</th>
+              <th class="px-3 py-2 whitespace-nowrap">League System</th>
               <th class="px-3 py-2 whitespace-nowrap">League Date</th>
               <th class="px-3 py-2 whitespace-nowrap">Winner</th>
               <th class="px-3 py-2 whitespace-nowrap">Delete</th>
@@ -270,8 +282,26 @@
               >
                 {{ !league.isFinished ? "Live Now!!" : "Finished" }}
               </td>
+
               <td class="px-3 py-2 whitespace-nowrap text-white">
-                {{ league.leagueType === 0 ? "Single" : "Multi" }}
+                {{
+                  league.leagueType === 0
+                    ? "Single"
+                    : league.leagueType === 1
+                    ? "Multi"
+                    : league.leagueType === 2
+                    ? "Groups"
+                    : "Unknown"
+                }}
+              </td>
+              <td class="px-3 py-2 whitespace-nowrap text-white">
+                {{
+                  league.systemOfLeague === 0
+                    ? "Points"
+                    : league.systemOfLeague === 1
+                    ? "Classic"
+                    : "Unknown"
+                }}
               </td>
               <td class="px-3 py-2 whitespace-nowrap text-white">
                 {{ league.createdOn | date : "yyyy/MM/dd" }}
@@ -401,7 +431,7 @@
         >
         <input
           type="text"
-          [(ngModel)]="newLeague.Name"
+          [(ngModel)]="newLeague.name"
           class="border border-gray-600 p-2 w-full rounded bg-gray-800 text-white placeholder-gray-400"
           placeholder="Enter league name"
         />
@@ -411,7 +441,7 @@
           >League Description</label
         >
         <textarea
-          [(ngModel)]="newLeague.Description"
+          [(ngModel)]="newLeague.description"
           class="border border-gray-600 p-2 w-full rounded bg-gray-800 text-white placeholder-gray-400"
           placeholder="Enter league description"
           rows="3"
@@ -422,11 +452,24 @@
           >League Type</label
         >
         <select
-          [(ngModel)]="newLeague.TypeOfLeague"
+          [(ngModel)]="newLeague.typeOfLeague"
           class="border border-gray-600 p-2 w-full rounded bg-gray-800 text-white"
         >
           <option [ngValue]="0">Single</option>
           <option [ngValue]="1">Multi</option>
+          <option [ngValue]="2">Groups</option>
+        </select>
+      </div>
+      <div class="mb-4">
+        <label class="block text-sm font-medium mb-1 text-gray-300"
+          >System Of League</label
+        >
+        <select
+          [(ngModel)]="newLeague.systemOfLeague"
+          class="border border-gray-600 p-2 w-full rounded bg-gray-800 text-white"
+        >
+          <option [ngValue]="0">Points</option>
+          <option [ngValue]="1">Classic</option>
         </select>
       </div>
       <div class="mt-4 flex justify-end">

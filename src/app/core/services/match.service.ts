@@ -20,17 +20,14 @@ export class MatchService {
 
   getMatches(): Observable<Match[]> {
     return this.cacheService.cachePlayerRequest(
-      'matches-list',
+      'current-matches',
       this.http.get<Match[]>(`${this.baseUrl}/match`)
     );
   }
 
-  // Admin-specific method with 30-minute cache
+  // Admin-specific method - now same as regular method
   getAdminMatches(): Observable<Match[]> {
-    return this.cacheService.cacheAdminRequest(
-      'admin-matches-list',
-      this.http.get<Match[]>(`${this.baseUrl}/match`)
-    );
+    return this.http.get<Match[]>(`${this.baseUrl}/match`);
   }
 
   updateMatch(
@@ -43,8 +40,6 @@ export class MatchService {
       })
       .pipe(
         tap(() => {
-          this.cacheService.invalidatePattern('match');
-          this.cacheService.invalidatePattern('player');
           this.playerService.refreshPlayers();
         })
       );
@@ -55,15 +50,13 @@ export class MatchService {
       .delete<ResultResponse>(`${this.baseUrl}/match/reset/${matchId}`)
       .pipe(
         tap(() => {
-          this.cacheService.invalidatePattern('match');
-          this.cacheService.invalidatePattern('player');
           this.playerService.refreshPlayers();
         })
       );
   }
 
-  // Get last update time for matches
+  // Get last update time for current matches
   getLastMatchesUpdateTime(): Date | null {
-    return this.cacheService.getLastUpdateTime('matches-list');
+    return this.cacheService.getLastUpdateTime('current-matches');
   }
 }

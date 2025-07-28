@@ -8,13 +8,14 @@ import {
   League,
   AllLeagueRank,
   Note,
+  TournamentStage,
+  LeagueType,
 } from 'src/app/models/interfaces';
 import { ToastrService } from 'ngx-toastr';
 import { LeagueService } from 'src/app/core/services/league.service';
 import { MessageService } from 'src/app/core/services/message.service';
 import { NoteService } from 'src/app/core/services/note.service';
 import { AdminBackgroundService } from 'src/app/core/services/admin-background.service';
-import { CacheService } from 'src/app/core/services/cache.service';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -43,9 +44,10 @@ export class PlayersComponent implements OnInit, OnDestroy {
   leagueData: League | null = null;
   showStartLeagueModal: boolean = false;
   newLeague: StartLeagueDto = {
-    Name: '',
-    Description: '',
-    TypeOfLeague: 0,
+    name: '',
+    description: '',
+    typeOfLeague: 0,
+    systemOfLeague: 0,
   };
   totalMessagesLeft: number = 0;
   totalPlayers: number = 0;
@@ -57,6 +59,12 @@ export class PlayersComponent implements OnInit, OnDestroy {
   selectedLeagueToDelete: AllLeagueRank | null = null;
   private updateStatusSubscription?: Subscription;
 
+  // New properties for tournament stage management
+  currentMatches: Match[] = [];
+  showTournamentStageButton = false;
+  tournamentStageButtonText = '';
+  tournamentStageButtonAction: (() => void) | null = null;
+
   constructor(
     private playerService: PlayerService,
     private matchService: MatchService,
@@ -64,12 +72,12 @@ export class PlayersComponent implements OnInit, OnDestroy {
     private leagueService: LeagueService,
     private messageService: MessageService,
     private noteService: NoteService,
-    private adminBackgroundService: AdminBackgroundService,
-    private cacheService: CacheService
+    private adminBackgroundService: AdminBackgroundService
   ) {}
 
   ngOnInit(): void {
-    this.loadAdminData();
+    // استدعاء التحميل من السيرفر فقط
+    this.loadFromServer();
     this.subscribeToUpdates();
   }
 
@@ -79,86 +87,16 @@ export class PlayersComponent implements OnInit, OnDestroy {
     }
   }
 
-  private loadAdminData(): void {
-    // Check cache first
-    const hasCachedData =
-      this.cacheService.has('admin-players-list') &&
-      this.cacheService.has('admin-matches-list') &&
-      this.cacheService.has('admin-messages-list') &&
-      this.cacheService.has('admin-notes-list') &&
-      this.cacheService.has('admin-all-leagues-list');
-
-    if (hasCachedData) {
-      // console.log('📦 Loading admin data from cache...');
-      this.loadFromCache();
-    } else {
-      // console.log('🌐 Loading admin data from server...');
-      this.loadFromServer();
-    }
-  }
-
-  private loadFromCache(): void {
-    // Load players from cache
-    const cachedPlayers = this.cacheService.get<Player[]>('admin-players-list');
-    if (cachedPlayers) {
-      this.players = cachedPlayers;
-      this.totalPlayers = cachedPlayers.length;
-    }
-
-    // Load matches from cache
-    const cachedMatches = this.cacheService.get<Match[]>('admin-matches-list');
-    if (cachedMatches) {
-      this.totalMatches = cachedMatches.length;
-      this.totalMatchesLeft = cachedMatches.filter(
-        (match) => match.isCompleted == false
-      ).length;
-    }
-
-    // Load messages from cache
-    const cachedMessages = this.cacheService.get<any>('admin-messages-list');
-    if (cachedMessages) {
-      this.totalMessagesLeft = cachedMessages.messages.filter(
-        (m: any) => m.isRead == false
-      ).length;
-    }
-
-    // Load notes from cache
-    const cachedNotes = this.cacheService.get<any>('admin-notes-list');
-    if (cachedNotes) {
-      this.notes = cachedNotes.notes;
-    }
-
-    // Load leagues from cache
-    const cachedLeagues = this.cacheService.get<AllLeagueRank[]>(
-      'admin-all-leagues-list'
-    );
-    if (cachedLeagues) {
-      this.leagues = cachedLeagues;
-    }
-
-    // Load current league from cache
-    const cachedCurrentLeague = this.cacheService.get<any>(
-      'admin-current-league'
-    );
-    if (cachedCurrentLeague) {
-      this.leagueData = cachedCurrentLeague.league;
-      // console.log('📦 Loaded current league from cache:', this.leagueData);
-    } else {
-      // If not in cache, load from server
-      // console.log('🌐 Loading current league from server...');
-      this.loadCurrentLeagueFromServer();
-    }
-  }
-
   private loadCurrentLeagueFromServer(): void {
-    this.leagueService.GetCurrentLeague().subscribe({
+    this.leagueService.getAdminCurrentLeague().subscribe({
       next: (data) => {
         this.leagueData = data.league;
-        // console.log('✅ Loaded current league from server:', this.leagueData);
+        this.updateTournamentStageButton(); // Update button state when league data changes
       },
       error: (err) => {
         console.error('❌ Failed to load current league:', err);
         this.leagueData = null;
+        this.updateTournamentStageButton(); // Update button state when league data changes
       },
     });
   }
@@ -169,6 +107,8 @@ export class PlayersComponent implements OnInit, OnDestroy {
     this.getAdminMessages();
     this.getAdminAllLeagues();
     this.getAdminNotes();
+    this.loadCurrentLeagueFromServer();
+    this.loadCurrentMatches(); // Add this line
   }
 
   private subscribeToUpdates(): void {
@@ -191,7 +131,9 @@ export class PlayersComponent implements OnInit, OnDestroy {
 
   loadMatches(): void {
     if (!this.selectedPlayer) return;
-    this.matchService.getMatches().subscribe((matches) => {
+    this.matchService.getAdminMatches().subscribe((matches) => {
+      // console.log(matches);
+
       this.playerMatches = matches
         .filter(
           (m) =>
@@ -265,7 +207,6 @@ export class PlayersComponent implements OnInit, OnDestroy {
               if (response.success) {
                 this.toastr.success(response.message);
                 // Invalidate admin cache and reload data
-                this.adminBackgroundService.invalidateAdminCache();
                 this.loadMatches();
                 this.getAdminMatches();
               } else {
@@ -275,7 +216,7 @@ export class PlayersComponent implements OnInit, OnDestroy {
               resolve();
             },
             error: (error) => {
-              this.toastr.error('Error updating match', 'Error');
+              this.toastr.error(error.error.message);
               this.loadingMatches[matchId] = false;
               reject(error);
             },
@@ -302,7 +243,7 @@ export class PlayersComponent implements OnInit, OnDestroy {
               resolve();
             },
             error: (error) => {
-              this.toastr.error('Error resetting match', 'Error');
+              this.toastr.error(error.error.message);
               this.loadingMatches[matchId] = false;
               reject(error);
             },
@@ -315,9 +256,9 @@ export class PlayersComponent implements OnInit, OnDestroy {
     event.stopPropagation();
     this.playerService.deletePlayer(playerId).subscribe(() => {
       this.toastr.warning('Player deleted!', 'Deleted');
-      // Invalidate admin cache and reload data
-      this.adminBackgroundService.invalidateAdminCache();
+      this.loadMatches();
       this.getAdminPlayers();
+      this.updateTournamentStageButton(); // Update button state after deleting player
       if (this.selectedPlayer?.playerId === playerId) {
         this.selectedPlayer = null;
         this.playerMatches = [];
@@ -340,10 +281,9 @@ export class PlayersComponent implements OnInit, OnDestroy {
     this.playerService.addPlayer(this.newPlayerName).subscribe((response) => {
       if (response.success) {
         this.toastr.success(response.message);
-        // Invalidate admin cache and reload data
-        this.adminBackgroundService.invalidateAdminCache();
-        this.getAdminPlayers();
         this.loadMatches();
+        this.getAdminPlayers();
+        this.updateTournamentStageButton(); // Update button state after adding player
         this.closeModal();
       } else this.toastr.warning(response.message);
     });
@@ -368,6 +308,7 @@ export class PlayersComponent implements OnInit, OnDestroy {
             );
             this.toastr.success(response.message);
             this.getPlayers();
+            this.updateTournamentStageButton(); // Update button state after deleting player
           } else {
             this.toastr.error(response.message, 'Error');
           }
@@ -401,12 +342,12 @@ export class PlayersComponent implements OnInit, OnDestroy {
         this.totalPlayers = typedPlayers.length;
       },
       error: (err) => {
-        this.toastr.error(err.message);
+        this.toastr.error(err.error.message);
       },
     });
   }
   getMatches(): void {
-    this.matchService.getMatches().subscribe({
+    this.matchService.getAdminMatches().subscribe({
       next: (response) => {
         if (response) {
           this.totalMatches = response.length;
@@ -416,7 +357,7 @@ export class PlayersComponent implements OnInit, OnDestroy {
         }
       },
       error: (err) => {
-        this.toastr.error(err.message);
+        this.toastr.error(err.error.message);
       },
     });
   }
@@ -427,8 +368,6 @@ export class PlayersComponent implements OnInit, OnDestroy {
         if (response.success) {
           this.toastr.success(response.message);
           this.showResetModal = false;
-          // Invalidate admin cache and reload data
-          this.adminBackgroundService.invalidateAdminCache();
           this.loadMatches();
           this.getAdminPlayers();
           this.showEndLeagueModal = false;
@@ -438,8 +377,8 @@ export class PlayersComponent implements OnInit, OnDestroy {
       },
 
       error: (err) => {
-        this.toastr.error('فشل في إعادة تعيين الدوري');
-        console.error(err);
+        this.toastr.error(err.error.message);
+        // console.error(err);
       },
     });
   }
@@ -447,9 +386,10 @@ export class PlayersComponent implements OnInit, OnDestroy {
   openStartLeagueModal(): void {
     this.showStartLeagueModal = true;
     this.newLeague = {
-      Name: '',
-      Description: '',
-      TypeOfLeague: 0,
+      name: '',
+      description: '',
+      typeOfLeague: 0,
+      systemOfLeague: 0,
     };
   }
 
@@ -458,7 +398,7 @@ export class PlayersComponent implements OnInit, OnDestroy {
   }
 
   startLeague(): void {
-    if (!this.newLeague.Name.trim()) {
+    if (!this.newLeague.name.trim()) {
       this.toastr.error('League name is required', 'Error');
       return;
     }
@@ -468,15 +408,15 @@ export class PlayersComponent implements OnInit, OnDestroy {
         if (response.success) {
           this.toastr.success(response.message);
           this.closeStartLeagueModal();
-          // Invalidate admin cache and reload data
-          this.adminBackgroundService.invalidateAdminCache();
+          this.loadMatches();
+          this.getAdminPlayers();
         } else {
           this.toastr.error(response.message, 'Error');
         }
       },
       error: (err) => {
-        this.toastr.error('Failed to start league');
-        console.error(err);
+        this.toastr.error(err.error.message);
+        // console.error(err);
       },
     });
   }
@@ -509,7 +449,7 @@ export class PlayersComponent implements OnInit, OnDestroy {
         }
       },
       error: (err) => {
-        this.toastr.error(err.message);
+        this.toastr.error(err.error.message);
       },
     });
   }
@@ -525,7 +465,7 @@ export class PlayersComponent implements OnInit, OnDestroy {
         }
       },
       error: (err) => {
-        this.toastr.error(err.message);
+        this.toastr.error(err.error.message);
       },
     });
   }
@@ -591,7 +531,7 @@ export class PlayersComponent implements OnInit, OnDestroy {
     });
   }
 
-  // Admin-specific methods with cache
+  // Admin-specific methods
   getAdminPlayers(): void {
     this.playerService.getAdminPlayers().subscribe({
       next: (players) => {
@@ -608,9 +548,10 @@ export class PlayersComponent implements OnInit, OnDestroy {
         }
         this.players = typedPlayers;
         this.totalPlayers = typedPlayers.length;
+        this.updateTournamentStageButton(); // Update button state when players count changes
       },
       error: (err) => {
-        this.toastr.error(err.message);
+        this.toastr.error(err.error.message);
       },
     });
   }
@@ -623,10 +564,12 @@ export class PlayersComponent implements OnInit, OnDestroy {
           this.totalMatchesLeft = response.filter(
             (match) => match.isCompleted == false
           ).length;
+          this.currentMatches = response; // Update current matches
+          this.updateTournamentStageButton(); // Update button state
         }
       },
       error: (err) => {
-        this.toastr.error(err.message);
+        this.toastr.error(err.error.message);
       },
     });
   }
@@ -643,7 +586,7 @@ export class PlayersComponent implements OnInit, OnDestroy {
         }
       },
       error: (err) => {
-        this.toastr.error(err.message);
+        this.toastr.error(err.error.message);
       },
     });
   }
@@ -670,5 +613,214 @@ export class PlayersComponent implements OnInit, OnDestroy {
   }
   closeNoteModal(): void {
     this.showNoteModal = false;
+  }
+
+  // New method to load current matches for tournament stage logic
+  private loadCurrentMatches(): void {
+    this.matchService.getAdminMatches().subscribe({
+      next: (matches) => {
+        this.currentMatches = matches;
+        this.updateTournamentStageButton();
+      },
+      error: (err) => {
+        console.error('Error loading current matches:', err);
+        this.currentMatches = [];
+        this.updateTournamentStageButton(); // Update button state even on error
+      },
+    });
+  }
+
+  // Method to determine tournament stage and update button
+  private updateTournamentStageButton(): void {
+    // Only show button for Groups type leagues
+    if (
+      !this.leagueData ||
+      this.leagueData.typeOfLeague !== LeagueType.Groups
+    ) {
+      this.showTournamentStageButton = false;
+      return;
+    }
+
+    console.log('Current matches:', this.currentMatches);
+    // console.log('Total players:', this.totalPlayers);
+    // console.log('League data:', this.leagueData);
+
+    // Check if there are players but no matches (need to start group stage)
+    if (this.totalPlayers > 0 && this.currentMatches.length === 0) {
+      this.showTournamentStageButton = true;
+      this.tournamentStageButtonText = 'Start Group Stage';
+      this.tournamentStageButtonAction = () => this.startGroupStage();
+      return;
+    }
+
+    // Check current stage based on matches
+    const groupMatches = this.currentMatches.filter(
+      (m) =>
+        m.stage === TournamentStage.GroupStage ||
+        m.tournamentStage === 'GroupStage'
+    );
+    const quarterMatches = this.currentMatches.filter(
+      (m) =>
+        m.stage === TournamentStage.QuarterFinals ||
+        m.tournamentStage === 'QuarterFinals'
+    );
+    const semiMatches = this.currentMatches.filter(
+      (m) =>
+        m.stage === TournamentStage.SemiFinals ||
+        m.tournamentStage === 'SemiFinals'
+    );
+    const finalMatches = this.currentMatches.filter(
+      (m) => m.stage === TournamentStage.Final || m.tournamentStage === 'Final'
+    );
+
+    // console.log('Filtered matches:');
+    // console.log('Group matches:', groupMatches);
+    // console.log('Quarter matches:', quarterMatches);
+    // console.log('Semi matches:', semiMatches);
+    // console.log('Final matches:', finalMatches);
+
+    // Check if all matches in a stage are completed
+    const allGroupMatchesCompleted =
+      groupMatches.length > 0 &&
+      groupMatches.every((match) => match.isCompleted);
+    const allQuarterMatchesCompleted =
+      quarterMatches.length > 0 &&
+      quarterMatches.every((match) => match.isCompleted);
+    const allSemiMatchesCompleted =
+      semiMatches.length > 0 && semiMatches.every((match) => match.isCompleted);
+
+
+
+    // Show quarter button when group stage is completed and no quarter matches exist
+    if (
+      groupMatches.length > 0 &&
+      allGroupMatchesCompleted &&
+      quarterMatches.length === 0
+    ) {
+      this.showTournamentStageButton = true;
+      this.tournamentStageButtonText = 'Start Quarter';
+      this.tournamentStageButtonAction = () => this.startQuarterStage();
+      return;
+    }
+
+    // Show semi button when quarter stage is completed and no semi matches exist
+    if (
+      quarterMatches.length > 0 &&
+      allQuarterMatchesCompleted &&
+      semiMatches.length === 0
+    ) {
+      this.showTournamentStageButton = true;
+      this.tournamentStageButtonText = 'Start Semi Final';
+      this.tournamentStageButtonAction = () => this.startSemiFinalStage();
+      return;
+    }
+
+    // Show final button when semi stage is completed and no final matches exist
+    if (
+      semiMatches.length > 0 &&
+      allSemiMatchesCompleted &&
+      finalMatches.length === 0
+    ) {
+      this.showTournamentStageButton = true;
+      this.tournamentStageButtonText = 'Start Final';
+      this.tournamentStageButtonAction = () => this.startFinalStage();
+      return;
+    }
+
+    if (finalMatches.length > 0) {
+      // Final stage is active, hide button
+      this.showTournamentStageButton = false;
+      return;
+    }
+
+    // Default: hide button
+    this.showTournamentStageButton = false;
+  }
+
+  // Tournament stage action methods
+  startGroupStage(): void {
+    if (!this.leagueData) return;
+
+    this.leagueService.createGroupsAndMatches(this.leagueData.id).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.toastr.success(response.message);
+          this.loadCurrentMatches(); // Reload matches to update button state
+          this.getAdminMatches(); // Update match count
+        } else {
+          this.toastr.error(response.message);
+        }
+      },
+      error: (err) => {
+        this.toastr.error(err.error.message);
+      },
+    });
+  }
+
+  startQuarterStage(): void {
+    if (!this.leagueData) return;
+
+    this.leagueService.startKnockoutStage(this.leagueData.id).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.toastr.success(response.message);
+          this.loadCurrentMatches();
+          this.getAdminMatches();
+        } else {
+          this.toastr.error(response.message);
+        }
+      },
+      error: (err) => {
+        this.toastr.error(err.error.message);
+        // console.error(err);
+      },
+    });
+  }
+
+  startSemiFinalStage(): void {
+    if (!this.leagueData) return;
+
+    this.leagueService.startSemiFinals(this.leagueData.id).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.toastr.success(response.message);
+          this.loadCurrentMatches();
+          this.getAdminMatches();
+        } else {
+          this.toastr.error(response.message);
+        }
+      },
+      error: (err) => {
+        this.toastr.error(err.error.message);
+        // console.error(err);
+      },
+    });
+  }
+
+  startFinalStage(): void {
+    if (!this.leagueData) return;
+
+    this.leagueService.startFinal(this.leagueData.id).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.toastr.success(response.message);
+          this.loadCurrentMatches();
+          this.getAdminMatches();
+        } else {
+          this.toastr.error(response.message);
+        }
+      },
+      error: (err) => {
+        this.toastr.error(err.error.message);
+        // console.error(err);
+      },
+    });
+  }
+
+  // Method to handle tournament stage button click
+  onTournamentStageButtonClick(): void {
+    if (this.tournamentStageButtonAction) {
+      this.tournamentStageButtonAction();
+    }
   }
 }

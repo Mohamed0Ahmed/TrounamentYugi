@@ -1,0 +1,237 @@
+/* تنسيقات عامة */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* تنسيق الجداول */
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+th,
+td {
+  padding: 12px 8px;
+  text-align: center;
+  border-bottom: 1px solid #374151;
+}
+
+/* تنسيق رؤوس الجداول */
+thead th {
+  background-color: #1f2937;
+  color: white;
+  font-weight: bold;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+}
+
+/* تنسيق صفوف الجداول */
+tbody tr {
+  transition: background-color 0.2s ease;
+}
+
+tbody tr:hover {
+  background-color: #4b5563 !important;
+}
+
+/* تنسيق الألوان البديلة للصفوف */
+tbody tr:nth-child(even) {
+  background-color: #111827;
+}
+
+tbody tr:nth-child(odd) {
+  background-color: #1f2937;
+}
+
+/* تنسيق النقاط الملونة للمراكز */
+.rank-indicator {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  top: -4px;
+  left: -4px;
+}
+
+.rank-1 {
+  background-color: #fbbf24; /* أصفر للذهبي */
+}
+
+.rank-2 {
+  background-color: #9ca3af; /* رمادي للفضي */
+}
+
+.rank-3 {
+  background-color: #ea580c; /* برتقالي للبرونزي */
+}
+
+/* تنسيق البطاقات */
+.group-card {
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+  border: 1px solid #374151;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.group-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+/* تنسيق رؤوس البطاقات */
+.group-header {
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
+  padding: 16px;
+  color: white;
+  font-weight: bold;
+  text-align: center;
+}
+
+/* تنسيق ملخص المجموعات */
+.groups-summary {
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+  border-radius: 8px;
+  padding: 24px;
+  margin-top: 32px;
+}
+
+.summary-card {
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
+  border-radius: 8px;
+  padding: 12px;
+  text-align: center;
+  transition: transform 0.2s ease;
+}
+
+.summary-card:hover {
+  transform: scale(1.05);
+}
+
+/* تنسيق المعلومات */
+.info-card {
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+  border-radius: 8px;
+  padding: 24px;
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+/* تنسيق النصوص */
+.text-gradient {
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* تنسيق الألوان */
+.text-green {
+  color: #10b981;
+}
+
+.text-red {
+  color: #ef4444;
+}
+
+.text-yellow {
+  color: #f59e0b;
+}
+
+.text-blue {
+  color: #3b82f6;
+}
+
+/* تنسيق الاستجابة */
+@media (max-width: 768px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  th,
+  td {
+    padding: 8px 4px;
+    font-size: 0.875rem;
+  }
+
+  .hidden {
+    display: none;
+  }
+}
+
+/* تنسيق التمرير */
+.overflow-x-auto {
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #4b5563 #1f2937;
+}
+
+.overflow-x-auto::-webkit-scrollbar {
+  height: 10px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-track {
+  background: #1f2937;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb {
+  background: #4b5563;
+  border-radius: 3px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
+}
+
+/* تنسيق الرسائل */
+.message-card {
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+  border-radius: 8px;
+  padding: 32px;
+  text-align: center;
+}
+
+/* تنسيق الأزرار */
+.btn {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+/* تنسيق التحميل */
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+}
+
+.spinner {
+  border: 4px solid #1f2937;
+  border-top: 4px solid #3b82f6;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

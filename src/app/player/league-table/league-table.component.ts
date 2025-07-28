@@ -2,7 +2,14 @@ import { Component, HostListener, OnInit } from '@angular/core';
 import { PlayerService } from './../../core/services/player.service';
 import { MatchService } from 'src/app/core/services/match.service';
 import { ToastrService } from 'ngx-toastr';
-import { Match, Player } from 'src/app/models/interfaces';
+import {
+  Match,
+  Player,
+  SystemOfLeague,
+  League,
+  LeagueType,
+} from 'src/app/models/interfaces';
+import { LeagueService } from 'src/app/core/services/league.service';
 
 @Component({
   selector: 'app-league-table',
@@ -14,16 +21,23 @@ export class LeagueTableComponent implements OnInit {
   matches: Match[] = [];
   started: boolean = true;
   highlightedColumn: number | null = null;
+  systemOfLeague?: SystemOfLeague;
+  currentLeague: League | null = null;
+  SystemOfLeague = SystemOfLeague; // لسهولة الاستخدام في الـ template
+  LeagueType = LeagueType;
 
   constructor(
     private playerService: PlayerService,
     private matchService: MatchService,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private leagueService: LeagueService
   ) {}
 
   ngOnInit(): void {
+    this.loadCurrentLeague();
     this.loadPlayers();
     this.loadMatches();
+    this.loadLeagueSystem();
   }
 
   loadPlayers(): void {
@@ -31,7 +45,6 @@ export class LeagueTableComponent implements OnInit {
       next: (response) => {
         if (response) {
           this.players = response;
-
         }
       },
       error: (err) => {
@@ -52,6 +65,29 @@ export class LeagueTableComponent implements OnInit {
       },
       error: (err) => {
         this.toastr.error('حصل خطأ أثناء جلب الماتشات');
+      },
+    });
+  }
+
+  private loadCurrentLeague(): void {
+    this.leagueService.GetCurrentLeague().subscribe({
+      next: (response: any) => {
+        this.currentLeague = response.league;
+      },
+      error: (err: any) => {
+        console.error('Error loading current league:', err);
+        this.currentLeague = null;
+      },
+    });
+  }
+
+  loadLeagueSystem(): void {
+    this.leagueService.GetCurrentLeague().subscribe({
+      next: (res) => {
+        this.systemOfLeague = res.league?.systemOfLeague;
+      },
+      error: () => {
+        this.toastr.error('حدث خطأ أثناء جلب نظام الدوري');
       },
     });
   }
@@ -88,6 +124,34 @@ export class LeagueTableComponent implements OnInit {
     }
 
     return { result: `${player1Score} - ${player2Score}`, color: colorClass };
+  }
+
+  getClassicResult(player1: Player, player2: Player) {
+    if (player1.playerId === player2.playerId) {
+      return { result: 'N/A', color: 'text-gray-800' };
+    }
+    const match = this.matches.find(
+      (m) =>
+        (m.player1Name === player1.fullName &&
+          m.player2Name === player2.fullName) ||
+        (m.player1Name === player2.fullName &&
+          m.player2Name === player1.fullName)
+    );
+    if (!match) {
+      return { result: '-', color: 'text-gray-500' };
+    }
+    const player1Score =
+      match.player1Name === player1.fullName ? match.score1 : match.score2;
+    const player2Score =
+      match.player2Name === player2.fullName ? match.score2 : match.score1;
+    if (player1Score > player2Score) {
+      return { result: 'فوز', color: 'text-green-600 font-bold' };
+    } else if (player1Score < player2Score) {
+      return { result: 'خسارة', color: 'text-red-600 font-bold' };
+    } else if (player1Score === player2Score && player1Score !== 0) {
+      return { result: 'تعادل', color: 'text-yellow-400 font-bold' };
+    }
+    return { result: '-', color: 'text-gray-500' };
   }
 
   highlightColumn(playerId: number) {

@@ -90,17 +90,35 @@ export class CacheService {
     return this.cacheRequest(key, request, this.LEAGUE_TTL);
   }
 
-  // Cache all-leagues data with 24 hours TTL
+  // Cache all-leagues data with 24 hours TTL and sort by creation date (newest first)
   cacheAllLeaguesRequest<T>(
     key: string,
     request: Observable<T>
   ): Observable<T> {
-    return this.cacheRequest(key, request, this.LEAGUE_TTL);
-  }
+    const cached = this.get<T>(key);
+    if (cached) {
+      return of(cached);
+    }
 
-  // Cache admin data with 30 minutes TTL
-  cacheAdminRequest<T>(key: string, request: Observable<T>): Observable<T> {
-    return this.cacheRequest(key, request, 30 * 60 * 1000); // 30 minutes
+    return request.pipe(
+      tap((data: any) => {
+        // Sort leagues by createdOn date (newest first) if it's an array
+        if (Array.isArray(data) && data.length > 0 && data[0].createdOn) {
+          const sortedData = [...data].sort((a, b) => {
+            const dateA = new Date(a.createdOn).getTime();
+            const dateB = new Date(b.createdOn).getTime();
+            return dateB - dateA; // Descending order (newest first)
+          });
+          this.set(key, sortedData, this.LEAGUE_TTL);
+        } else {
+          this.set(key, data, this.LEAGUE_TTL);
+        }
+      }),
+      catchError((error) => {
+        console.error('Cache request failed:', error);
+        throw error;
+      })
+    );
   }
 
   // Invalidate cache for specific patterns

@@ -1,5 +1,8 @@
-<div class="sm:container mx-auto p-4">
+<div class="md:container mx-auto p-4">
   <h2 class="text-3xl text-white text-center mb-6 font-bold">Rank Table</h2>
+
+  <!-- Tournament Info Component -->
+  <!-- <app-tournament-info></app-tournament-info> -->
 
   <!-- Update Status Component -->
   <app-update-status></app-update-status>
@@ -14,71 +17,99 @@
     </div>
   </div>
 
-  <div *ngIf="!started" class="overflow-x-auto">
-    <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
-      <table class="w-full text-sm text-left rtl:text-right text-gray-100">
-        <thead class="text-xs font-bold text-gray-100 uppercase bg-black">
-          <tr class="text-center">
-            <th scope="col" class="px-2 py-3">Rank</th>
-            <th scope="col" class="px-2 py-3">Name</th>
-            <th scope="col" class="px-2 py-3">points</th>
-            <th scope="col" class="px-2 py-3 hidden sm:table-cell">Win</th>
-            <th scope="col" class="px-2 py-3 hidden sm:table-cell">Draw</th>
-            <th scope="col" class="px-2 py-3 hidden sm:table-cell">Loss</th>
-            <th scope="col" class="px-2 py-3">Games</th>
-            <th scope="col" class="px-2 py-3">win Rate</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr
-            *ngFor="let player of players; let i = index"
-            class="border-b text-center border-gray-700 hover:bg-gray-600 font-bold text-sm md:text-[16px]"
-            [ngClass]="i % 2 === 0 ? 'bg-gray-900' : 'bg-gray-950'"
-          >
-            <th
-              scope="row"
-              class="px-2 py-4 font-medium text-white whitespace-nowrap relative"
-            >
-              <i
-                class="fa-solid fa-crown absolute top-[50%] left-[10px] md:left-10 translate-y-[-50%]"
-                style="color: #ffd43b"
-                *ngIf="player.rank == 1"
-              ></i>
-              {{ player.rank }}
-            </th>
-            <td class="px-2 py-4">
-              {{ player.fullName }}
-            </td>
-            <td class="px-2 py-4 text-center">
-              {{ player.points }}
-            </td>
-            <td
-              class="px-2 py-4 text-center text-green-500 hidden sm:table-cell"
-            >
-              {{ player.wins }}
-            </td>
-            <td
-              class="px-2 py-4 text-center text-yellow-400 hidden sm:table-cell"
-            >
-              {{ player.draws }}
-            </td>
-            <td class="px-2 py-4 text-center text-red-600 hidden sm:table-cell">
-              {{ player.losses }}
-            </td>
-            <td class="px-2 py-4 text-center">
-              {{ player.matchesPlayed }}
-            </td>
-            <td
-              class="px-2 py-4 text-center"
-              [ngClass]="
-                player.winRate > 50 ? 'text-green-500' : 'text-red-600'
-              "
-            >
-              {{ player.winRate | number : "1.2-2" }} %
-            </td>
-          </tr>
-        </tbody>
-      </table>
+  <!-- عرض الجداول حسب نوع البطولة -->
+  <div *ngIf="!started">
+    <!-- عرض مكون جداول المجموعات للبطولات من نوع Groups -->
+    <app-groups-table
+      *ngIf="currentLeague?.typeOfLeague === LeagueType.Groups"
+    ></app-groups-table>
+
+    <!-- عرض الجدول العادي للبطولات الأخرى -->
+    <div
+      *ngIf="
+        !currentLeague || currentLeague?.typeOfLeague !== LeagueType.Groups
+      "
+      class="overflow-x-auto"
+    >
+      <!-- عرض الجدول العادي للبطولات الأخرى -->
+      <div
+        *ngIf="
+          !currentLeague || currentLeague?.typeOfLeague !== LeagueType.Groups
+        "
+        class="overflow-x-auto"
+      >
+        <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+          <table class="w-full text-sm text-left rtl:text-right text-gray-100">
+            <thead class="text-xs font-bold text-gray-100 uppercase bg-black">
+              <tr class="text-center">
+                <th scope="col" class="px-2 py-3">Rank</th>
+                <th scope="col" class="px-2 py-3">Name</th>
+                <th scope="col" class="px-2 py-3">points</th>
+                <th scope="col" class="px-2 py-3 hidden sm:table-cell">Win</th>
+                <th scope="col" class="px-2 py-3 hidden sm:table-cell">Draw</th>
+                <th scope="col" class="px-2 py-3 hidden sm:table-cell">Loss</th>
+                <th scope="col" class="px-2 py-3">Games</th>
+                <th scope="col" class="px-2 py-3">win Rate</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                *ngFor="let player of players; let i = index"
+                class="border-b text-center border-gray-700 hover:bg-gray-600 font-bold text-sm md:text-[16px]"
+                [ngClass]="i % 2 === 0 ? 'bg-gray-900' : 'bg-gray-950'"
+              >
+                <th
+                  scope="row"
+                  class="px-2 py-4 font-medium text-white whitespace-nowrap relative"
+                >
+                  <i
+                    class="fa-solid fa-crown absolute top-[50%] left-[10px] md:left-10 translate-y-[-50%]"
+                    style="color: #ffd43b"
+                    *ngIf="player.rank == 1"
+                  ></i>
+                  {{ player.rank }}
+                </th>
+                <td class="px-2 py-4">
+                  {{ player.fullName }}
+                </td>
+                <td class="px-2 py-4 text-center">
+                  {{ player.points }}
+                </td>
+                <td
+                  class="px-2 py-4 text-center text-green-500 hidden sm:table-cell"
+                >
+                  {{ player.wins }}
+                </td>
+                <td
+                  class="px-2 py-4 text-center text-yellow-400 hidden sm:table-cell"
+                >
+                  {{ player.draws }}
+                </td>
+                <td
+                  class="px-2 py-4 text-center text-red-600 hidden sm:table-cell"
+                >
+                  {{ player.losses }}
+                </td>
+                <td class="px-2 py-4 text-center">
+                  {{ player.matchesPlayed }}
+                </td>
+                <td
+                  class="px-2 py-4 text-center"
+                  [ngClass]="
+                    player.winRate > 50 ? 'text-green-500' : 'text-red-600'
+                  "
+                >
+                  {{ player.winRate | number : "1.2-2" }} %
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
+  </div>
+
+  <div class="w-full" *ngIf="currentLeague?.typeOfLeague === LeagueType.Groups">
+    <app-bracket-tree [leagueId]="currentLeague?.id"></app-bracket-tree>
   </div>
 </div>

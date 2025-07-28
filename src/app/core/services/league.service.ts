@@ -3,7 +3,6 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from './../../../environments/environment';
 import {
-  AllLeagueMatches,
   AllLeagueRank,
   CommonResponse,
   LeagueResponse,
@@ -31,21 +30,21 @@ export class LeagueService {
   }
 
   GetCurrentLeague(): Observable<LeagueResponse> {
-    return this.cacheService.cacheAdminRequest(
-      'admin-current-league',
+    return this.cacheService.cachePlayerRequest(
+      'current-league',
       this.http.get<LeagueResponse>(`${this.baseUrl}/league/getCurrentLeague`)
     );
   }
 
-  GetAllLeaguesMatches(): Observable<AllLeagueMatches[]> {
-    return this.cacheService.cacheLeagueRequest(
-      'all-leagues-matches',
-      this.http.get<AllLeagueMatches[]>(`${this.baseUrl}/match/matches/all`)
+  // Admin-specific method for current league without cache
+  getAdminCurrentLeague(): Observable<LeagueResponse> {
+    return this.http.get<LeagueResponse>(
+      `${this.baseUrl}/league/getCurrentLeague`
     );
   }
 
   GetAllLeaguesRank(): Observable<AllLeagueRank[]> {
-    return this.cacheService.cacheLeagueRequest(
+    return this.cacheService.cacheAllLeaguesRequest(
       'all-leagues-rank',
       this.http.get<AllLeagueRank[]>(`${this.baseUrl}/player/players/all`)
     );
@@ -53,10 +52,7 @@ export class LeagueService {
 
   // Admin-specific method with 30-minute cache
   getAdminAllLeagues(): Observable<AllLeagueRank[]> {
-    return this.cacheService.cacheAdminRequest(
-      'admin-all-leagues-list',
-      this.http.get<AllLeagueRank[]>(`${this.baseUrl}/player/players/all`)
-    );
+    return this.http.get<AllLeagueRank[]>(`${this.baseUrl}/player/players/all`);
   }
 
   DeleteLeague(leagueId: number): Observable<CommonResponse> {
@@ -65,9 +61,32 @@ export class LeagueService {
     );
   }
 
-  // Get last update time for leagues matches
-  getLastLeaguesMatchesUpdateTime(): Date | null {
-    return this.cacheService.getLastUpdateTime('all-leagues-matches');
+  createGroupsAndMatches(leagueId: number): Observable<CommonResponse> {
+    return this.http.post<CommonResponse>(
+      `${this.baseUrl}/league/${leagueId}/create-groups`,
+      {}
+    );
+  }
+
+  startKnockoutStage(leagueId: number): Observable<CommonResponse> {
+    return this.http.post<CommonResponse>(
+      `${this.baseUrl}/league/${leagueId}/start-knockouts`,
+      {}
+    );
+  }
+
+  startSemiFinals(leagueId: number): Observable<CommonResponse> {
+    return this.http.post<CommonResponse>(
+      `${this.baseUrl}/league/${leagueId}/start-semifinals`,
+      {}
+    );
+  }
+
+  startFinal(leagueId: number): Observable<CommonResponse> {
+    return this.http.post<CommonResponse>(
+      `${this.baseUrl}/league/${leagueId}/start-final`,
+      {}
+    );
   }
 
   // Get last update time for leagues rank
@@ -77,6 +96,6 @@ export class LeagueService {
 
   // Get last update time for current league
   getLastCurrentLeagueUpdateTime(): Date | null {
-    return this.cacheService.getLastUpdateTime('admin-current-league');
+    return this.cacheService.getLastUpdateTime('current-league');
   }
 }

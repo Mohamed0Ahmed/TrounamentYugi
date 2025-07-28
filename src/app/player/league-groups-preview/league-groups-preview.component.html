@@ -1,0 +1,162 @@
+<div *ngIf="isGroupsTournament() && hasGroupedPlayers()" class="mt-6">
+  <h4 class="text-lg font-bold text-white mb-4 text-center">Groups Preview</h4>
+
+  <!-- عرض المجموعات في شبكة -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+    <div
+      *ngFor="let groupNumber of getGroupNumbers()"
+      class="bg-black bg-opacity-50 backdrop-blur-sm rounded-lg border border-gray-700"
+    >
+      <div
+        class="bg-gradient-to-r from-blue-600 to-purple-600 p-3 rounded-t-lg"
+      >
+        <h5 class="text-sm font-bold text-white text-center">
+          Group {{ groupNumber }}
+        </h5>
+      </div>
+
+      <div class="p-3">
+        <table class="w-full text-xs text-gray-100">
+          <thead class="text-xs font-bold text-gray-100 uppercase bg-gray-800">
+            <tr class="text-center">
+              <th scope="col" class="px-1 py-2">Rank</th>
+              <th scope="col" class="px-1 py-2">Name</th>
+              <th scope="col" class="px-1 py-2">Points</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              *ngFor="
+                let player of getGroupedPlayers()[groupNumber];
+                let i = index
+              "
+              class="border-b text-center border-gray-700 hover:bg-gray-600 font-bold text-xs"
+              [ngClass]="i % 2 === 0 ? 'bg-gray-900' : 'bg-gray-950'"
+            >
+              <th
+                scope="row"
+                class="px-1 py-2 font-medium text-white whitespace-nowrap"
+              >
+                {{ player.rank }}
+              </th>
+              <td class="px-1 py-2 text-white">
+                {{ player.fullName }}
+              </td>
+              <td class="px-1 py-2 text-center font-bold text-blue-400">
+                {{ player.points }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <button
+          (click)="openGroupMatches(groupNumber)"
+          class="w-full mt-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-xs font-bold py-2 px-3 rounded hover:from-blue-700 hover:to-purple-700 transition-all"
+        >
+          Show Group {{ groupNumber }} Matches
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- مودال مباريات المجموعة -->
+<div
+  *ngIf="showMatchesModal"
+  class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50"
+  (click)="closeMatchesModal()"
+>
+  <div
+    class="bg-black bg-opacity-50 backdrop-blur-sm p-6 rounded-lg shadow-lg w-full max-w-4xl mx-4 max-h-[80vh] overflow-y-auto"
+    (click)="$event.stopPropagation()"
+  >
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-xl font-bold text-white">
+        Group {{ selectedGroup }} Matches
+      </h2>
+      <button
+        class="text-white hover:text-gray-300"
+        (click)="closeMatchesModal()"
+      >
+        <i class="fa-solid fa-times text-2xl"></i>
+      </button>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm text-left rtl:text-right text-gray-100">
+        <thead class="text-xs font-bold text-gray-100 uppercase bg-gray-800">
+          <tr class="text-center">
+            <th
+              *ngFor="let player of getGroupedPlayers()[selectedGroup!]"
+              scope="col"
+              class="px-3 py-3 cursor-pointer hover:bg-gray-700 transition-all min-w-[70px]"
+            >
+              {{ player.fullName }}
+            </th>
+            <th scope="col" class="px-4 py-3 text-white sticky-column">
+              المباراة
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            *ngFor="
+              let player1 of getGroupedPlayers()[selectedGroup!];
+              let i = index
+            "
+            class="text-center hover:bg-gray-600"
+            [ngClass]="i % 2 === 0 ? 'bg-gray-900' : 'bg-gray-950'"
+          >
+            <td
+              *ngFor="let player2 of getGroupedPlayers()[selectedGroup!]"
+              class="px-2 py-4 transition-all"
+            >
+              <span
+                *ngIf="player1.playerId === player2.playerId"
+                class="font-bold text-white"
+              >
+                N/A
+              </span>
+              <span *ngIf="player1.playerId !== player2.playerId">
+                <ng-container
+                  *ngIf="
+                    systemOfLeague === SystemOfLeague.Points;
+                    else classicResult
+                  "
+                >
+                  <span
+                    [ngClass]="
+                      getMatchResult(player2, player1, selectedGroupMatches)
+                        .color
+                    "
+                  >
+                    {{
+                      getMatchResult(player2, player1, selectedGroupMatches)
+                        .result
+                    }}
+                  </span>
+                </ng-container>
+                <ng-template #classicResult>
+                  <span
+                    [ngClass]="
+                      getClassicResult(player2, player1, selectedGroupMatches)
+                        .color
+                    "
+                  >
+                    {{
+                      getClassicResult(player2, player1, selectedGroupMatches)
+                        .result
+                    }}
+                  </span>
+                </ng-template>
+              </span>
+            </td>
+            <td class="px-6 py-4 font-bold text-white sticky-column">
+              {{ player1.fullName }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

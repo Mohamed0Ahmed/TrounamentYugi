@@ -113,7 +113,7 @@ export class AdminBackgroundService {
     this.http.get<[]>(`${this.baseUrl}/player`).subscribe({
       next: (data) => {
         // console.log('✅ Players list updated');
-        this.cacheService.set('admin-players-list', data, 30 * 60 * 1000);
+        // تم إلغاء الكاش للادمن
       },
       error: (error) => {
         console.error('❌ Failed to update players list:', error);
@@ -124,7 +124,7 @@ export class AdminBackgroundService {
     this.http.get<[]>(`${this.baseUrl}/match`).subscribe({
       next: (data) => {
         // console.log('✅ Matches updated');
-        this.cacheService.set('admin-matches-list', data, 30 * 60 * 1000);
+        // تم إلغاء الكاش للادمن
       },
       error: (error) => {
         console.error('❌ Failed to update matches:', error);
@@ -135,7 +135,7 @@ export class AdminBackgroundService {
     this.http.get<[]>(`${this.baseUrl}/Message/inbox`).subscribe({
       next: (data) => {
         // console.log('✅ Messages updated');
-        this.cacheService.set('admin-messages-list', data, 2 * 60 * 1000); // 2 minutes cache instead of 30
+        // تم إلغاء الكاش للادمن
       },
       error: (error) => {
         console.error('❌ Failed to update messages:', error);
@@ -146,7 +146,7 @@ export class AdminBackgroundService {
     this.http.get<[]>(`${this.baseUrl}/note/notes`).subscribe({
       next: (data) => {
         // console.log('✅ Notes updated');
-        this.cacheService.set('admin-notes-list', data, 30 * 60 * 1000);
+        // تم إلغاء الكاش للادمن
       },
       error: (error) => {
         console.error('❌ Failed to update notes:', error);
@@ -157,7 +157,7 @@ export class AdminBackgroundService {
     this.http.get<[]>(`${this.baseUrl}/player/players/all`).subscribe({
       next: (data) => {
         // console.log('✅ All leagues updated');
-        this.cacheService.set('admin-all-leagues-list', data, 30 * 60 * 1000);
+        // تم إلغاء الكاش للادمن
       },
       error: (error) => {
         console.error('❌ Failed to update all leagues:', error);
@@ -170,7 +170,7 @@ export class AdminBackgroundService {
       .subscribe({
         next: (data) => {
           // console.log('✅ Current league updated');
-          this.cacheService.set('admin-current-league', data, 30 * 60 * 1000);
+          // تم إلغاء الكاش للادمن
         },
         error: (error) => {
           console.error('❌ Failed to update current league:', error);
@@ -245,11 +245,6 @@ export class AdminBackgroundService {
 
   // Invalidate admin cache
   invalidateAdminCache() {
-    this.cacheService.remove('admin-players-list');
-    this.cacheService.remove('admin-matches-list');
-    this.cacheService.remove('admin-messages-list');
-    this.cacheService.remove('admin-notes-list');
-    this.cacheService.remove('admin-all-leagues-list');
-    this.cacheService.remove('admin-current-league');
+    // تم إلغاء الكاش للادمن
   }
 }

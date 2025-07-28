@@ -1,0 +1,98 @@
+<div class="bracket-container">
+  <div class="bracket-stage">
+    <div class="stage-container">
+      <h3>Quarter Finals</h3>
+      <div class="matches">
+        <div *ngFor="let match of quarterFinals()" class="match">
+          <div class="player-container">
+            <div class="player">
+              {{ match.player1Name || "---" }}
+              <span
+                *ngIf="match.isCompleted && match.score1 > match.score2"
+                class="winner-check"
+                >✓</span
+              >
+            </div>
+          </div>
+          <div class="vs">vs</div>
+          <div class="player-container">
+            <div class="player">
+              {{ match.player2Name || "---" }}
+              <span
+                *ngIf="match.isCompleted && match.score2 > match.score1"
+                class="winner-check"
+                >✓</span
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bracket-stage">
+    <div class="stage-container">
+      <h3>Semi Finals</h3>
+      <div class="matches">
+        <div *ngFor="let match of semiFinals()" class="match">
+          <div class="player-container">
+            <div class="player">
+              {{ match.player1Name || "---" }}
+              <span
+                *ngIf="match.isCompleted && match.score1 > match.score2"
+                class="winner-check"
+                >✓</span
+              >
+            </div>
+          </div>
+          <div class="vs">vs</div>
+          <div class="player-container">
+            <div class="player">
+              {{ match.player2Name || "---" }}
+              <span
+                *ngIf="match.isCompleted && match.score2 > match.score1"
+                class="winner-check"
+                >✓</span
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bracket-stage">
+    <div class="stage-container" *ngIf="final()">
+      <h3>Final</h3>
+      <div class="matches">
+        <div class="match">
+          <div class="player-container">
+            <div class="player">
+              {{ final()?.player1Name ?? "---" }}
+              <span
+                *ngIf="
+                  final()!.isCompleted && final()!.score1 > final()!.score2
+                "
+                class="champion-check"
+                >👑</span
+              >
+            </div>
+          </div>
+          <div class="vs">vs</div>
+          <div class="player-container">
+            <div class="player">
+              {{ final()?.player2Name ?? "---" }}
+              <span
+                *ngIf="
+                  final()!.isCompleted && final()!.score2 > final()!.score1
+                "
+                class="champion-check"
+                >👑</span
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -36,12 +36,9 @@ export class PlayerService {
 
   // Admin-specific method with 30-minute cache
   getAdminPlayers(): Observable<[]> {
-    return this.cacheService.cacheAdminRequest(
-      'admin-players-list',
-      this.http
-        .get<[]>(`${this.baseUrl}/player`)
-        .pipe(tap((data) => this.rankingSubject.next(data)))
-    );
+    return this.http
+      .get<[]>(`${this.baseUrl}/player`)
+      .pipe(tap((data) => this.rankingSubject.next(data)));
   }
 
   addPlayer(fullName: string): Observable<CommonResponse> {
@@ -79,8 +76,6 @@ export class PlayerService {
       this.rankingSubject.next(data);
     });
   }
-
-
 
   // Get next update time
   getNextUpdateTime(): Date {
