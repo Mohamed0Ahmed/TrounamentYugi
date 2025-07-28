@@ -1,0 +1,30 @@
+/* Highlighted cell styling */
+.highlighted-cell {
+  background: rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  border-radius: 4px;
+  transition: all 0.5s ease;
+}
+
+.highlighted-cell:hover {
+  background: rgba(255, 255, 255, 0.15) !important;
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.8);
+}
+
+/* Highlighted header styling */
+.highlighted-header {
+  background: rgba(255, 255, 255, 0.15) !important;
+  color: white !important;
+  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  border-radius: 4px;
+  transition: all 0.5s ease;
+}
+
+.highlighted-header:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.8);
+}

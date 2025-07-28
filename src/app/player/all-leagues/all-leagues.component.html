@@ -5,7 +5,7 @@
     <ng-container *ngFor="let league of leaguesRank">
       <ng-template carouselSlide>
         <div
-          class=" border  rounded-lg shadow-md mx-auto text-center bg-black bg-opacity-50 backdrop-blur-sm container"
+          class="border rounded-lg shadow-md mx-auto text-center bg-black bg-opacity-50 backdrop-blur-sm container"
         >
           <h3 class="text-xl font-bold text-center text-white pt-2">
             {{ league.leagueName }}
@@ -215,7 +215,7 @@
               (click)="highlightColumn(player.playerId)"
               [ngClass]="
                 highlightedColumn == player.playerId
-                  ? 'bg-gray-500'
+                  ? 'highlighted-header'
                   : 'bg-gray-700'
               "
             >
@@ -239,8 +239,7 @@
               *ngFor="let player2 of players"
               class="px-2 py-4 transition-all"
               [ngClass]="{
-                'shadow-lg shadow-blue-900':
-                  highlightedColumn === player2.playerId
+                'highlighted-cell': highlightedColumn === player2.playerId
               }"
             >
               <span
@@ -284,7 +283,7 @@
   (click)="closeKnockoutModal()"
 >
   <div
-    class="bg-black bg-opacity-50 backdrop-blur-sm rounded-lg shadow-lg w-full max-w-6xl  max-h-[80vh] overflow-y-auto md:overflow-hidden "
+    class="bg-black bg-opacity-50 backdrop-blur-sm rounded-lg shadow-lg w-full max-w-6xl max-h-[80vh] overflow-y-auto md:overflow-hidden"
     (click)="$event.stopPropagation()"
   >
     <div class="flex justify-between items-center mb-4 px-4 pt-2">

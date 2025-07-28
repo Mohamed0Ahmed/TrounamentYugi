@@ -3,7 +3,6 @@
     Games Table
   </h2>
 
-
   <!-- Update Status Component -->
   <div class="container mx-auto">
     <app-update-status></app-update-status>
@@ -39,8 +38,8 @@
             (click)="highlightColumn(player.playerId)"
             [ngClass]="
               highlightedColumn == player.playerId
-                ? ' text-white bg-gray-800'
-                : ' text-white'
+                ? 'highlighted-header'
+                : 'text-white'
             "
           >
             {{ player.fullName }}
@@ -60,8 +59,7 @@
             *ngFor="let player2 of players"
             class="transition-all"
             [ngClass]="{
-              'shadow-lg shadow-gray-100':
-                highlightedColumn === player2.playerId
+              'highlighted-cell': highlightedColumn === player2.playerId
             }"
           >
             <span

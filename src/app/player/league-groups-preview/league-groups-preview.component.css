@@ -28,11 +28,14 @@
 
 /* تنسيق صفوف الجداول الصغيرة */
 .group-table tbody tr {
-  transition: background-color 0.2s ease;
+  transition: all 0.5s ease;
+  position: relative;
 }
 
 .group-table tbody tr:hover {
-  background-color: #4b5563 !important;
+  background-color: rgba(59, 130, 246, 0.3) !important;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
+  border-left: 3px solid #3b82f6;
 }
 
 /* تنسيق الألوان البديلة للصفوف */
@@ -51,12 +54,12 @@
   border: 1px solid #374151;
   border-radius: 8px;
   overflow: hidden;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: all 0.6s ease;
 }
 
 .group-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+  border-color: rgba(59, 130, 246, 0.5);
 }
 
 /* تنسيق رؤوس البطاقات الصغيرة */
@@ -75,7 +78,7 @@
   font-weight: bold;
   padding: 8px 12px;
   border-radius: 6px;
-  transition: all 0.2s ease;
+  transition: all 0.6s ease;
   cursor: pointer;
   border: none;
   width: 100%;
@@ -84,7 +87,7 @@
 
 .group-button:hover {
   background: linear-gradient(135deg, #1d4ed8, #7c2d12);
-  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
 }
 
 /* تنسيق المودال */
