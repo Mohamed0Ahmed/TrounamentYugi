@@ -73,6 +73,7 @@ export class AllLeaguesComponent implements OnInit {
   }
 
   customOptions: OwlOptions = {
+    nav: true,
     loop: false,
     mouseDrag: true,
     touchDrag: true,

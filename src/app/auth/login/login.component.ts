@@ -12,10 +12,12 @@ export class LoginComponent {
   phoneNumber: string = '';
   password: string = '';
   isAdminLogin: boolean = false;
+  showPassword: boolean = false;
 
   isResetPasswordModalOpen: boolean = false;
   resetPhoneNumber: string = '';
   newPassword: string = '';
+  showNewPassword: boolean = false;
 
   constructor(
     private authService: AuthService,
@@ -105,5 +107,15 @@ export class LoginComponent {
           console.error(err);
         },
       });
+  }
+
+  // Toggle password visibility
+  togglePasswordVisibility() {
+    this.showPassword = !this.showPassword;
+  }
+
+  // Toggle new password visibility
+  toggleNewPasswordVisibility() {
+    this.showNewPassword = !this.showNewPassword;
   }
 }
