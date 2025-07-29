@@ -1,6 +1,6 @@
 <div class="bracket-container">
   <div class="bracket-stage">
-    <div class="stage-container">
+    <div class="stage-container" *ngIf="hasQuarterFinals()">
       <h3>Quarter Finals</h3>
       <div class="matches">
         <div *ngFor="let match of quarterFinals()" class="match">
@@ -31,7 +31,7 @@
   </div>
 
   <div class="bracket-stage">
-    <div class="stage-container">
+    <div class="stage-container" *ngIf="hasSemiFinals()">
       <h3>Semi Finals</h3>
       <div class="matches">
         <div *ngFor="let match of semiFinals()" class="match">

@@ -1,11 +1,27 @@
 <div class="my-8">
   <h2 class="text-2xl font-bold text-center mb-4 text-white">All Leagues</h2>
 
-  <owl-carousel-o [options]="customOptions">
+  <!-- Custom Navigation Buttons -->
+  <div class="flex justify-center gap-4 mb-4">
+    <button
+      class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-all"
+      (click)="previousSlide()"
+    >
+      <i class="fa-solid fa-chevron-left mr-2"></i>Previous
+    </button>
+    <button
+      class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-all"
+      (click)="nextSlide()"
+    >
+      Next<i class="fa-solid fa-chevron-right ml-2"></i>
+    </button>
+  </div>
+
+  <owl-carousel-o [options]="customOptions" #owlCarousel>
     <ng-container *ngFor="let league of leaguesRank">
       <ng-template carouselSlide>
         <div
-          class="border rounded-lg shadow-md mx-auto text-center bg-black bg-opacity-50 backdrop-blur-sm container"
+          class="border rounded-lg p-4 shadow-md mx-auto text-center bg-black bg-opacity-50 backdrop-blur-sm container"
         >
           <h3 class="text-xl font-bold text-center text-white pt-2">
             {{ league.leagueName }}

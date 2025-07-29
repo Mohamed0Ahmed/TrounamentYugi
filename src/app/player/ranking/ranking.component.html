@@ -1,8 +1,7 @@
 <div class="md:container mx-auto p-4">
   <h2 class="text-3xl text-white text-center mb-6 font-bold">Rank Table</h2>
 
-
-  <div *ngIf="started" class="flex justify-center text-white">
+  <div *ngIf="!currentLeague" class="flex justify-center text-white">
     <div class="w-1/2 text-center mt-10">
       <h1
         class="mb-4 text-4xl font-extrabold leading-none tracking-tight md:text-5xl lg:text-6xl text-white"
@@ -12,8 +11,16 @@
     </div>
   </div>
 
+  <!-- عرض أنيميشن القرعة للبطولات من نوع Groups قبل بدء المباريات -->
+  <app-group-draw-animation
+    *ngIf="showDrawAnimation"
+    [players]="players"
+    (animationComplete)="onDrawAnimationComplete()"
+  >
+  </app-group-draw-animation>
+
   <!-- عرض الجداول حسب نوع البطولة -->
-  <div *ngIf="!started">
+  <div *ngIf="currentLeague && !showDrawAnimation">
     <!-- عرض مكون جداول المجموعات للبطولات من نوع Groups -->
     <app-groups-table
       *ngIf="currentLeague?.typeOfLeague === LeagueType.Groups"

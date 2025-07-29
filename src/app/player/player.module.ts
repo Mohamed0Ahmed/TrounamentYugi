@@ -15,6 +15,7 @@ import { CarouselModule } from 'ngx-owl-carousel-o';
 import { PlayerInboxComponent } from './player-inbox/player-inbox.component';
 import { SharedModule } from '../shared/shared.module';
 import { BracketTreeComponent } from './bracket-tree/bracket-tree.component';
+import { GroupDrawAnimationComponent } from './group-draw-animation/group-draw-animation.component';
 
 @NgModule({
   declarations: [
@@ -27,6 +28,7 @@ import { BracketTreeComponent } from './bracket-tree/bracket-tree.component';
     AllLeaguesComponent,
     ForbiddenCardsComponent,
     PlayerInboxComponent,
+    GroupDrawAnimationComponent,
   ],
   imports: [
     CommonModule,

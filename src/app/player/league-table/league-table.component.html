@@ -8,7 +8,7 @@
     <!-- ✅ تم حذف update-status - مالوش لازمة -->
   </div>
 
-  <div *ngIf="started" class="flex justify-center text-gray-500">
+  <div *ngIf="!currentLeague" class="flex justify-center text-gray-500">
     <div class="w-1/2 text-center mt-10">
       <h1
         class="mb-4 text-4xl font-extrabold leading-none tracking-tight md:text-5xl lg:text-6xl text-white"
@@ -20,12 +20,12 @@
 
   <!-- عرض مكون مواجهات المجموعات للبطولات من نوع Groups -->
   <app-groups-matches-table
-    *ngIf="!started && currentLeague?.typeOfLeague === LeagueType.Groups"
+    *ngIf="currentLeague && currentLeague?.typeOfLeague === LeagueType.Groups"
   ></app-groups-matches-table>
 
   <!-- عرض الجدول العادي للبطولات الأخرى -->
   <div
-    *ngIf="!started && currentLeague?.typeOfLeague !== LeagueType.Groups"
+    *ngIf="currentLeague && currentLeague?.typeOfLeague !== LeagueType.Groups"
     class="table-container relative overflow-x-auto shadow-md sm:rounded-lg"
   >
     <table class="w-full text-sm text-left rtl:text-right text-gray-400">

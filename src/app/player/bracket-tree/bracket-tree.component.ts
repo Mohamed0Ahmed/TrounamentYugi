@@ -112,4 +112,12 @@ export class BracketTreeComponent implements OnInit, OnChanges {
       return match;
     });
   }
+
+  hasQuarterFinals(): boolean {
+    return this.quarterFinals().length > 0;
+  }
+
+  hasSemiFinals(): boolean {
+    return this.semiFinals().length > 0;
+  }
 }

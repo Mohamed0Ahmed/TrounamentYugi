@@ -1,0 +1,64 @@
+<div class="draw-animation-container">
+  <!-- عنوان الأنيميشن -->
+  <div class="text-center mb-8">
+    <h1 class="text-4xl md:text-6xl font-bold text-white mb-4 animate-pulse">
+       Tournament Draw
+    </h1>
+    <p class="text-xl text-gray-300">
+      Revealing Groups...
+    </p>
+  </div>
+
+  <!-- منطقة الكرات والأنيميشن -->
+  <div class="animation-area" *ngIf="showBalls">
+    <!-- كرات المجموعات -->
+    <div class="balls-container">
+      <div
+        *ngFor="let group of animationGroups; let i = index"
+        class="ball-wrapper"
+        [class.current-group]="i === currentGroupIndex"
+        [class.completed-group]="isGroupCompleted(group.groupNumber)">
+
+        <!-- الكرة -->
+        <div class="ball"
+             [class.opening]="isGroupAnimating(group.groupNumber)"
+             [class.opened]="isGroupCompleted(group.groupNumber)">
+          <div class="ball-shine"></div>
+          <div class="group-number">{{ group.groupNumber }}</div>
+        </div>
+
+        <!-- عنوان المجموعة -->
+        <div class="group-title">
+          Group {{ group.groupNumber }}
+        </div>
+      </div>
+    </div>
+
+    <!-- منطقة عرض الأسماء -->
+    <div class="names-reveal-area" *ngIf="getCurrentGroup()">
+      <div class="current-group-header">
+        <h2 class="text-3xl font-bold text-center mb-6">
+          🏆 Group {{ getCurrentGroup()?.groupNumber }} Players 🏆
+        </h2>
+      </div>
+
+      <!-- أسماء اللاعبين -->
+      <div class="players-list">
+        <div
+          *ngFor="let player of getCurrentGroup()?.players; let i = index"
+          class="player-card"
+          [class.revealed]="i <= currentRevealedPlayer"
+          [style.animation-delay.ms]="i * 200">
+
+          <div class="player-rank">{{ i + 1 }}</div>
+          <div class="player-name">{{ player.fullName }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- خلفية الجزيئات -->
+  <div class="particles-bg">
+    <div class="particle" *ngFor="let p of [1,2,3,4,5,6,7,8,9,10]"></div>
+  </div>
+</div>

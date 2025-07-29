@@ -1,4 +1,4 @@
-import { Component, HostListener, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit, ViewChild } from '@angular/core';
 import { LeagueService } from './../../core/services/league.service';
 import {
   AllLeagueRank,
@@ -6,7 +6,7 @@ import {
   Match,
   SystemOfLeague,
 } from './../../models/interfaces';
-import { OwlOptions } from 'ngx-owl-carousel-o';
+import { OwlOptions, CarouselComponent } from 'ngx-owl-carousel-o';
 import { ToastrService } from 'ngx-toastr';
 
 @Component({
@@ -15,6 +15,7 @@ import { ToastrService } from 'ngx-toastr';
   styleUrls: ['./all-leagues.component.css'],
 })
 export class AllLeaguesComponent implements OnInit {
+  @ViewChild('owlCarousel') owlCarousel!: CarouselComponent;
   leaguesRank: AllLeagueRank[] = [];
   players: Player[] = [];
   highlightedColumn: number | null = null;
@@ -45,7 +46,7 @@ export class AllLeaguesComponent implements OnInit {
         }
       },
       error: (err) => {
-        this.toastr.error(err.message);
+        this.toastr.error(err.error.message);
       },
     });
   }
@@ -54,10 +55,8 @@ export class AllLeaguesComponent implements OnInit {
     this.leagueService.GetAllLeaguesRank().subscribe({
       next: (response) => {
         this.leaguesRank = this.sortLeaguesForDisplay(response);
-        // console.log('All leagues data loaded from cache or server');
       },
       error: (error) => {
-        // console.error('Error fetching leagues rank:', error);
         this.toastr.error('حدث خطأ أثناء تحميل بيانات الدوريات');
       },
     });
@@ -73,14 +72,14 @@ export class AllLeaguesComponent implements OnInit {
   }
 
   customOptions: OwlOptions = {
-    nav: true,
+    // nav: false,
     loop: false,
     mouseDrag: true,
     touchDrag: true,
     pullDrag: true,
-    dots: false,
+    // dots: false,
     navSpeed: 700,
-    navText: ['Previous', 'Next'],
+    // navText: ['Previous', 'Next'],
     responsive: {
       0: { items: 1 },
       600: { items: 1 },
@@ -237,5 +236,14 @@ export class AllLeaguesComponent implements OnInit {
       return this.getClassicResult(player1, player2);
     }
     return this.getMatchResult(player1, player2);
+  }
+
+  // Navigation methods
+  previousSlide(): void {
+    this.owlCarousel?.prev();
+  }
+
+  nextSlide(): void {
+    this.owlCarousel?.next();
   }
 }

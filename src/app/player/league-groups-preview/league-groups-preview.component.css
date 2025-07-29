@@ -1,22 +1,17 @@
-/* تنسيقات عامة */
-.group-preview {
-  margin-top: 24px;
-}
+/* General Styling */
+.group-preview { margin-top: 24px; }
 
-/* تنسيق الجداول الصغيرة */
 .group-table {
   width: 100%;
   font-size: 0.75rem;
 }
 
-.group-table th,
-.group-table td {
+.group-table th, .group-table td {
   padding: 4px 2px;
   text-align: center;
   border-bottom: 1px solid #374151;
 }
 
-/* تنسيق رؤوس الجداول الصغيرة */
 .group-table thead th {
   background-color: #1f2937;
   color: white;
@@ -26,7 +21,6 @@
   letter-spacing: 0.05em;
 }
 
-/* تنسيق صفوف الجداول الصغيرة */
 .group-table tbody tr {
   transition: all 0.5s ease;
   position: relative;
@@ -38,16 +32,9 @@
   border-left: 3px solid #3b82f6;
 }
 
-/* تنسيق الألوان البديلة للصفوف */
-.group-table tbody tr:nth-child(even) {
-  background-color: #111827;
-}
+.group-table tbody tr:nth-child(even) { background-color: #111827; }
+.group-table tbody tr:nth-child(odd) { background-color: #1f2937; }
 
-.group-table tbody tr:nth-child(odd) {
-  background-color: #1f2937;
-}
-
-/* تنسيق البطاقات الصغيرة */
 .group-card {
   background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(10px);
@@ -62,7 +49,6 @@
   border-color: rgba(59, 130, 246, 0.5);
 }
 
-/* تنسيق رؤوس البطاقات الصغيرة */
 .group-header {
   background: linear-gradient(135deg, #2563eb, #7c3aed);
   padding: 12px;
@@ -71,7 +57,6 @@
   text-align: center;
 }
 
-/* تنسيق الأزرار */
 .group-button {
   background: linear-gradient(135deg, #2563eb, #7c3aed);
   color: white;
@@ -90,7 +75,7 @@
   box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
 }
 
-/* تنسيق المودال */
+/* Modal Styling */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -139,11 +124,8 @@
   transition: color 0.2s ease;
 }
 
-.modal-close:hover {
-  color: #9ca3af;
-}
+.modal-close:hover { color: #9ca3af; }
 
-/* تنسيق العمود الثابت */
 .sticky-column {
   position: sticky;
   right: 0;
@@ -151,65 +133,27 @@
   z-index: 10;
 }
 
-/* تنسيق التمرير */
 .overflow-x-auto {
   overflow-x: auto;
   scrollbar-width: thin;
   scrollbar-color: #4b5563 #1f2937;
 }
 
-.overflow-x-auto::-webkit-scrollbar {
-  height: 10px;
-}
+.overflow-x-auto::-webkit-scrollbar { height: 10px; }
+.overflow-x-auto::-webkit-scrollbar-track { background: #1f2937; }
+.overflow-x-auto::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 3px; }
+.overflow-x-auto::-webkit-scrollbar-thumb:hover { background: #6b7280; }
 
-.overflow-x-auto::-webkit-scrollbar-track {
-  background: #1f2937;
-}
-
-.overflow-x-auto::-webkit-scrollbar-thumb {
-  background: #4b5563;
-  border-radius: 3px;
-}
-
-.overflow-x-auto::-webkit-scrollbar-thumb:hover {
-  background: #6b7280;
-}
-
-/* تنسيق الاستجابة */
+/* Responsive Design */
 @media (max-width: 768px) {
-  .grid {
-    grid-template-columns: 1fr;
-  }
-
-  .group-table th,
-  .group-table td {
-    padding: 2px 1px;
-    font-size: 0.625rem;
-  }
-
-  .modal-content {
-    margin: 0 8px;
-    padding: 16px;
-  }
+  .grid { grid-template-columns: 1fr; }
+  .group-table th, .group-table td { padding: 2px 1px; font-size: 0.625rem; }
+  .modal-content { margin: 0 8px; padding: 16px; }
 }
 
-/* تنسيق الألوان */
-.text-green {
-  color: #10b981;
-}
-
-.text-red {
-  color: #ef4444;
-}
-
-.text-yellow {
-  color: #f59e0b;
-}
-
-.text-blue {
-  color: #3b82f6;
-}
-
-.text-gray {
-  color: #9ca3af;
-}
+/* Color Classes */
+.text-green { color: #10b981; }
+.text-red { color: #ef4444; }
+.text-yellow { color: #f59e0b; }
+.text-blue { color: #3b82f6; }
+.text-gray { color: #9ca3af; }

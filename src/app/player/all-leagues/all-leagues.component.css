@@ -28,3 +28,31 @@
   box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
   border-color: rgba(255, 255, 255, 0.8);
 }
+
+/* Navigation buttons positioning - Top
+::ng-deep .owl-nav {
+  position: absolute !important;
+  top: 10px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  display: flex !important;
+  gap: 10px !important;
+  z-index: 10 !important;
+}
+
+::ng-deep .owl-prev,
+::ng-deep .owl-next {
+  background: rgba(0, 0, 0, 0.7) !important;
+  color: white !important;
+  padding: 8px 12px !important;
+  border-radius: 4px !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  transition: all 0.3s ease !important;
+}
+
+::ng-deep .owl-prev:hover,
+::ng-deep .owl-next:hover {
+  background: rgba(0, 0, 0, 0.9) !important;
+  border-color: rgba(255, 255, 255, 0.6) !important;
+  transform: scale(1.05) !important;
+} */

@@ -2,19 +2,11 @@
   <!-- Tournament Info Component -->
   <app-tournament-info></app-tournament-info>
 
-  <div *ngIf="started" class="flex justify-center text-white">
-    <div class="w-1/2 text-center mt-10">
-      <h1
-        class="mb-4 text-4xl font-extrabold leading-none tracking-tight md:text-5xl lg:text-6xl text-white"
-      >
-        The Tournament Will Start Soon!
-      </h1>
-    </div>
-  </div>
+  
 
   <!-- عرض جداول المجموعات -->
   <div
-    *ngIf="!started && isGroupsTournament() && hasGroupedPlayers()"
+    *ngIf="currentLeague && isGroupsTournament() && hasGroupedPlayers()"
     class="space-y-8"
   >
     <!-- عرض المجموعات في شبكة -->

@@ -1,36 +1,26 @@
-/* ============ تنسيقات Navbar المحسنة ============ */
+/* Navbar Styling */
 .navbar {
   position: relative;
   z-index: 9999;
-  background: linear-gradient(
-    135deg,
-    rgba(15, 23, 42, 0.95),
-    rgba(30, 41, 59, 0.95)
-  );
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.95));
   backdrop-filter: blur(20px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   transition: all 0.6s ease;
 }
 
-/* تحسين nav element */
 nav {
   position: fixed !important;
   z-index: 9999 !important;
   width: 100%;
   top: 0;
   left: 0;
-  background: linear-gradient(
-    135deg,
-    rgba(15, 23, 42, 0.98),
-    rgba(30, 41, 59, 0.98)
-  );
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.98), rgba(30, 41, 59, 0.98));
   backdrop-filter: blur(25px);
   border-bottom: 2px solid rgba(59, 130, 246, 0.3);
   box-shadow: 0 8px 40px rgba(0, 0, 0, 0.4);
 }
 
-/* تنسيق الشعار */
 .navbar-brand {
   font-size: 1.8rem;
   font-weight: bold;
@@ -49,7 +39,6 @@ nav {
   filter: brightness(1.1);
 }
 
-/* تنسيق عناصر القائمة */
 .navbar-nav .nav-link {
   color: #e2e8f0 !important;
   font-weight: 500;
@@ -74,24 +63,16 @@ nav {
   box-shadow: 0 2px 10px rgba(59, 130, 246, 0.3);
 }
 
-/* تأثير hover للقائمة المنسدلة */
 .dropdown:hover .dropdown-menu {
   display: block;
   animation: fadeInDown 0.5s ease;
 }
 
 @keyframes fadeInDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-/* تنسيق القائمة المنسدلة */
 .dropdown-menu {
   background: rgba(15, 23, 42, 0.95);
   backdrop-filter: blur(20px);
@@ -116,7 +97,6 @@ nav {
   transform: translateX(2px);
 }
 
-/* تنسيق زر الهامبورجر */
 .navbar-toggler {
   border: none;
   padding: 4px 8px;
@@ -134,7 +114,6 @@ nav {
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 1%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
 }
 
-/* تنسيق البحث */
 .search-box {
   position: relative;
   max-width: 300px;
@@ -170,7 +149,6 @@ nav {
   pointer-events: none;
 }
 
-/* تنسيق أيقونة المستخدم */
 .user-avatar {
   width: 35px;
   height: 35px;
@@ -185,7 +163,6 @@ nav {
   transform: scale(1.05);
 }
 
-/* تنسيق الإشعارات */
 .notification-badge {
   position: absolute;
   top: -5px;
@@ -204,23 +181,13 @@ nav {
 }
 
 @keyframes pulse {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.1);
-  }
-  100% {
-    transform: scale(1);
-  }
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
 }
 
-/* تحسينات للأجهزة المحمولة */
+/* Mobile Responsive */
 @media (max-width: 768px) {
-  .navbar-brand {
-    font-size: 1.5rem;
-  }
-
+  .navbar-brand { font-size: 1.5rem; }
   .navbar-nav {
     background: rgba(15, 23, 42, 0.98);
     border-radius: 12px;
@@ -228,25 +195,11 @@ nav {
     padding: 10px;
     box-shadow: 0 8px 40px rgba(0, 0, 0, 0.4);
   }
-
-  .navbar-nav .nav-link {
-    margin: 4px 0;
-    text-align: center;
-  }
-
-  .search-box {
-    margin: 10px;
-    max-width: none;
-  }
+  .navbar-nav .nav-link { margin: 4px 0; text-align: center; }
+  .search-box { margin: 10px; max-width: none; }
 }
 
 @media (max-width: 480px) {
-  .navbar-brand {
-    font-size: 1.3rem;
-  }
-
-  .navbar-nav .nav-link {
-    padding: 8px 12px !important;
-    font-size: 0.9rem;
-  }
+  .navbar-brand { font-size: 1.3rem; }
+  .navbar-nav .nav-link { padding: 8px 12px !important; font-size: 0.9rem; }
 }
