@@ -47,8 +47,7 @@ export class LoginComponent {
           }
         },
         error: (err) => {
-          this.toastr.error('حصل خطأ أثناء تسجيل الدخول');
-          console.error(err);
+          this.toastr.error(err.error.message);
         },
       });
     } else {
@@ -66,8 +65,7 @@ export class LoginComponent {
           }
         },
         error: (err) => {
-          this.toastr.error('حصل خطأ أثناء تسجيل الدخول');
-          console.error(err);
+          this.toastr.error(err.error.message);
         },
       });
     }

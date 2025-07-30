@@ -36,8 +36,7 @@ export class RegisterComponent {
         }
       },
       error: (err) => {
-        this.toastr.error('حصل خطأ أثناء التسجيل');
-        console.error(err);
+        this.toastr.error(err.error.message);
       }
     });
   }
