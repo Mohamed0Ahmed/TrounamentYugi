@@ -29,22 +29,24 @@
     class="table-container relative overflow-x-auto shadow-md sm:rounded-lg"
   >
     <table class="w-full text-sm text-left rtl:text-right text-gray-400">
-      <thead class="text-xs uppercase bg-black">
+      <thead class="text-xs uppercase">
         <tr class="text-center">
           <th
-            *ngFor="let player of players"
+            *ngFor="let player of players; let i = index"
             scope="col"
-            class="px-6 py-3 cursor-pointer hover:bg-gray-400 transition-all min-w-[70px]"
+            class="px-6 py-3 cursor-pointer hover:bg-gray-400 transition-all min-w-[70px] sticky-header"
             (click)="highlightColumn(player.playerId)"
             [ngClass]="
               highlightedColumn == player.playerId
                 ? 'highlighted-header'
                 : 'text-white'
             "
+            [style.--cell-index]="i"
+            [style.--total-cells]="players.length"
           >
             {{ player.fullName }}
           </th>
-          <th scope="col" class="px-4 py-3 text-white sticky-column">
+          <th scope="col" class="px-4 py-3 text-white sticky-corner">
             المباراة
           </th>
         </tr>

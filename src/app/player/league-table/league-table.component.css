@@ -1,3 +1,30 @@
+/* Table header row gets the gradient background */
+thead tr {
+  background: var(--thead-gradient);
+  background-size: 100% 100%;
+}
+
+/* Sticky header cells with distributed gradient */
+.sticky-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  /* Calculate background position based on cell index */
+  background: var(--thead-gradient);
+  background-size: calc(100% * var(--total-cells)) 100%;
+  background-position: calc(-100% * var(--cell-index)) 0;
+  background-attachment: scroll;
+  color: white;
+  /* Remove cell borders for seamless appearance */
+  border: none;
+}
+
+/* Keep original hover behavior for sticky headers */
+.sticky-header:hover {
+  background-color: rgb(156 163 175) !important; /* hover:bg-gray-400 */
+  color: white !important;
+}
+
 /* Sticky last column for player names */
 .sticky-column {
   position: sticky;
@@ -8,10 +35,18 @@
   backdrop-filter: blur(0px);
 }
 
-/* Override background for header sticky column */
-thead .sticky-column {
-  background-color: rgb(0 0 0); /* bg-black */
+/* Corner cell - both sticky header and sticky column */
+.sticky-corner {
+  position: sticky;
+  top: 0;
+  right: 0;
+  z-index: 150;
+  /* Keep corner cell simple black background */
+  background-color: #000000 !important;
+  box-shadow: -2px 2px 8px rgba(0, 0, 0, 0.4);
 }
+
+/* Header sticky column inherits from global thead styles - no override needed */
 
 /* Override background for body sticky columns based on row index */
 tbody tr:nth-child(even) .sticky-column {
@@ -25,7 +60,17 @@ tbody tr:nth-child(odd) .sticky-column {
 /* Ensure the table container has proper overflow */
 .table-container {
   overflow-x: auto;
+  overflow-y: auto;
   position: relative;
+  max-height: 80vh; /* Limit height to enable vertical scrolling */
+  border-radius: 8px;
+}
+
+/* Table styling for better sticky behavior */
+.table-container table {
+  position: relative;
+  border-collapse: collapse; /* Collapse borders for seamless gradient */
+  border-spacing: 0;
 }
 
 /* Add some padding to the right to prevent content from being hidden behind sticky column */
@@ -68,4 +113,21 @@ tbody tr:nth-child(odd) .sticky-column {
   background: rgba(255, 255, 255, 0.2) !important;
   box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
   border-color: rgba(255, 255, 255, 0.8);
+}
+
+/* Enhanced sticky header highlighting */
+.sticky-header.highlighted-header {
+  z-index: 120; /* Higher than normal sticky-header */
+}
+
+/* Visual indicator for better readability */
+.sticky-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  color: white; /* Keep original white color */
+}
+
+.sticky-column {
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  font-weight: bold;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
 }
