@@ -84,35 +84,26 @@ tbody tr:nth-child(odd) .sticky-column {
   background: transparent;
 }
 
-/* Highlighted cell styling */
+/* Highlighted cell styling - inset white shadow */
 .highlighted-cell {
-  background: rgba(255, 255, 255, 0.1) !important;
-  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.2);
-  border: 2px solid rgba(255, 255, 255, 0.6);
-  border-radius: 4px;
-  transition: all 0.5s ease;
+  box-shadow:
+    inset 4px 0 6px -4px rgba(255, 255, 255, 0.3),   /* left side */
+    inset -4px 0 6px -4px rgba(255, 255, 255, 0.3) !important; /* right side */
+  border-radius: 3px;
+  transition: all 0.3s ease;
 }
 
 .highlighted-cell:hover {
-  background: rgba(255, 255, 255, 0.15) !important;
-  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
-  border-color: rgba(255, 255, 255, 0.8);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.5),
+    inset 0 1px 0px 0px rgba(255, 255, 255, 0.2) !important;
 }
 
-/* Highlighted header styling */
-.highlighted-header {
-  background: rgba(255, 255, 255, 0.15) !important;
-  color: white !important;
-  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.2);
-  border: 2px solid rgba(255, 255, 255, 0.6);
-  border-radius: 4px;
-  transition: all 0.5s ease;
-}
+/* Highlighted header styling - inset effect */
+
 
 .highlighted-header:hover {
-  background: rgba(255, 255, 255, 0.2) !important;
-  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
-  border-color: rgba(255, 255, 255, 0.8);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.5),
+    inset 0 1px 0px 0px rgba(255, 255, 255, 0.2) !important;
 }
 
 /* Enhanced sticky header highlighting */

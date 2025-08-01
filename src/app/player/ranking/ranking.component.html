@@ -98,7 +98,11 @@
                 <td
                   class="px-2 py-4 text-center"
                   [ngClass]="
-                    player.winRate > 50 ? 'text-green-500' : 'text-red-600'
+                    player.winRate < 35
+                      ? 'text-red-500'
+                      : player.winRate >= 30 && player.winRate <= 59
+                      ? 'text-yellow-400'
+                      : 'text-green-500'
                   "
                 >
                   {{ player.winRate | number : "1.2-2" }} %

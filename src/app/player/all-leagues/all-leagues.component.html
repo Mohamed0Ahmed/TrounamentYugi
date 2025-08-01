@@ -187,7 +187,11 @@
                   <td
                     class="px-2 py-4 text-center"
                     [ngClass]="
-                      player.winRate > 50 ? 'text-green-500' : 'text-red-500'
+                      player.winRate < 35
+                        ? 'text-red-500'
+                        : player.winRate >= 30 && player.winRate <= 59
+                        ? 'text-yellow-400'
+                        : 'text-green-500'
                     "
                   >
                     {{ player.winRate | number : "1.2-2" }} %
@@ -218,28 +222,30 @@
         <i class="fa-solid fa-times text-2xl"></i>
       </button>
     </div>
-    <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+    <div
+      class="table-container relative overflow-x-auto shadow-md sm:rounded-lg"
+    >
       <table class="w-full text-sm text-left rtl:text-right text-gray-400">
-        <thead
-          class="text-xs uppercase bg-black bg-opacity-50 backdrop-blur-sm text-white"
-        >
+        <thead class="text-xs uppercase">
           <tr>
             <th
-              *ngFor="let player of players"
+              *ngFor="let player of players; let i = index"
               scope="col"
-              class="px-2 py-3 text-center text-white cursor-pointer hover:bg-gray-500 transition-all min-w-[70px]"
+              class="px-2 py-3 text-center text-white cursor-pointer hover:bg-gray-400 transition-all min-w-[70px] sticky-header"
               (click)="highlightColumn(player.playerId)"
               [ngClass]="
                 highlightedColumn == player.playerId
                   ? 'highlighted-header'
-                  : 'bg-gray-700'
+                  : 'text-white'
               "
+              [style.--cell-index]="i"
+              [style.--total-cells]="players.length"
             >
               {{ player.fullName }}
             </th>
             <th
               scope="col"
-              class="px-2 py-3 bg-gray-700 text-center text-white"
+              class="px-2 py-3 text-center text-white sticky-corner"
             >
               المباراة
             </th>
@@ -282,7 +288,7 @@
                 </ng-template>
               </span>
             </td>
-            <td class="px-2 py-4 font-bold text-white">
+            <td class="px-2 py-4 font-bold text-white sticky-column">
               {{ player1.fullName }}
             </td>
           </tr>
