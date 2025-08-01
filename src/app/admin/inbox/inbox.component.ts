@@ -18,6 +18,7 @@ import { Subscription, interval } from 'rxjs';
 interface PlayerChat {
   senderId: string;
   senderFullName: string;
+  senderPhoneNumber: string;
   lastMessage: string;
   lastMessageDate: string;
   unreadCount: number;
@@ -36,6 +37,7 @@ export class InboxComponent implements OnInit, AfterViewChecked, OnDestroy {
   replyMessages: { [messageId: number]: string } = {};
   private updateStatusSubscription?: Subscription;
   private refreshSubscription?: Subscription;
+  navbarHeight = 60; // default navbar height
 
   @ViewChild('messagesContainer')
   messagesContainer!: ElementRef<HTMLDivElement>;
@@ -51,8 +53,6 @@ export class InboxComponent implements OnInit, AfterViewChecked, OnDestroy {
 
   ngOnInit(): void {
     this.loadAdminMessages();
-    this.subscribeToUpdates();
-    // ✅ تم إلغاء Periodic refresh تماماً - مالوش لازمة
   }
 
   ngOnDestroy(): void {
@@ -121,10 +121,6 @@ export class InboxComponent implements OnInit, AfterViewChecked, OnDestroy {
     });
   }
 
-  private subscribeToUpdates(): void {
-    // ✅ تم حذف AdminBackgroundService subscriptions - مالهاش لازمة
-  }
-
   ngAfterViewChecked(): void {
     if (this.selectedChat && this.messagesContainer) {
       this.scrollToBottom();
@@ -167,6 +163,7 @@ export class InboxComponent implements OnInit, AfterViewChecked, OnDestroy {
           chatMap[playerId] = {
             senderId: playerId,
             senderFullName: msg.senderFullName,
+            senderPhoneNumber: msg.senderPhoneNumber,
             lastMessage: '',
             lastMessageDate: '',
             unreadCount: 0,

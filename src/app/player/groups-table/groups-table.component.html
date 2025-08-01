@@ -2,8 +2,6 @@
   <!-- Tournament Info Component -->
   <app-tournament-info></app-tournament-info>
 
-  
-
   <!-- عرض جداول المجموعات -->
   <div
     *ngIf="currentLeague && isGroupsTournament() && hasGroupedPlayers()"
@@ -36,7 +34,6 @@
                 <th scope="col" class="px-3 py-3 hidden sm:table-cell">Draw</th>
                 <th scope="col" class="px-3 py-3 hidden sm:table-cell">Loss</th>
                 <th scope="col" class="px-3 py-3">Games</th>
-                <th scope="col" class="px-3 py-3">Win Rate</th>
               </tr>
             </thead>
             <tbody>
@@ -77,14 +74,6 @@
                 </td>
                 <td class="px-3 py-4 text-center">
                   {{ player.matchesPlayed }}
-                </td>
-                <td
-                  class="px-3 py-4 text-center"
-                  [ngClass]="
-                    player.winRate > 50 ? 'text-green-500' : 'text-red-600'
-                  "
-                >
-                  {{ player.winRate | number : "1.2-2" }} %
                 </td>
               </tr>
             </tbody>

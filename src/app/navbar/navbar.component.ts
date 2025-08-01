@@ -1,4 +1,13 @@
-import { Component, HostListener, OnInit } from '@angular/core';
+import {
+  Component,
+  HostListener,
+  OnInit,
+  ViewChild,
+  ElementRef,
+  AfterViewInit,
+  Output,
+  EventEmitter,
+} from '@angular/core';
 import { AuthService } from '../../app/core/services/auth.service';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
@@ -10,11 +19,17 @@ import { Note } from '../models/interfaces';
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.css'],
 })
-export class NavbarComponent implements OnInit {
+export class NavbarComponent implements OnInit, AfterViewInit {
+  @ViewChild('navbarContainer', { static: false }) navbarContainer!: ElementRef;
+  @ViewChild('navbarOnly', { static: false }) navbarOnly!: ElementRef;
+  @Output() navbarHeightChange = new EventEmitter<number>();
+
   isLoggedIn = false;
   isAdmin = false;
   notes: Note[] = [];
   isMenuOpen = false;
+  navbarHeight = 80; // default height
+  navbarOnlyHeight = 60; // navbar without notes
 
   constructor(
     private authService: AuthService,
@@ -32,6 +47,29 @@ export class NavbarComponent implements OnInit {
     this.getNotes();
   }
 
+  ngAfterViewInit(): void {
+    this.calculateNavbarHeight();
+  }
+
+  calculateNavbarHeight(): void {
+    setTimeout(() => {
+      // Calculate navbar only height
+      if (this.navbarOnly) {
+        this.navbarOnlyHeight = this.navbarOnly.nativeElement.offsetHeight;
+      }
+
+      // Calculate total height including notes
+      const notesHeight = this.notes.length * 32; // approximate height per note
+      const totalHeight = this.navbarOnlyHeight + notesHeight;
+      this.navbarHeight = totalHeight;
+      this.navbarHeightChange.emit(totalHeight);
+    }, 150);
+  }
+
+  getNavbarOnlyHeight(): number {
+    return this.navbarOnlyHeight;
+  }
+
   logout() {
     this.authService.logout();
     this.toastr.success('تم تسجيل الخروج بنجاح');
@@ -41,6 +79,8 @@ export class NavbarComponent implements OnInit {
   getNotes(): void {
     this.noteService.getNotes().subscribe((response) => {
       this.notes = response.notes.filter((n) => n.isHidden == false);
+      // Recalculate height after notes change
+      setTimeout(() => this.calculateNavbarHeight(), 50);
     });
   }
   toggleMenu() {
@@ -49,5 +89,10 @@ export class NavbarComponent implements OnInit {
 
   closeMenu() {
     this.isMenuOpen = false;
+  }
+
+  @HostListener('window:resize', ['$event'])
+  onResize(event: any) {
+    this.calculateNavbarHeight();
   }
 }

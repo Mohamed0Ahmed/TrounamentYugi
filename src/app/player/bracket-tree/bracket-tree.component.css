@@ -2,7 +2,7 @@
   max-width: 1000px;
   margin: 0 auto;
   font-family: "Tajawal", Arial, sans-serif;
-  min-height: 100vh;
+  /* min-height: 100vh; */
 }
 
 .bracket-container h2 {
@@ -30,6 +30,7 @@
   backdrop-filter: blur(8px);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
+  padding: 5px;
 }
 
 .matches {

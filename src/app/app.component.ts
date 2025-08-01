@@ -7,6 +7,9 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'YugiTournamnet';
+  navbarHeight = 80; // default height
 
-  // ✅ تم تبسيط AppComponent - حذف performance optimizations الغير ضرورية
+  onNavbarHeightChange(height: number): void {
+    this.navbarHeight = height;
+  }
 }
