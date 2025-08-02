@@ -14,8 +14,9 @@ interface CacheItem<T> {
 export class CacheService {
   private cache = new Map<string, CacheItem<any>>();
   private readonly DEFAULT_TTL = 5 * 60 * 1000; // 5 minutes default
-  private readonly PLAYER_TTL = 60 * 60 * 1000; // 1 hour for player data
-  private readonly LEAGUE_TTL = 24 * 60 * 60 * 1000; // 24 hours for league data
+  private readonly PLAYER_TTL = 30 * 60 * 1000; // 30 minutes for player data
+  private readonly LEAGUE_TTL = 30 * 60 * 1000; // 30 minutes for league data
+  private readonly RANKINGS_TTL = 30 * 60 * 1000; // 30 minutes for rankings data
 
   constructor() {
     this.loadFromLocalStorage();
@@ -80,17 +81,22 @@ export class CacheService {
     );
   }
 
-  // Cache player data with 1 hour TTL
+  // Cache player data with 30 minutes TTL
   cachePlayerRequest<T>(key: string, request: Observable<T>): Observable<T> {
     return this.cacheRequest(key, request, this.PLAYER_TTL);
   }
 
-  // Cache league data with 24 hours TTL
+  // Cache league data with 30 minutes TTL
   cacheLeagueRequest<T>(key: string, request: Observable<T>): Observable<T> {
     return this.cacheRequest(key, request, this.LEAGUE_TTL);
   }
 
-  // Cache all-leagues data with 24 hours TTL and sort by creation date (newest first)
+  // Cache rankings data with 30 minutes TTL
+  cacheRankingsRequest<T>(key: string, request: Observable<T>): Observable<T> {
+    return this.cacheRequest(key, request, this.RANKINGS_TTL);
+  }
+
+  // Cache all-leagues data with 30 minutes TTL and sort by creation date (newest first)
   cacheAllLeaguesRequest<T>(
     key: string,
     request: Observable<T>
@@ -109,9 +115,9 @@ export class CacheService {
             const dateB = new Date(b.createdOn).getTime();
             return dateB - dateA; // Descending order (newest first)
           });
-          this.set(key, sortedData, this.LEAGUE_TTL);
+          this.set(key, sortedData, this.RANKINGS_TTL);
         } else {
-          this.set(key, data, this.LEAGUE_TTL);
+          this.set(key, data, this.RANKINGS_TTL);
         }
       }),
       catchError((error) => {
@@ -150,6 +156,50 @@ export class CacheService {
   getLastUpdateTime(key: string): Date | null {
     const item = this.cache.get(key);
     return item ? new Date(item.timestamp) : null;
+  }
+
+  // Check if cache is expired for a specific key
+  isCacheExpired(key: string): boolean {
+    const item = this.cache.get(key);
+    if (!item) return true;
+    return Date.now() - item.timestamp > item.ttl;
+  }
+
+  // Get cache expiry time for a specific key
+  getCacheExpiryTime(key: string): Date | null {
+    const item = this.cache.get(key);
+    if (!item) return null;
+    return new Date(item.timestamp + item.ttl);
+  }
+
+  // Force refresh cache for a specific key
+  forceRefresh<T>(
+    key: string,
+    request: Observable<T>,
+    ttl: number = this.DEFAULT_TTL
+  ): Observable<T> {
+    this.remove(key);
+    return this.cacheRequest(key, request, ttl);
+  }
+
+  // Check if cache should be refreshed based on current time (every 30 minutes)
+  shouldRefreshRankings(): boolean {
+    const lastUpdate = this.getLastUpdateTime('all-leagues-rank');
+    if (!lastUpdate) return true;
+
+    const minutesSinceUpdate =
+      (Date.now() - lastUpdate.getTime()) / (60 * 1000);
+    return minutesSinceUpdate >= 30;
+  }
+
+  // Check if current league cache should be refreshed
+  shouldRefreshCurrentLeague(): boolean {
+    const lastUpdate = this.getLastUpdateTime('current-league');
+    if (!lastUpdate) return true;
+
+    const minutesSinceUpdate =
+      (Date.now() - lastUpdate.getTime()) / (60 * 1000);
+    return minutesSinceUpdate >= 30;
   }
 
   private saveToLocalStorage(): void {
