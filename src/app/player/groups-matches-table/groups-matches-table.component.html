@@ -4,7 +4,7 @@
 
   <!-- عرض جداول مواجهات المجموعات -->
   <div
-    *ngIf="currentLeague && isGroupsTournament() && hasGroupedPlayers()"
+    *ngIf="currentLeague && isGroupsTournament() && hasGroupedPlayers() && !started"
     class="space-y-8"
   >
     <!-- عرض المجموعات في شبكة -->
@@ -96,6 +96,16 @@
           </table>
         </div>
       </div>
+    </div>
+  </div>
+
+  <div *ngIf="started" class="flex justify-center text-white">
+    <div class="w-1/2 text-center mt-10">
+      <h1
+        class="mb-4 text-4xl font-extrabold leading-none tracking-tight md:text-5xl lg:text-6xl text-white"
+      >
+        The League Will Start Soon !
+      </h1>
     </div>
   </div>
 </div>

@@ -10,10 +10,8 @@ import {
 import { MessageService } from 'src/app/core/services/message.service';
 import { ToastrService } from 'ngx-toastr';
 import { Message } from 'src/app/models/interfaces';
-import { CacheService } from 'src/app/core/services/cache.service';
-// ✅ تم حذف AdminBackgroundService - مالوش لازمة
 import { AdminDashboardService } from 'src/app/core/services/admin-dashboard.service';
-import { Subscription, interval } from 'rxjs';
+import { Subscription } from 'rxjs';
 
 interface PlayerChat {
   senderId: string;
@@ -46,8 +44,6 @@ export class InboxComponent implements OnInit, AfterViewChecked, OnDestroy {
     private messageService: MessageService,
     private toastr: ToastrService,
     private cdr: ChangeDetectorRef,
-    private cacheService: CacheService,
-    // ✅ تم حذف adminBackgroundService
     private adminDashboardService: AdminDashboardService
   ) {}
 
@@ -64,7 +60,6 @@ export class InboxComponent implements OnInit, AfterViewChecked, OnDestroy {
     }
   }
 
-  // ✅ تم حذف Periodic refresh تماماً - مالوش لازمة أصلاً
 
   private loadAdminMessages(): void {
     // Always load fresh data from server for immediate updates
@@ -243,6 +238,7 @@ export class InboxComponent implements OnInit, AfterViewChecked, OnDestroy {
           if (response.success) {
             this.toastr.success('تم إرسال الرد');
             this.replyMessages[this.selectedChat!.messages[0].id] = '';
+
             const newMessage: Message = {
               id: Math.random(),
               senderId: this.selectedChat!.senderId,
@@ -254,11 +250,31 @@ export class InboxComponent implements OnInit, AfterViewChecked, OnDestroy {
               sentAt: new Date().toISOString(),
               isFromAdmin: true,
             };
+
+            // تحديث الرسائل في المحادثة المحددة
             this.selectedChat!.messages.push(newMessage);
             this.selectedChat!.messages.sort(
               (a, b) =>
                 new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime()
             );
+
+            // تحديث آخر رسالة في قائمة المحادثات
+            this.selectedChat!.lastMessage = replyContent;
+            this.selectedChat!.lastMessageDate = newMessage.sentAt;
+
+            // إعادة ترتيب قائمة المحادثات حسب الأحدث
+            this.playerChats.sort(
+              (a, b) =>
+                new Date(b.lastMessageDate).getTime() -
+                new Date(a.lastMessageDate).getTime()
+            );
+
+            // تحديث المحادثة المحددة بعد إعادة الترتيب
+            this.selectedChat =
+              this.playerChats.find(
+                (chat) => chat.senderId === this.selectedPlayerId
+              ) || null;
+
             this.cdr.detectChanges();
           } else {
             this.toastr.error(response.message || 'فشل إرسال الرد');

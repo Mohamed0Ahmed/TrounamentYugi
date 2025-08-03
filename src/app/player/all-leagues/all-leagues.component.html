@@ -2,22 +2,31 @@
   <h2 class="text-2xl font-bold text-center mb-4 text-white">All Leagues</h2>
 
   <!-- Custom Navigation Buttons -->
-  <div class="flex justify-center gap-4 mb-4">
+  <div class="flex justify-center gap-4 mb-4" *ngIf="leaguesRank.length > 0">
     <button
-      class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-all"
+      class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-all disabled:bg-gray-500 disabled:cursor-not-allowed disabled:opacity-50"
       (click)="previousSlide()"
+      [disabled]="isFirstSlide()"
     >
-      <i class="fa-solid fa-chevron-left mr-2"></i>Next
+      <i class="fa-solid fa-chevron-left mr-2"></i>Prev
     </button>
     <button
-      class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-all"
+      class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-all disabled:bg-gray-500 disabled:cursor-not-allowed disabled:opacity-50"
       (click)="nextSlide()"
+      [disabled]="isLastSlide()"
     >
-      Prev<i class="fa-solid fa-chevron-right ml-2"></i>
+      Next<i class="fa-solid fa-chevron-right ml-2"></i>
     </button>
   </div>
 
-  <owl-carousel-o [options]="customOptions" #owlCarousel>
+  <owl-carousel-o
+    [options]="customOptions"
+    #owlCarousel
+    (changed)="onCarouselChanged($event)"
+    (initialized)="currentSlideIndex = 0"
+    (dragged)="onCarouselChanged($event)"
+  
+  >
     <ng-container *ngFor="let league of leaguesRank">
       <ng-template carouselSlide>
         <div
@@ -189,7 +198,7 @@
                     [ngClass]="
                       player.winRate < 35
                         ? 'text-red-500'
-                        : player.winRate >= 30 && player.winRate <= 59
+                        : player.winRate >= 35 && player.winRate <= 69
                         ? 'text-yellow-400'
                         : 'text-green-500'
                     "

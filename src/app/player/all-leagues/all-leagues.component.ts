@@ -27,6 +27,7 @@ export class AllLeaguesComponent implements OnInit {
   showKnockoutMatches: boolean = false;
   isKnockoutModalOpen: boolean = false;
   currentKnockoutLeagueId: number = 0;
+  currentSlideIndex: number = 0;
 
   constructor(
     private leagueService: LeagueService,
@@ -49,6 +50,14 @@ export class AllLeaguesComponent implements OnInit {
         this.toastr.error(err.error.message);
       },
     });
+  }
+
+  // Method to handle carousel changes
+  onCarouselChanged(event: any): void {
+    if (event && event.startPosition !== undefined) {
+      this.currentSlideIndex = event.startPosition;
+      console.log('Carousel changed to position:', this.currentSlideIndex);
+    }
   }
 
   loadData() {
@@ -245,5 +254,17 @@ export class AllLeaguesComponent implements OnInit {
 
   nextSlide(): void {
     this.owlCarousel?.next();
+  }
+
+  // Check if we're at the first slide
+  isFirstSlide(): boolean {
+    if (this.leaguesRank.length === 0) return true;
+    return this.currentSlideIndex === 0;
+  }
+
+  // Check if we're at the last slide
+  isLastSlide(): boolean {
+    if (this.leaguesRank.length === 0) return true;
+    return this.currentSlideIndex >= this.leaguesRank.length - 1;
   }
 }
