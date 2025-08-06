@@ -82,7 +82,7 @@ export class InboxComponent implements OnInit, AfterViewChecked, OnDestroy {
               new Date(b.lastMessageDate).getTime() -
               new Date(a.lastMessageDate).getTime()
           );
-          // console.log('✅ Messages loaded with smart caching');
+  
         } else {
           this.toastr.error('لا يوجد رسائل');
         }
@@ -105,7 +105,7 @@ export class InboxComponent implements OnInit, AfterViewChecked, OnDestroy {
               new Date(b.lastMessageDate).getTime() -
               new Date(a.lastMessageDate).getTime()
           );
-          // console.log('🔄 Messages refreshed from server');
+          
         } else {
           this.toastr.error('لا يوجد رسائل');
         }

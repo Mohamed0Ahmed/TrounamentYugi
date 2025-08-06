@@ -129,7 +129,6 @@ thead th {
 }
 
 tbody tr {
-  transition: all 0.5s ease;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   position: relative;
 }
@@ -140,12 +139,6 @@ tbody tr:nth-child(even) {
 
 tbody tr:nth-child(odd) {
   background: rgba(30, 41, 59, 0.4);
-}
-
-tbody tr:hover {
-  background: rgba(59, 130, 246, 0.3) !important;
-  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
-  border-left: 3px solid #3b82f6;
 }
 
 tbody td {

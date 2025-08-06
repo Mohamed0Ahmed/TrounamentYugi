@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { AdminRoutingModule } from './admin-routing.module';
 import { PlayersComponent } from './players/players.component';
 import { InboxComponent } from './inbox/inbox.component';
+import { FriendliesComponent } from './friendlies/friendlies.component';
 import { FormsModule } from '@angular/forms';
 import { FindPlayerPipe } from '../pipes/find-player.pipe';
 import { HttpClientModule } from '@angular/common/http';
@@ -15,6 +16,7 @@ import { SharedModule } from '../shared/shared.module';
   declarations: [
     PlayersComponent,
     InboxComponent,
+    FriendliesComponent,
     FindPlayerPipe,
     UtcToLocalPipe,
   ],

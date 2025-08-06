@@ -56,7 +56,7 @@ export class AllLeaguesComponent implements OnInit {
   onCarouselChanged(event: any): void {
     if (event && event.startPosition !== undefined) {
       this.currentSlideIndex = event.startPosition;
-      console.log('Carousel changed to position:', this.currentSlideIndex);
+      
     }
   }
 

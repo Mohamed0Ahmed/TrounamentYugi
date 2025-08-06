@@ -13,14 +13,12 @@ import {
 } from 'src/app/models/interfaces';
 import { ToastrService } from 'ngx-toastr';
 import { LeagueService } from 'src/app/core/services/league.service';
-import { MessageService } from 'src/app/core/services/message.service';
 import { NoteService } from 'src/app/core/services/note.service';
-// ✅ تم حذف AdminBackgroundService - مالوش لازمة
 import {
   AdminDashboardService,
   AdminDashboardData,
 } from 'src/app/core/services/admin-dashboard.service';
-import { Subscription, interval } from 'rxjs';
+  import { Subscription, interval } from 'rxjs';
 
 @Component({
   selector: 'app-players',
@@ -29,7 +27,6 @@ import { Subscription, interval } from 'rxjs';
 })
 export class PlayersComponent implements OnInit, OnDestroy {
   players: Player[] = [];
-  private playerOrder: number[] = []; // حفظ ترتيب اللاعبين الحالي
   selectedPlayer: Player | null = null;
   playerMatches: Match[] = [];
   displayMatches: Match[] = [];
@@ -61,7 +58,7 @@ export class PlayersComponent implements OnInit, OnDestroy {
   leagues: AllLeagueRank[] = [];
   newNote: string = '';
   selectedLeagueToDelete: AllLeagueRank | null = null;
-  // ✅ تم حذف updateStatusSubscription - مالوش لازمة
+
 
   // New properties for tournament stage management
   currentMatches: Match[] = [];
@@ -74,21 +71,16 @@ export class PlayersComponent implements OnInit, OnDestroy {
     private matchService: MatchService,
     private toastr: ToastrService,
     private leagueService: LeagueService,
-    private messageService: MessageService,
     private noteService: NoteService,
-    // ✅ تم حذف adminBackgroundService
     private adminDashboardService: AdminDashboardService
   ) {}
 
   ngOnInit(): void {
     // تحميل البيانات الأساسية مع Smart Caching
     this.loadEssentialData();
-    this.subscribeToUpdates();
-    // ✅ تم إلغاء Background refresh تماماً - مالوش لازمة
   }
 
   ngOnDestroy(): void {
-    // ✅ لا توجد subscriptions للإلغاء - تم حذف AdminBackgroundService
   }
 
   private loadCurrentLeagueFromServer(): void {
@@ -105,10 +97,7 @@ export class PlayersComponent implements OnInit, OnDestroy {
     });
   }
 
-  /**
-   * 🚀 Cache First Strategy - عرض فوري للبيانات من الكاش
-   * تحميل ALL البيانات بدون انتظار أو spinner
-   */
+
   private loadEssentialData(): void {
     this.adminDashboardService.getEssentialData().subscribe({
       next: (data: AdminDashboardData) => {
@@ -127,15 +116,6 @@ export class PlayersComponent implements OnInit, OnDestroy {
 
         // Update tournament stage button
         this.updateTournamentStageButton();
-
-        console.log('🚀 ALL data loaded instantly from cache:', {
-          players: data.players.length,
-          matches: data.matches.length,
-          leagues: data.allLeagues.length,
-          notes: data.notes.length,
-          messages: data.messages.length,
-          messagesUnread: data.stats.totalMessagesLeft,
-        });
       },
       error: (err) => {
         console.error('❌ Failed to load data:', err);
@@ -143,17 +123,6 @@ export class PlayersComponent implements OnInit, OnDestroy {
       },
     });
   }
-
-  private subscribeToUpdates(): void {
-    // ✅ تم حذف AdminBackgroundService subscriptions - مالهاش لازمة
-  }
-
-  // ✅ تم حذف Background refresh تماماً - مالوش لازمة أصلاً
-
-  /**
-   * ✅ لا حاجة للـ lazy loading - البيانات متاحة فوراً من الكاش
-   * تم استبدال هذه الـ methods بـ Cache First Strategy في loadEssentialData()
-   */
 
   toggleSidebar(): void {
     this.isSidebarOpen = !this.isSidebarOpen;
@@ -168,8 +137,6 @@ export class PlayersComponent implements OnInit, OnDestroy {
   loadMatches(): void {
     if (!this.selectedPlayer) return;
     this.matchService.getAdminMatches().subscribe((matches) => {
-      // console.log(matches);
-
       this.playerMatches = matches
         .filter(
           (m) =>
@@ -358,9 +325,6 @@ export class PlayersComponent implements OnInit, OnDestroy {
     }
   }
 
-  // ✅ تم حذف getPlayers() - محلها loadEssentialData()
-  // ✅ تم حذف getMatches() - محلها loadEssentialData()
-
   resetTournament(id: number): void {
     this.leagueService.resetLeague(id).subscribe({
       next: (response) => {
@@ -379,7 +343,6 @@ export class PlayersComponent implements OnInit, OnDestroy {
 
       error: (err) => {
         this.toastr.error(err.error.message);
-        // console.error(err);
       },
     });
   }
@@ -423,10 +386,6 @@ export class PlayersComponent implements OnInit, OnDestroy {
       },
     });
   }
-
-  // ✅ تم حذف getMessages() - محلها loadEssentialData()
-
-  // ✅ تم حذف GetAllLeagyes() - محلها loadEssentialData()
 
   DeleteLeague(id: number): void {
     this.leagueService.DeleteLeague(id).subscribe({
@@ -500,14 +459,8 @@ export class PlayersComponent implements OnInit, OnDestroy {
     });
   }
 
-  // ✅ تم حذف getNotes() - محلها loadEssentialData()
-
-  // تم استبدال هذه الـ methods بـ Smart Caching في AdminDashboardService
-  // للحفاظ على التوافق مع باقي الكود، إذا تم استدعاؤها ستستخدم الـ cache
-
   openNoteModal(): void {
     this.showNoteModal = true;
-    // ✅ Notes are already loaded from cache - no need to fetch
   }
   closeNoteModal(): void {
     this.showNoteModal = false;
@@ -539,10 +492,6 @@ export class PlayersComponent implements OnInit, OnDestroy {
       return;
     }
 
-    console.log('Current matches:', this.currentMatches);
-    // console.log('Total players:', this.totalPlayers);
-    // console.log('League data:', this.leagueData);
-
     // Check if there are players but no matches (need to start group stage)
     if (this.totalPlayers > 0 && this.currentMatches.length === 0) {
       this.showTournamentStageButton = true;
@@ -570,12 +519,6 @@ export class PlayersComponent implements OnInit, OnDestroy {
     const finalMatches = this.currentMatches.filter(
       (m) => m.stage === TournamentStage.Final || m.tournamentStage === 'Final'
     );
-
-    // console.log('Filtered matches:');
-    // console.log('Group matches:', groupMatches);
-    // console.log('Quarter matches:', quarterMatches);
-    // console.log('Semi matches:', semiMatches);
-    // console.log('Final matches:', finalMatches);
 
     // Check if all matches in a stage are completed
     const allGroupMatchesCompleted =
@@ -691,7 +634,6 @@ export class PlayersComponent implements OnInit, OnDestroy {
       },
       error: (err) => {
         this.toastr.error(err.error.message);
-        // console.error(err);
       },
     });
   }
@@ -712,7 +654,6 @@ export class PlayersComponent implements OnInit, OnDestroy {
       },
       error: (err) => {
         this.toastr.error(err.error.message);
-        // console.error(err);
       },
     });
   }
