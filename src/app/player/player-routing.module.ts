@@ -7,6 +7,7 @@ import { GroupsMatchesTableComponent } from './groups-matches-table/groups-match
 import { AllLeaguesComponent } from './all-leagues/all-leagues.component';
 import { ForbiddenCardsComponent } from './forbidden-cards/forbidden-cards.component';
 import { PlayerInboxComponent } from './player-inbox/player-inbox.component';
+import { FriendliesViewComponent } from './friendlies/friendlies-view.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'ranking', pathMatch: 'full' },
@@ -17,6 +18,7 @@ const routes: Routes = [
   { path: 'allLeagues', component: AllLeaguesComponent },
   { path: 'forbidden', component: ForbiddenCardsComponent },
   { path: 'inbox', component: PlayerInboxComponent },
+  { path: 'friendlies', component: FriendliesViewComponent },
 ];
 
 @NgModule({

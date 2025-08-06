@@ -127,7 +127,7 @@ Authorization: Bearer {admin_token}
 ```json
 {
   "success": true,
-  "message": "تم جلب المحادثة",
+  "message": "تم جلب الرسائل",
   "messages": [
     {
       "id": 1,

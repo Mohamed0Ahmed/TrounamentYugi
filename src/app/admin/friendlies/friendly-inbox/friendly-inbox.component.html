@@ -1,0 +1,139 @@
+<div
+  class="container mx-auto p-4 flex flex-col sm:flex-row overflow-hidden h-screen"
+>
+  <!-- Chats List -->
+  <div
+    class="w-full sm:w-1/3 border-r border-gray-600 sm:block"
+    [ngClass]="{ hidden: selectedChat }"
+  >
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="text-2xl font-bold text-white">📬 Friendly Inbox</h2>
+    </div>
+
+    <!-- No Chats -->
+    <div *ngIf="playerChats.length === 0" class="text-center text-gray-300">
+      No friendly messages here 📭
+    </div>
+
+    <!-- Chats List -->
+    <div
+      *ngIf="playerChats.length > 0"
+      class="space-y-2 overflow-y-auto max-h-[calc(100vh-120px)]"
+    >
+      <div
+        *ngFor="let chat of playerChats; trackBy: trackByPlayerId"
+        class="p-4 backdrop-blur-sm border border-gray-600 rounded-lg hover:bg-gray-700 cursor-pointer flex items-center justify-between"
+        (click)="openChat(chat.senderId)"
+      >
+        <div>
+          <p class="font-bold text-white">{{ chat.senderFullName }}</p>
+          <p class="text-sm text-gray-300 truncate">{{ chat.lastMessage }}</p>
+        </div>
+        <span
+          *ngIf="chat.unreadCount > 0"
+          class="bg-green-600 text-white text-xs font-bold rounded-full px-2 py-1"
+        >
+          {{ chat.unreadCount }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chat View -->
+  <div
+    class="w-full sm:w-2/3 flex flex-col h-full relative"
+    [ngClass]="{ block: selectedChat, 'hidden sm:flex': !selectedChat }"
+  >
+    <div *ngIf="selectedChat; else noChatSelected" class="flex flex-col h-full">
+      <!-- Chat Header - Fixed -->
+      <div
+        class="fixed left-0 right-0 z-40 p-2 backdrop-blur-sm border-b border-gray-600 flex items-center justify-between bg-black bg-opacity-90"
+        [ngClass]="{ 'sm:left-1/3': selectedChat }"
+        [style.top.px]="navbarHeight"
+      >
+        <div class="flex items-center">
+          <button
+            (click)="closeChat()"
+            class="mr-4 text-gray-300 hover:text-white transition"
+          >
+            <i class="fa-solid fa-arrow-left" style="color: #ffffff"></i>
+          </button>
+          <div>
+            <p class="font-bold text-white text-sm p-0">
+              {{ selectedChat.senderFullName }}
+            </p>
+            <p class="text-xs text-gray-400 p-0">
+              Friendly Match Player
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Messages - Scrollable Area with padding for fixed header and footer -->
+      <div
+        #messagesContainer
+        class="flex-1 p-4 overflow-y-auto backdrop-blur-sm"
+        [style.margin-top.px]="navbarHeight + 80"
+        style="margin-bottom: 80px"
+      >
+        <div
+          *ngFor="
+            let message of selectedChat.messages;
+            trackBy: trackByMessageId
+          "
+          class="mb-4"
+          [ngClass]="{
+            'text-right': !message.isFromAdmin,
+            'text-left': message.isFromAdmin
+          }"
+        >
+          <div
+            class="inline-block p-3 rounded-lg max-w-xs"
+            [ngClass]="{
+              'bg-green-700': !message.isFromAdmin,
+              'bg-gray-700 ': message.isFromAdmin
+            }"
+          >
+            <p class="text-white">{{ message.content }}</p>
+            <p class="text-xs mt-1 text-gray-300">
+              {{ message.sentAt | date : "MMM d, y, hh:mm a" }}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reply Input - Fixed -->
+      <div
+        class="fixed bottom-0 left-0 right-0 z-50 p-4 bg-black bg-opacity-90 backdrop-blur-sm border-t border-gray-600"
+        [ngClass]="{ 'sm:left-1/3': selectedChat }"
+      >
+        <form (ngSubmit)="sendReply()" class="flex items-center gap-2">
+          <input
+            type="text"
+            [(ngModel)]="replyMessages[selectedChat.messages[0].id]"
+            [ngModelOptions]="{ standalone: true }"
+            (ngModelChange)="
+              replyMessages[selectedChat.messages[0].id] = $event
+            "
+            placeholder="Write your reply..."
+            class="flex-1 p-2 border border-gray-600 rounded-lg bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-blue-600 placeholder-gray-400"
+          />
+          <button
+            type="submit"
+            class="bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-700 transition disabled:bg-gray-600"
+            [disabled]="!replyMessages[selectedChat.messages[0].id]"
+          >
+            Reply
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Placeholder when no chat is selected -->
+    <ng-template #noChatSelected>
+      <div class="w-full flex items-center justify-center text-gray-300">
+        Select a friendly chat to view messages 📩
+      </div>
+    </ng-template>
+  </div>
+</div>

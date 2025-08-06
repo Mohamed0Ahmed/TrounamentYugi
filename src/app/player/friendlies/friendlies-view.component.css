@@ -1,0 +1,222 @@
+/* Friendlies View Component Styles */
+
+/* Container */
+.container {
+  min-height: 100vh;
+  /* background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); */
+}
+
+/* Header */
+h1 {
+  background: linear-gradient(45deg, #fff 0%, #fff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: white;
+  background-clip: text;
+}
+
+/* Player Selection Display */
+.player-selection {
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Navigation Tabs */
+.tab-button {
+  position: relative;
+  overflow: hidden;
+}
+
+.tab-button.active {
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+/* Player Cards */
+.player-card {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+.player-card:hover {
+  border-color: rgba(59, 130, 246, 0.5);
+}
+
+.player-card.selected {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  border-color: #60a5fa;
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+}
+
+/* Tables */
+table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+th {
+  background: rgba(31, 41, 55, 0.8);
+  backdrop-filter: blur(10px);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+tr:hover {
+  background: rgba(55, 65, 81, 0.5);
+}
+
+/* Score Display */
+.score {
+  font-family: "Courier New", monospace;
+  font-weight: bold;
+}
+
+/* Winner Display */
+.winner {
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.winner.win {
+  background: rgba(34, 197, 94, 0.2);
+  color: #4ade80;
+}
+
+.winner.loss {
+  background: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+}
+
+.winner.draw {
+  background: rgba(234, 179, 8, 0.2);
+  color: #facc15;
+}
+
+/* Loading Animation */
+.loading-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .tab-buttons {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .tab-button {
+    width: 100%;
+    text-align: center;
+  }
+
+  .player-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .player-selection {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .selected-players {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  table {
+    font-size: 0.875rem;
+  }
+
+  th,
+  td {
+    padding: 0.5rem 0.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  h1 {
+    font-size: 1.5rem;
+  }
+
+  .player-card {
+    padding: 0.75rem;
+  }
+
+  .player-stats {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(31, 41, 55, 0.5);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(107, 114, 128, 0.8);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(156, 163, 175, 0.8);
+}
+
+/* Focus States */
+button:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Disabled States */
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Hover Effects */
+.player-card:hover {
+  cursor: pointer;
+}
+
+.tab-button:hover {
+  cursor: pointer;
+}
+
+/* Text Selection */
+::selection {
+  background: rgba(59, 130, 246, 0.3);
+  color: white;
+}
+
+/* Print Styles */
+@media print {
+  .container {
+    background: white;
+    color: black;
+  }
+
+  .tab-buttons,
+  .player-selection {
+    display: none;
+  }
+}

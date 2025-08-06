@@ -1,8 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import {
-  FriendlyMatchService,
-  DateFilter,
-} from '../../core/services/friendly-match.service';
+import { FriendlyMatchService } from '../../core/services/friendly-match.service';
+import { ToastrService } from 'ngx-toastr';
+import { DateFilter } from 'friendly-match-types';
 
 @Component({
   selector: 'app-friendlies',
@@ -57,7 +56,10 @@ export class FriendliesComponent implements OnInit {
   };
   DateFilter = DateFilter; // Make enum available in template
 
-  constructor(private friendlyMatchService: FriendlyMatchService) {}
+  constructor(
+    private friendlyMatchService: FriendlyMatchService,
+    private toastr: ToastrService
+  ) {}
 
   ngOnInit(): void {
     this.loadPlayers();
@@ -69,14 +71,20 @@ export class FriendliesComponent implements OnInit {
   }
 
   loadPlayers(): void {
-    this.friendlyMatchService.getAllFriendlyPlayersAsync().subscribe({
-      next: (players) => {
+    this.friendlyMatchService.getAllFriendlyPlayers().subscribe({
+      next: (players: any) => {
         this.players = players;
         this.totalPlayers = players.length;
         this.calculateStatistics();
       },
-      error: (error) => {
+      error: (error: any) => {
         console.error('Error loading players:', error);
+        this.toastr.error(
+          error.error?.message ||
+            error.message ||
+            'حصل خطأ أثناء تحميل اللاعبين',
+          'خطأ في التحميل'
+        );
       },
     });
   }
@@ -87,8 +95,8 @@ export class FriendliesComponent implements OnInit {
   }
 
   loadPlayerMatches(playerId: number): void {
-    this.friendlyMatchService.getAllFriendlyMatchesAsync().subscribe({
-      next: (matches) => {
+    this.friendlyMatchService.getAllFriendlyMatches().subscribe({
+      next: (matches: any) => {
         // Get the player's name
         const player = this.players.find((p) => p.playerId === playerId);
         const playerName = player?.fullName;
@@ -98,19 +106,31 @@ export class FriendliesComponent implements OnInit {
             match.player1Name === playerName || match.player2Name === playerName
         );
       },
-      error: (error) => {
-        console.error('Error loading matches:', error);
+      error: (error: any) => {
+        console.error('Error loading player matches:', error);
+        this.toastr.error(
+          error.error?.message ||
+            error.message ||
+            'حصل خطأ أثناء تحميل مباريات اللاعب',
+          'خطأ في التحميل'
+        );
       },
     });
   }
 
   calculateStatistics(): void {
-    this.friendlyMatchService.getAllFriendlyMatchesAsync().subscribe({
-      next: (matches) => {
+    this.friendlyMatchService.getAllFriendlyMatches().subscribe({
+      next: (matches: any) => {
         this.totalMatches = matches.length;
       },
-      error: (error) => {
+      error: (error: any) => {
         console.error('Error loading statistics:', error);
+        this.toastr.error(
+          error.error?.message ||
+            error.message ||
+            'حصل خطأ أثناء تحميل الإحصائيات',
+          'خطأ في التحميل'
+        );
       },
     });
   }
@@ -127,21 +147,39 @@ export class FriendliesComponent implements OnInit {
   }
 
   addPlayer(): void {
-    if (!this.newPlayerName.trim()) return;
+    if (!this.newPlayerName.trim()) {
+      this.toastr.warning('الرجاء إدخال اسم اللاعب', 'تحذير');
+      return;
+    }
 
     this.friendlyMatchService
       .addFriendlyPlayerAsync(this.newPlayerName)
       .subscribe({
-        next: (response) => {
+        next: (response: any) => {
           if (response.success) {
+            this.toastr.success(
+              `تم إضافة اللاعب ${this.newPlayerName} بنجاح`,
+              'تم الإضافة'
+            );
             // Refresh cache and reload players
             this.friendlyMatchService.refreshFriendlyPlayers();
             this.loadPlayers();
             this.closeModal();
+          } else {
+            this.toastr.error(
+              response.message || 'فشل إضافة اللاعب',
+              'خطأ في الإضافة'
+            );
           }
         },
-        error: (error) => {
+        error: (error: any) => {
           console.error('Error adding player:', error);
+          this.toastr.error(
+            error.error?.message ||
+              error.message ||
+              'حصل خطأ أثناء إضافة اللاعب',
+            'خطأ في الإضافة'
+          );
         },
       });
   }
@@ -158,8 +196,12 @@ export class FriendliesComponent implements OnInit {
     this.friendlyMatchService
       .deleteFriendlyPlayerAsync(this.selectedPlayerToDelete.playerId)
       .subscribe({
-        next: (response) => {
+        next: (response: any) => {
           if (response.success) {
+            this.toastr.success(
+              `تم حذف اللاعب ${this.selectedPlayerToDelete.fullName} بنجاح`,
+              'تم الحذف'
+            );
             // Refresh cache and reload players
             this.friendlyMatchService.refreshFriendlyPlayers();
             this.loadPlayers();
@@ -170,10 +212,19 @@ export class FriendliesComponent implements OnInit {
               this.selectedPlayer = null;
               this.displayMatches = [];
             }
+          } else {
+            this.toastr.error(
+              response.message || 'فشل حذف اللاعب',
+              'خطأ في الحذف'
+            );
           }
         },
-        error: (error) => {
+        error: (error: any) => {
           console.error('Error deleting player:', error);
+          this.toastr.error(
+            error.error?.message || error.message || 'حصل خطأ أثناء حذف اللاعب',
+            'خطأ في الحذف'
+          );
         },
       });
 
@@ -214,7 +265,7 @@ export class FriendliesComponent implements OnInit {
 
   recordNewMatch(): void {
     if (!this.matchForm.player1Id || !this.matchForm.player2Id) {
-      alert('Please select both players');
+      this.toastr.warning('الرجاء اختيار كلا اللاعبين', 'تحذير');
       return;
     }
 
@@ -223,7 +274,10 @@ export class FriendliesComponent implements OnInit {
       !this.selectedPlayerForMatch &&
       this.matchForm.player1Id === this.matchForm.player2Id
     ) {
-      alert('Player 1 and Player 2 cannot be the same');
+      this.toastr.warning(
+        'لا يمكن أن يكون اللاعب الأول والثاني نفس الشخص',
+        'تحذير'
+      );
       return;
     }
 
@@ -231,12 +285,12 @@ export class FriendliesComponent implements OnInit {
       this.matchForm.player1Score === null ||
       this.matchForm.player2Score === null
     ) {
-      alert('Please enter scores for both players');
+      this.toastr.warning('الرجاء إدخال النقاط لكلا اللاعبين', 'تحذير');
       return;
     }
 
     if (this.matchForm.player1Score < 0 || this.matchForm.player2Score < 0) {
-      alert('Scores cannot be negative');
+      this.toastr.warning('لا يمكن أن تكون النقاط سالبة', 'تحذير');
       return;
     }
 
@@ -244,8 +298,9 @@ export class FriendliesComponent implements OnInit {
       this.matchForm.player1Score === 0 &&
       this.matchForm.player2Score === 0
     ) {
-      alert(
-        'At least one player must have a positive score (0-0 is not allowed)'
+      this.toastr.warning(
+        'يجب أن يكون لدى لاعب واحد على الأقل نقاط إيجابية (0-0 غير مسموح)',
+        'تحذير'
       );
       return;
     }
@@ -263,6 +318,19 @@ export class FriendliesComponent implements OnInit {
     this.friendlyMatchService.recordFriendlyMatchAsync(matchData).subscribe({
       next: (response) => {
         if (response.success) {
+          // Get player names for the toast message
+          const player1 = this.players.find(
+            (p) => p.playerId === this.matchForm.player1Id
+          );
+          const player2 = this.players.find(
+            (p) => p.playerId === this.matchForm.player2Id
+          );
+
+          this.toastr.success(
+            `تم تسجيل المباراة بنجاح: ${player1?.fullName} (${this.matchForm.player1Score}) - ${player2?.fullName} (${this.matchForm.player2Score})`,
+            'تم تسجيل المباراة'
+          );
+
           // Refresh cache and reload data
           this.friendlyMatchService.refreshFriendlyMatches();
           this.friendlyMatchService.refreshFriendlyPlayers();
@@ -273,11 +341,22 @@ export class FriendliesComponent implements OnInit {
           }
           this.loadAllMatches();
           this.closeRecordMatchModal();
+        } else {
+          this.toastr.error(
+            response.message || 'فشل تسجيل المباراة',
+            'خطأ في التسجيل'
+          );
         }
         this.isRecordingMatch = false;
       },
       error: (error) => {
         console.error('Error recording match:', error);
+        this.toastr.error(
+          error.error?.message ||
+            error.message ||
+            'حصل خطأ أثناء تسجيل المباراة',
+          'خطأ في التسجيل'
+        );
         this.isRecordingMatch = false;
       },
     });
@@ -321,8 +400,8 @@ export class FriendliesComponent implements OnInit {
 
   // All matches management
   loadAllMatches(): void {
-    this.friendlyMatchService.getAllFriendlyMatchesAsync().subscribe({
-      next: (matches) => {
+    this.friendlyMatchService.getAllFriendlyMatches().subscribe({
+      next: (matches: any) => {
         this.allMatches = matches.sort(
           (a: any, b: any) =>
             new Date(b.playedOn).getTime() - new Date(a.playedOn).getTime()
@@ -332,14 +411,20 @@ export class FriendliesComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading all matches:', error);
+        this.toastr.error(
+          error.error?.message ||
+            error.message ||
+            'حصل خطأ أثناء تحميل المباريات',
+          'خطأ في التحميل'
+        );
       },
     });
   }
 
   // Cache-based filtering
   loadFilteredMatchesFromCache(): void {
-    this.friendlyMatchService.getAllFriendlyMatchesAsync().subscribe({
-      next: (allMatches) => {
+    this.friendlyMatchService.getAllFriendlyMatches().subscribe({
+      next: (allMatches: any) => {
         let filteredMatches = [...allMatches];
 
         // Apply date filter
@@ -428,6 +513,12 @@ export class FriendliesComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading filtered matches from cache:', error);
+        this.toastr.error(
+          error.error?.message ||
+            error.message ||
+            'حصل خطأ أثناء تحميل المباريات المفلترة',
+          'خطأ في التحميل'
+        );
       },
     });
   }
@@ -475,14 +566,20 @@ export class FriendliesComponent implements OnInit {
       filter.opponentIds = this.filterForm.opponentIds;
     }
 
-    this.friendlyMatchService.getFilteredMatchesAsync(filter).subscribe({
-      next: (result) => {
+    this.friendlyMatchService.getFilteredMatches(filter).subscribe({
+      next: (result: any) => {
         this.allMatches = result.matches;
         this.totalMatches = result.totalCount;
         this.totalPages = result.totalPages;
       },
-      error: (error) => {
+      error: (error: any) => {
         console.error('Error loading filtered matches:', error);
+        this.toastr.error(
+          error.error?.message ||
+            error.message ||
+            'حصل خطأ أثناء تحميل المباريات المفلترة',
+          'خطأ في التحميل'
+        );
       },
     });
   }
@@ -540,7 +637,7 @@ export class FriendliesComponent implements OnInit {
     if (!this.selectedPlayerForMatch) return;
 
     if (!this.matchForm.player1Id || !this.matchForm.player2Id) {
-      alert('Please select both players');
+      this.toastr.warning('الرجاء اختيار كلا اللاعبين', 'تحذير');
       return;
     }
 
@@ -550,12 +647,12 @@ export class FriendliesComponent implements OnInit {
       this.matchForm.player1Score === null ||
       this.matchForm.player2Score === null
     ) {
-      alert('Please enter scores for both players');
+      this.toastr.warning('الرجاء إدخال النقاط لكلا اللاعبين', 'تحذير');
       return;
     }
 
     if (this.matchForm.player1Score < 0 || this.matchForm.player2Score < 0) {
-      alert('Scores cannot be negative');
+      this.toastr.warning('لا يمكن أن تكون النقاط سالبة', 'تحذير');
       return;
     }
 
@@ -563,8 +660,9 @@ export class FriendliesComponent implements OnInit {
       this.matchForm.player1Score === 0 &&
       this.matchForm.player2Score === 0
     ) {
-      alert(
-        'At least one player must have a positive score (0-0 is not allowed)'
+      this.toastr.warning(
+        'يجب أن يكون لدى لاعب واحد على الأقل نقاط إيجابية (0-0 غير مسموح)',
+        'تحذير'
       );
       return;
     }
@@ -577,11 +675,23 @@ export class FriendliesComponent implements OnInit {
         player2Id: this.matchForm.player2Id,
         player1Score: this.matchForm.player1Score,
         player2Score: this.matchForm.player2Score,
-        playedOn: this.matchForm.playedOn,
       })
       .subscribe({
-        next: (response) => {
+        next: (response: any) => {
           if (response.success) {
+            // Get player names for the toast message
+            const player1 = this.players.find(
+              (p) => p.playerId === this.matchForm.player1Id
+            );
+            const player2 = this.players.find(
+              (p) => p.playerId === this.matchForm.player2Id
+            );
+
+            this.toastr.success(
+              `تم تحديث المباراة بنجاح: ${player1?.fullName} (${this.matchForm.player1Score}) - ${player2?.fullName} (${this.matchForm.player2Score})`,
+              'تم تحديث المباراة'
+            );
+
             // Refresh cache and reload data
             this.friendlyMatchService.refreshFriendlyMatches();
             this.loadAllMatches();
@@ -590,21 +700,33 @@ export class FriendliesComponent implements OnInit {
               this.loadPlayerMatches(this.selectedPlayer.playerId);
             }
             this.closeRecordMatchModal();
+          } else {
+            this.toastr.error(
+              response.message || 'فشل تحديث المباراة',
+              'خطأ في التحديث'
+            );
           }
           this.isRecordingMatch = false;
         },
-        error: (error) => {
+        error: (error: any) => {
           console.error('Error updating match:', error);
+          this.toastr.error(
+            error.error?.message ||
+              error.message ||
+              'حصل خطأ أثناء تحديث المباراة',
+            'خطأ في التحديث'
+          );
           this.isRecordingMatch = false;
         },
       });
   }
 
   deleteMatchFromList(matchId: number): void {
-    if (confirm('Are you sure you want to delete this match?')) {
+    if (confirm('هل أنت متأكد من حذف هذه المباراة؟')) {
       this.friendlyMatchService.deleteFriendlyMatchAsync(matchId).subscribe({
-        next: (response) => {
+        next: (response: any) => {
           if (response.success) {
+            this.toastr.success('تم حذف المباراة بنجاح', 'تم الحذف');
             // Refresh cache and reload data
             this.friendlyMatchService.refreshFriendlyMatches();
             this.loadAllMatches();
@@ -612,10 +734,21 @@ export class FriendliesComponent implements OnInit {
             if (this.selectedPlayer) {
               this.loadPlayerMatches(this.selectedPlayer.playerId);
             }
+          } else {
+            this.toastr.error(
+              response.message || 'فشل حذف المباراة',
+              'خطأ في الحذف'
+            );
           }
         },
-        error: (error) => {
+        error: (error: any) => {
           console.error('Error deleting match:', error);
+          this.toastr.error(
+            error.error?.message ||
+              error.message ||
+              'حصل خطأ أثناء حذف المباراة',
+            'خطأ في الحذف'
+          );
         },
       });
     }

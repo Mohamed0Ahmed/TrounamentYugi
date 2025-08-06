@@ -47,6 +47,13 @@
         <!-- Center: Navigation links -->
         <div class="hidden md:flex justify-center space-x-2 font-bold">
           <a
+            routerLink="/player/friendlies"
+            routerLinkActive="!text-indigo-300 bg-white/10 border-b-2 border-white"
+            class="text-white hover:text-gray-300 hover:bg-gray-700 transition rounded py-2 px-2"
+          >
+            🎮 Friendlies
+          </a>
+          <a
             routerLink="/player/forbidden"
             routerLinkActive="!text-indigo-300 bg-white/10 border-b-2 border-white"
             class="text-white hover:text-gray-300 hover:bg-gray-700 transition rounded py-2 px-2"
@@ -141,6 +148,14 @@
         [ngClass]="{ block: isMenuOpen, hidden: !isMenuOpen }"
       >
         <div class="flex flex-col space-y-2 font-bold text-center">
+          <a
+            routerLink="/player/friendlies"
+            routerLinkActive="!text-indigo-300 bg-white/10 border-b-2 border-white"
+            class="text-white hover:text-gray-300 hover:bg-gray-700 transition rounded py-2 px-2"
+            (click)="closeMenu()"
+          >
+            🎮 Friendlies
+          </a>
           <a
             routerLink="/player/forbidden"
             routerLinkActive="!text-indigo-300 bg-white/10 border-b-2 border-white"

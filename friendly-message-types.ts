@@ -4,209 +4,211 @@
 
 // DTOs
 export interface SendFriendlyMessageDto {
-    content: string;
+  content: string;
 }
 
 export interface FriendlyMessageDto {
-    id: number;
-    playerId: number;
-    playerFullName: string;
-    content: string;
-    isRead: boolean;
-    sentAt: string;
-    isFromAdmin: boolean;
-    messageType: string;
+  id: number;
+  playerId: number;
+  playerFullName: string;
+  content: string;
+  isRead: boolean;
+  sentAt: string;
+  isFromAdmin: boolean;
+  messageType: string;
 }
 
 // API Response Types
 export interface FriendlyMessageResponse {
-    success: boolean;
-    message: string;
-    messages?: FriendlyMessageDto[];
+  success: boolean;
+  message: string;
+  messages?: FriendlyMessageDto[];
 }
 
 export interface FriendlyMessageStatsResponse {
-    success: boolean;
-    unreadCount: number;
-    playerId?: number;
+  success: boolean;
+  unreadCount: number;
+  playerId?: number;
 }
 
 // API Service Interface
 export interface IFriendlyMessageService {
-    // Player Actions
-    sendMessageToAdmin(
-        playerId: number,
-        content: string
-    ): Promise<FriendlyMessageResponse>;
-    getPlayerMessages(playerId: number): Promise<FriendlyMessageResponse>;
+  // Player Actions
+  sendMessageToAdmin(
+    playerId: number,
+    content: string
+  ): Promise<FriendlyMessageResponse>;
+  getPlayerMessages(playerId: number): Promise<FriendlyMessageResponse>;
 
-    // Admin Actions
-    getAllMessages(): Promise<FriendlyMessageResponse>;
-    getUnreadMessages(): Promise<FriendlyMessageResponse>;
-    getReadMessages(): Promise<FriendlyMessageResponse>;
-    getPlayerConversation(playerId: number): Promise<FriendlyMessageResponse>;
-    sendAdminReply(
-        playerId: number,
-        content: string
-    ): Promise<FriendlyMessageResponse>;
-    markMessageAsRead(messageId: number): Promise<FriendlyMessageResponse>;
-    markAllPlayerMessagesAsRead(
-        playerId: number
-    ): Promise<FriendlyMessageResponse>;
-    deleteMessage(messageId: number): Promise<FriendlyMessageResponse>;
+  // Admin Actions
+  getAllMessages(): Promise<FriendlyMessageResponse>;
+  getUnreadMessages(): Promise<FriendlyMessageResponse>;
+  getReadMessages(): Promise<FriendlyMessageResponse>;
+  getPlayerConversation(playerId: number): Promise<FriendlyMessageResponse>;
+  sendAdminReply(
+    playerId: number,
+    content: string
+  ): Promise<FriendlyMessageResponse>;
+  markMessageAsRead(messageId: number): Promise<FriendlyMessageResponse>;
+  markAllPlayerMessagesAsRead(
+    playerId: number
+  ): Promise<FriendlyMessageResponse>;
+  deleteMessage(messageId: number): Promise<FriendlyMessageResponse>;
 
-    // Statistics
-    getUnreadMessagesCount(): Promise<FriendlyMessageStatsResponse>;
-    getPlayerUnreadMessagesCount(
-        playerId: number
-    ): Promise<FriendlyMessageStatsResponse>;
+  // Statistics
+  getUnreadMessagesCount(): Promise<FriendlyMessageStatsResponse>;
+  getPlayerUnreadMessagesCount(
+    playerId: number
+  ): Promise<FriendlyMessageStatsResponse>;
 }
 
 // Endpoint Constants
 export const FRIENDLY_MESSAGE_ENDPOINTS = {
-    // Player Actions
-    SEND_MESSAGE: (playerId: number) => `/api/FriendlyMessage/send/${playerId}`,
-    GET_PLAYER_MESSAGES: (playerId: number) =>
-        `/api/FriendlyMessage/player/${playerId}/messages`,
+  // Player Actions
+  SEND_MESSAGE: '/FriendlyMessage/send',
+  GET_PLAYER_MESSAGES: '/FriendlyMessage/my-messages',
 
-    // Admin Actions
-    GET_ALL_MESSAGES: "/api/FriendlyMessage/all",
-    GET_UNREAD_MESSAGES: "/api/FriendlyMessage/unread",
-    GET_READ_MESSAGES: "/api/FriendlyMessage/read",
-    GET_PLAYER_CONVERSATION: (playerId: number) =>
-        `/api/FriendlyMessage/conversation/${playerId}`,
-    SEND_ADMIN_REPLY: (playerId: number) =>
-        `/api/FriendlyMessage/reply/${playerId}`,
-    MARK_MESSAGE_READ: (messageId: number) =>
-        `/api/FriendlyMessage/mark-read/${messageId}`,
-    MARK_ALL_PLAYER_MESSAGES_READ: (playerId: number) =>
-        `/api/FriendlyMessage/mark-all-read/${playerId}`,
-    DELETE_MESSAGE: (messageId: number) => `/api/FriendlyMessage/${messageId}`,
+  // Admin Actions
+  GET_ALL_MESSAGES: '/FriendlyMessage/inbox',
+  GET_UNREAD_MESSAGES: '/FriendlyMessage/unread-messages',
+  GET_READ_MESSAGES: '/FriendlyMessage/read-messages',
+  GET_PLAYER_CONVERSATION: (playerId: number) =>
+    `/FriendlyMessage/conversation/${playerId}`,
+  SEND_ADMIN_REPLY: (playerId: string) => `/FriendlyMessage/reply/${playerId}`,
+  MARK_MESSAGE_READ: (messageId: number) =>
+    `/FriendlyMessage/mark/${messageId}`,
+  MARK_ALL_PLAYER_MESSAGES_READ: (playerId: number) =>
+    `/FriendlyMessage/mark-all-read/${playerId}`,
+  DELETE_MESSAGE: (messageId: number) => `/FriendlyMessage/delete/${messageId}`,
 
-    // Statistics
-    GET_UNREAD_COUNT: "/api/FriendlyMessage/stats/unread-count",
-    GET_PLAYER_UNREAD_COUNT: (playerId: number) =>
-        `/api/FriendlyMessage/stats/player/${playerId}/unread-count`,
+  // Statistics
+  GET_UNREAD_COUNT: '/FriendlyMessage/stats/unread-count',
+  GET_PLAYER_UNREAD_COUNT: (playerId: number) =>
+    `/FriendlyMessage/stats/player/${playerId}/unread-count`,
 
-    // Test
-    TEST: "/api/FriendlyMessage/test",
+  // Test
+  TEST: '/FriendlyMessage/test',
 } as const;
 
 // Validation Functions
 export const validateFriendlyMessageContent = (content: string): string[] => {
-    const errors: string[] = [];
+  const errors: string[] = [];
 
-    if (!content || content.trim().length === 0) {
-        errors.push("محتوى الرسالة مطلوب");
-    }
+  if (!content || content.trim().length === 0) {
+    errors.push('محتوى الرسالة مطلوب');
+  }
 
-    if (content && content.trim().length < 5) {
-        errors.push("الرسالة يجب أن تكون أكثر من 5 أحرف");
-    }
+  if (content && content.length > 2000) {
+    errors.push('محتوى الرسالة يجب أن يكون أقل من 2000 حرف');
+  }
 
-    if (content && content.trim().length > 2000) {
-        errors.push("الرسالة يجب أن تكون أقل من 2000 حرف");
-    }
+  if (content && content.trim().length < 3) {
+    errors.push('محتوى الرسالة يجب أن يكون أكثر من 3 أحرف');
+  }
 
-    return errors;
+  return errors;
 };
 
 // Utility Functions
 export const formatMessageDate = (dateString: string): string => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffInMs = now.getTime() - date.getTime();
-    const diffInHours = diffInMs / (1000 * 60 * 60);
-    const diffInDays = diffInHours / 24;
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffInHours = (now.getTime() - date.getTime()) / (1000 * 60 * 60);
 
-    if (diffInHours < 1) {
-        return "منذ قليل";
-    } else if (diffInHours < 24) {
-        return `منذ ${Math.floor(diffInHours)} ساعة`;
-    } else if (diffInDays < 7) {
-        return `منذ ${Math.floor(diffInDays)} يوم`;
-    } else {
-        return date.toLocaleDateString("ar-EG", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-        });
-    }
+  if (diffInHours < 1) {
+    const diffInMinutes = Math.floor(
+      (now.getTime() - date.getTime()) / (1000 * 60)
+    );
+    return `منذ ${diffInMinutes} دقيقة`;
+  } else if (diffInHours < 24) {
+    return `منذ ${Math.floor(diffInHours)} ساعة`;
+  } else if (diffInHours < 168) {
+    // 7 days
+    const diffInDays = Math.floor(diffInHours / 24);
+    return `منذ ${diffInDays} يوم`;
+  } else {
+    return date.toLocaleDateString('ar-EG', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  }
 };
 
 export const getMessageTypeLabel = (isFromAdmin: boolean): string => {
-    return isFromAdmin ? "رد الإدارة" : "رسالة اللاعب";
+  return isFromAdmin ? 'رد الإدارة' : 'رسالة اللاعب';
 };
 
 export const getMessageStatusLabel = (
-    isRead: boolean,
-    isFromAdmin: boolean
+  isRead: boolean,
+  isFromAdmin: boolean
 ): string => {
-    if (isFromAdmin) {
-        return "تم الإرسال";
-    }
-    return isRead ? "تم القراءة" : "غير مقروءة";
+  if (isFromAdmin) {
+    return 'تم الإرسال';
+  }
+  return isRead ? 'تم القراءة' : 'غير مقروءة';
 };
 
-// Message Sorting and Filtering
+// Sorting and Filtering Functions
 export const sortMessagesByDate = (
-    messages: FriendlyMessageDto[],
-    ascending: boolean = false
+  messages: FriendlyMessageDto[],
+  ascending: boolean = false
 ): FriendlyMessageDto[] => {
-    return [...messages].sort((a, b) => {
-        const dateA = new Date(a.sentAt).getTime();
-        const dateB = new Date(b.sentAt).getTime();
-        return ascending ? dateA - dateB : dateB - dateA;
-    });
+  return messages.sort((a, b) => {
+    const dateA = new Date(a.sentAt).getTime();
+    const dateB = new Date(b.sentAt).getTime();
+    return ascending ? dateA - dateB : dateB - dateA;
+  });
 };
 
 export const filterMessagesByType = (
-    messages: FriendlyMessageDto[],
-    isFromAdmin?: boolean
+  messages: FriendlyMessageDto[],
+  isFromAdmin?: boolean
 ): FriendlyMessageDto[] => {
-    if (isFromAdmin === undefined) {
-        return messages;
-    }
-    return messages.filter((msg) => msg.isFromAdmin === isFromAdmin);
+  if (isFromAdmin === undefined) {
+    return messages;
+  }
+  return messages.filter((msg) => msg.isFromAdmin === isFromAdmin);
 };
 
 export const filterMessagesByReadStatus = (
-    messages: FriendlyMessageDto[],
-    isRead?: boolean
+  messages: FriendlyMessageDto[],
+  isRead?: boolean
 ): FriendlyMessageDto[] => {
-    if (isRead === undefined) {
-        return messages;
-    }
-    return messages.filter((msg) => msg.isRead === isRead);
+  if (isRead === undefined) {
+    return messages;
+  }
+  return messages.filter((msg) => msg.isRead === isRead);
 };
 
-// Statistics Helpers
+// Statistics Functions
 export const calculateUnreadCount = (
-    messages: FriendlyMessageDto[]
+  messages: FriendlyMessageDto[]
 ): number => {
-    return messages.filter((msg) => !msg.isRead && !msg.isFromAdmin).length;
+  return messages.filter((msg) => !msg.isRead && !msg.isFromAdmin).length;
 };
 
 export const calculatePlayerUnreadCount = (
-    messages: FriendlyMessageDto[],
-    playerId: number
+  messages: FriendlyMessageDto[],
+  playerId: number
 ): number => {
-    return messages.filter(
-        (msg) => msg.playerId === playerId && !msg.isRead && msg.isFromAdmin
-    ).length;
+  return messages.filter(
+    (msg) => msg.playerId === playerId && !msg.isRead && !msg.isFromAdmin
+  ).length;
 };
 
+// Conversation Functions
 export const getConversationSummary = (messages: FriendlyMessageDto[]) => {
-    const totalMessages = messages.length;
-    const playerMessages = messages.filter((msg) => !msg.isFromAdmin).length;
-    const adminReplies = messages.filter((msg) => msg.isFromAdmin).length;
-    const unreadCount = calculateUnreadCount(messages);
+  const unreadCount = calculateUnreadCount(messages);
+  const lastMessage = messages[messages.length - 1];
 
-    return {
-        totalMessages,
-        playerMessages,
-        adminReplies,
-        unreadCount,
-        lastMessageDate: messages.length > 0 ? messages[0].sentAt : null,
-    };
+  return {
+    totalMessages: messages.length,
+    unreadCount,
+    lastMessage: lastMessage?.content || '',
+    lastMessageDate: lastMessage?.sentAt || '',
+    hasUnread: unreadCount > 0,
+  };
 };
