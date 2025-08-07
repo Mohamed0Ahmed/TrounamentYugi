@@ -1,39 +1,50 @@
-<div class="container mx-auto p-4 overflow-hidden">
+<div class="container mx-auto p-4 overflow-hidden h-screen">
   <div class="flex flex-col h-full bg-transparent">
-    <!-- Header with Toggle Switch -->
-    <div class="flex items-center justify-between mb-4 p-4 bg-black bg-opacity-30 rounded-lg header-container">
-      <div class="flex items-center space-x-3">
-        <div class="flex items-center space-x-2 toggle-container">
-          <label class="toggle-switch">
-            <input
-              type="checkbox"
-              [checked]="isFriendlyMode"
-              (change)="toggleMessageMode()"
-            >
-            <span class="slider"></span>
-          </label>
-          <span class="text-sm text-gray-300">ودية</span>
+    <!-- Fixed Header with Toggle Switch -->
+    <div
+      class="fixed top-[70px] left-0 right-0 z-40 p-4 bg-black bg-opacity-90 backdrop-blur-sm border-b border-gray-600 header-container"
+    >
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          <div class="flex items-center space-x-2 toggle-container">
+            <label class="toggle-switch">
+              <input
+                type="checkbox"
+                [checked]="isFriendlyMode"
+                (change)="toggleMessageMode()"
+              />
+              <span class="slider"></span>
+            </label>
+            <span class="text-sm text-gray-300">ودية</span>
+          </div>
         </div>
+        <button
+          (click)="toggleMessageMode()"
+          class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
+        >
+          {{ toggleButtonText }}
+        </button>
       </div>
-      <button
-        (click)="toggleMessageMode()"
-        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
-      >
-        {{ toggleButtonText }}
-      </button>
     </div>
 
     <!-- Loading Indicator -->
-    <div *ngIf="isLoading" class="flex justify-center items-center p-8">
-      <div class="loading-spinner rounded-full h-8 w-8 border-b-2 border-white"></div>
+    <div
+      *ngIf="isLoading"
+      class="flex justify-center items-center p-8"
+      style="margin-top: 80px"
+    >
+      <div
+        class="loading-spinner rounded-full h-8 w-8 border-b-2 border-white"
+      ></div>
       <span class="ml-2 text-white">جاري التحميل...</span>
     </div>
 
-    <!-- Messages Container -->
+    <!-- Messages Container - Scrollable Area with padding for fixed header and footer -->
     <div
       *ngIf="!isLoading"
       #messagesContainer
-      class="flex-1 p-4 overflow-y-auto max-h-[calc(100vh-280px)] messages-container"
+      class="flex-1 p-4 overflow-y-auto messages-container"
+      style="margin-top: 80px; margin-bottom: 80px"
     >
       <!-- Official Messages -->
       <div *ngIf="!isFriendlyMode">
@@ -65,7 +76,10 @@
 
       <!-- Friendly Messages -->
       <div *ngIf="isFriendlyMode">
-        <div *ngFor="let message of friendlyMessages" class="mb-4 message-container">
+        <div
+          *ngFor="let message of friendlyMessages"
+          class="mb-4 message-container"
+        >
           <!-- Player Messages (Right) -->
           <div *ngIf="!message.isFromAdmin" class="flex justify-end">
             <div
@@ -92,9 +106,12 @@
       </div>
 
       <!-- Empty State -->
-      <div *ngIf="currentMessages.length === 0 && !isLoading" class="text-center py-8">
+      <div
+        *ngIf="currentMessages.length === 0 && !isLoading"
+        class="text-center py-8"
+      >
         <div class="text-gray-400 text-lg">
-          لا توجد {{ isFriendlyMode ? 'رسائل ودية' : 'رسائل رسمية' }} حالياً
+          لا توجد {{ isFriendlyMode ? "رسائل ودية" : "رسائل رسمية" }} حالياً
         </div>
         <div class="text-gray-500 text-sm mt-2">
           ابدأ المحادثة بإرسال رسالة جديدة
@@ -102,14 +119,18 @@
       </div>
     </div>
 
-    <!-- Message Input -->
-    <div class="p-4 bg-transparent border-t border-gray-700">
+    <!-- Fixed Message Input -->
+    <div
+      class="fixed bottom-0 left-0 right-0 z-50 p-4 bg-black bg-opacity-90 backdrop-blur-sm border-t border-gray-600"
+    >
       <form (ngSubmit)="sendMessage()" class="flex items-center gap-2">
         <input
           type="text"
           [(ngModel)]="newMessage"
           name="newMessage"
-          [placeholder]="isFriendlyMode ? 'اكتب رسالة ودية...' : 'اكتب رسالة رسمية...'"
+          [placeholder]="
+            isFriendlyMode ? 'اكتب رسالة ودية...' : 'اكتب رسالة رسمية...'
+          "
           class="flex-1 p-2 bg-black bg-opacity-50 text-white border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-300 placeholder-gray-400"
         />
         <button

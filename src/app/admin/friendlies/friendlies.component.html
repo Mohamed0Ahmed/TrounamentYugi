@@ -69,9 +69,17 @@
 
         <button
           routerLink="/admin/friendly-inbox"
-          class="bg-purple-600 hover:bg-purple-700 text-white mb-4 px-3 py-2 rounded transition-all"
+          class="bg-purple-600 hover:bg-purple-700 text-white mb-4 px-3 py-2 rounded transition-all relative"
         >
           📬 Friendly Inbox
+          <div
+            class="absolute -top-2 -right-2 w-[30px] h-[30px] rounded-full bg-green-600 flex justify-center items-center"
+            *ngIf="totalUnreadFriendlyMessages > 0"
+          >
+            <h4 class="text-white font-bold">
+              {{ totalUnreadFriendlyMessages }}
+            </h4>
+          </div>
         </button>
       </div>
 

@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { FriendlyMatchService } from '../../core/services/friendly-match.service';
+import { FriendlyMessageService } from '../../core/services/friendly-message.service';
 import { ToastrService } from 'ngx-toastr';
 import { DateFilter } from 'friendly-match-types';
+import { calculateUnreadCount } from 'friendly-message-types';
 
 @Component({
   selector: 'app-friendlies',
@@ -40,6 +42,7 @@ export class FriendliesComponent implements OnInit {
   // Statistics
   totalPlayers = 0;
   totalMatches = 0;
+  totalUnreadFriendlyMessages = 0;
 
   // All matches pagination
   allMatches: any[] = [];
@@ -58,12 +61,33 @@ export class FriendliesComponent implements OnInit {
 
   constructor(
     private friendlyMatchService: FriendlyMatchService,
+    private friendlyMessageService: FriendlyMessageService,
     private toastr: ToastrService
   ) {}
 
   ngOnInit(): void {
     this.loadPlayers();
     this.loadAllMatches();
+    this.loadUnreadFriendlyMessagesCount();
+  }
+
+  loadUnreadFriendlyMessagesCount(): void {
+    this.friendlyMessageService.getAllMessages().subscribe({
+      next: (response: any) => {
+        if (response.success && response.messages) {
+          this.totalUnreadFriendlyMessages = calculateUnreadCount(
+            response.messages
+          );
+        } else {
+          this.totalUnreadFriendlyMessages = 0;
+        }
+        console.log(this.totalUnreadFriendlyMessages);
+      },
+      error: (error: any) => {
+        console.error('Error loading unread friendly messages count:', error);
+        this.totalUnreadFriendlyMessages = 0;
+      },
+    });
   }
 
   toggleSidebar(): void {
