@@ -78,7 +78,6 @@ export class AdminDashboardService {
         this.lastEssentialUpdate = now;
       }),
       catchError((error) => {
-        console.error('❌ Error loading essential data:', error);
         // Return cached data if available, otherwise empty state
         return of(
           this.essentialDataCache$.value || this.getEmptyDashboardData()
@@ -111,7 +110,6 @@ export class AdminDashboardService {
         this.lastSecondaryUpdate.set(type, now);
       }),
       catchError((error) => {
-        console.error(`❌ Error loading ${type}:`, error);
         // Return cached data if available
         return of(this.secondaryDataCache.get(type) || []);
       })

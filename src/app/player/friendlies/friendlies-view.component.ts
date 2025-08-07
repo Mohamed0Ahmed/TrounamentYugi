@@ -81,7 +81,6 @@ export class FriendliesViewComponent implements OnInit {
         this.applyFilters();
       },
       error: (error) => {
-        console.error('Error loading players:', error);
         this.isLoadingPlayers = false;
       },
     });
@@ -97,7 +96,6 @@ export class FriendliesViewComponent implements OnInit {
         this.isLoadingMatches = false;
       },
       error: (error) => {
-        console.error('Error loading matches:', error);
         this.isLoadingMatches = false;
       },
     });
@@ -111,7 +109,6 @@ export class FriendliesViewComponent implements OnInit {
         this.isLoadingShutouts = false;
       },
       error: (error) => {
-        console.error('Error loading shutouts:', error);
         this.isLoadingShutouts = false;
       },
     });

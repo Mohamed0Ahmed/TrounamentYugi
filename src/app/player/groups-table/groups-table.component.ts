@@ -32,7 +32,7 @@ export class GroupsTableComponent implements OnInit {
         this.currentLeague = response.league;
       },
       error: (err: any) => {
-        console.error('Error loading current league:', err);
+
         this.currentLeague = null;
       },
     });
@@ -48,7 +48,7 @@ export class GroupsTableComponent implements OnInit {
       },
       error: (err) => {
         this.toastr.error('حدث خطأ أثناء جلب اللاعبين');
-        console.error(err);
+
       },
     });
   }

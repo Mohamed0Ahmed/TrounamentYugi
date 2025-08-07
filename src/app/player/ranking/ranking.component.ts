@@ -36,7 +36,6 @@ export class RankingComponent implements OnInit {
         this.updateDrawAnimationState();
       },
       error: (err: any) => {
-        console.error('Error loading current league:', err);
         this.currentLeague = null;
       },
     });
@@ -54,7 +53,6 @@ export class RankingComponent implements OnInit {
       },
       error: (err) => {
         this.toastr.error('حدث خطا اثناء جلب اللاعبين');
-        console.error(err);
       },
     });
   }
@@ -77,8 +75,7 @@ export class RankingComponent implements OnInit {
       (player) => player.matchesPlayed === 0
     );
 
-    this.showDrawAnimation =
-      isGroupsTournament && hasGroups && noMatchesPlayed;
+    this.showDrawAnimation = isGroupsTournament && hasGroups && noMatchesPlayed;
   }
 
   onDrawAnimationComplete(): void {

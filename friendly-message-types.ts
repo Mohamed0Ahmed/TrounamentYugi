@@ -9,13 +9,16 @@ export interface SendFriendlyMessageDto {
 
 export interface FriendlyMessageDto {
   id: number;
-  playerId: number;
-  playerFullName: string;
+  playerId?: number; // قد لا يكون موجود
+  senderId?: string; // إضافة senderId للتوافق مع الـ backend
+  playerFullName?: string; // قد لا يكون موجود
+  senderFullName?: string; // إضافة senderFullName للتوافق مع الـ backend
+  senderPhoneNumber?: string; // إضافة رقم الهاتف
   content: string;
   isRead: boolean;
   sentAt: string;
   isFromAdmin: boolean;
-  messageType: string;
+  messageType?: string; // قد لا يكون موجود
 }
 
 // API Response Types

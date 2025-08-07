@@ -75,7 +75,6 @@ export class CacheService {
     return request.pipe(
       tap((data) => this.set(key, data, ttl)),
       catchError((error) => {
-        console.error('Cache request failed:', error);
         throw error;
       })
     );
@@ -121,7 +120,6 @@ export class CacheService {
         }
       }),
       catchError((error) => {
-        console.error('Cache request failed:', error);
         throw error;
       })
     );
@@ -207,7 +205,7 @@ export class CacheService {
       const cacheData = Array.from(this.cache.entries());
       localStorage.setItem('app_cache', JSON.stringify(cacheData));
     } catch (error) {
-      console.error('Failed to save cache to localStorage:', error);
+      // Silent error handling
     }
   }
 
@@ -226,7 +224,7 @@ export class CacheService {
         }
       }
     } catch (error) {
-      console.error('Failed to load cache from localStorage:', error);
+      // Silent error handling
     }
   }
 }

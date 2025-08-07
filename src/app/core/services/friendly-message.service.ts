@@ -54,11 +54,15 @@ export class FriendlyMessageService {
   }
 
   sendAdminReply(
-    playerId: number,
+    playerId: string,
     content: string
   ): Observable<FriendlyMessageResponse> {
+    if (!playerId) {
+      throw new Error('معرف اللاعب غير صحيح');
+    }
+    
     const url = `${this.baseUrl}${FRIENDLY_MESSAGE_ENDPOINTS.SEND_ADMIN_REPLY(
-      playerId.toString()
+      playerId
     )}`;
     return this.http.post<FriendlyMessageResponse>(url, { content });
   }

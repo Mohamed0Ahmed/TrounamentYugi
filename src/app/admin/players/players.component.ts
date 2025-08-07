@@ -18,7 +18,7 @@ import {
   AdminDashboardService,
   AdminDashboardData,
 } from 'src/app/core/services/admin-dashboard.service';
-  import { Subscription, interval } from 'rxjs';
+import { Subscription, interval } from 'rxjs';
 
 @Component({
   selector: 'app-players',
@@ -59,7 +59,6 @@ export class PlayersComponent implements OnInit, OnDestroy {
   newNote: string = '';
   selectedLeagueToDelete: AllLeagueRank | null = null;
 
-
   // New properties for tournament stage management
   currentMatches: Match[] = [];
   showTournamentStageButton = false;
@@ -80,8 +79,7 @@ export class PlayersComponent implements OnInit, OnDestroy {
     this.loadEssentialData();
   }
 
-  ngOnDestroy(): void {
-  }
+  ngOnDestroy(): void {}
 
   private loadCurrentLeagueFromServer(): void {
     this.leagueService.getAdminCurrentLeague().subscribe({
@@ -90,13 +88,11 @@ export class PlayersComponent implements OnInit, OnDestroy {
         this.updateTournamentStageButton(); // Update button state when league data changes
       },
       error: (err) => {
-        console.error('❌ Failed to load current league:', err);
         this.leagueData = null;
         this.updateTournamentStageButton(); // Update button state when league data changes
       },
     });
   }
-
 
   private loadEssentialData(): void {
     this.adminDashboardService.getEssentialData().subscribe({
@@ -118,7 +114,6 @@ export class PlayersComponent implements OnInit, OnDestroy {
         this.updateTournamentStageButton();
       },
       error: (err) => {
-        console.error('❌ Failed to load data:', err);
         this.toastr.error('حدث خطأ أثناء تحميل البيانات');
       },
     });
@@ -190,9 +185,7 @@ export class PlayersComponent implements OnInit, OnDestroy {
     if (request) {
       try {
         await request();
-      } catch (error) {
-        console.error('Error processing request:', error);
-      }
+      } catch (error) {}
     }
 
     this.isProcessingQueue = false;
@@ -474,7 +467,6 @@ export class PlayersComponent implements OnInit, OnDestroy {
         this.updateTournamentStageButton();
       },
       error: (err) => {
-        console.error('Error loading current matches:', err);
         this.currentMatches = [];
         this.updateTournamentStageButton(); // Update button state even on error
       },

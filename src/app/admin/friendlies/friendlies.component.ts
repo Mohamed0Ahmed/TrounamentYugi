@@ -78,7 +78,6 @@ export class FriendliesComponent implements OnInit {
         this.calculateStatistics();
       },
       error: (error: any) => {
-        console.error('Error loading players:', error);
         this.toastr.error(
           error.error?.message ||
             error.message ||
@@ -107,7 +106,6 @@ export class FriendliesComponent implements OnInit {
         );
       },
       error: (error: any) => {
-        console.error('Error loading player matches:', error);
         this.toastr.error(
           error.error?.message ||
             error.message ||
@@ -124,7 +122,6 @@ export class FriendliesComponent implements OnInit {
         this.totalMatches = matches.length;
       },
       error: (error: any) => {
-        console.error('Error loading statistics:', error);
         this.toastr.error(
           error.error?.message ||
             error.message ||
@@ -173,7 +170,6 @@ export class FriendliesComponent implements OnInit {
           }
         },
         error: (error: any) => {
-          console.error('Error adding player:', error);
           this.toastr.error(
             error.error?.message ||
               error.message ||
@@ -220,7 +216,6 @@ export class FriendliesComponent implements OnInit {
           }
         },
         error: (error: any) => {
-          console.error('Error deleting player:', error);
           this.toastr.error(
             error.error?.message || error.message || 'حصل خطأ أثناء حذف اللاعب',
             'خطأ في الحذف'
@@ -350,7 +345,6 @@ export class FriendliesComponent implements OnInit {
         this.isRecordingMatch = false;
       },
       error: (error) => {
-        console.error('Error recording match:', error);
         this.toastr.error(
           error.error?.message ||
             error.message ||
@@ -410,7 +404,6 @@ export class FriendliesComponent implements OnInit {
         this.totalPages = Math.ceil(this.allMatches.length / this.itemsPerPage);
       },
       error: (error) => {
-        console.error('Error loading all matches:', error);
         this.toastr.error(
           error.error?.message ||
             error.message ||
@@ -512,7 +505,6 @@ export class FriendliesComponent implements OnInit {
         this.totalPages = Math.ceil(this.allMatches.length / this.itemsPerPage);
       },
       error: (error) => {
-        console.error('Error loading filtered matches from cache:', error);
         this.toastr.error(
           error.error?.message ||
             error.message ||
@@ -573,7 +565,6 @@ export class FriendliesComponent implements OnInit {
         this.totalPages = result.totalPages;
       },
       error: (error: any) => {
-        console.error('Error loading filtered matches:', error);
         this.toastr.error(
           error.error?.message ||
             error.message ||
@@ -709,7 +700,6 @@ export class FriendliesComponent implements OnInit {
           this.isRecordingMatch = false;
         },
         error: (error: any) => {
-          console.error('Error updating match:', error);
           this.toastr.error(
             error.error?.message ||
               error.message ||
@@ -742,7 +732,6 @@ export class FriendliesComponent implements OnInit {
           }
         },
         error: (error: any) => {
-          console.error('Error deleting match:', error);
           this.toastr.error(
             error.error?.message ||
               error.message ||

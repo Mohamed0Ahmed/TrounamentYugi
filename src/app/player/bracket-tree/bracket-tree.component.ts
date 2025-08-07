@@ -58,7 +58,6 @@ export class BracketTreeComponent implements OnInit, OnChanges {
         }
       },
       error: (error) => {
-        console.error('Error loading knockout matches:', error);
         this.quarterFinals.set([]);
         this.semiFinals.set([]);
         this.final.set(null);

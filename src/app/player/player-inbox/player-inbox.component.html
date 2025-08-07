@@ -1,32 +1,103 @@
-<div class="container mx-auto p-4  overflow-hidden">
+<div class="container mx-auto p-4 overflow-hidden">
   <div class="flex flex-col h-full bg-transparent">
+    <!-- Header with Toggle Switch -->
+    <div class="flex items-center justify-between mb-4 p-4 bg-black bg-opacity-30 rounded-lg header-container">
+      <div class="flex items-center space-x-3">
+        <div class="flex items-center space-x-2 toggle-container">
+          <label class="toggle-switch">
+            <input
+              type="checkbox"
+              [checked]="isFriendlyMode"
+              (change)="toggleMessageMode()"
+            >
+            <span class="slider"></span>
+          </label>
+          <span class="text-sm text-gray-300">ودية</span>
+        </div>
+      </div>
+      <button
+        (click)="toggleMessageMode()"
+        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
+      >
+        {{ toggleButtonText }}
+      </button>
+    </div>
+
+    <!-- Loading Indicator -->
+    <div *ngIf="isLoading" class="flex justify-center items-center p-8">
+      <div class="loading-spinner rounded-full h-8 w-8 border-b-2 border-white"></div>
+      <span class="ml-2 text-white">جاري التحميل...</span>
+    </div>
+
     <!-- Messages Container -->
     <div
+      *ngIf="!isLoading"
       #messagesContainer
-      class="flex-1 p-4 overflow-y-auto max-h-[calc(100vh-200px)]"
+      class="flex-1 p-4 overflow-y-auto max-h-[calc(100vh-280px)] messages-container"
     >
-      <div *ngFor="let message of messages" class="mb-4">
-        <!-- Player Messages (Right) -->
-        <div *ngIf="!message.isFromAdmin" class="flex justify-end">
-          <div
-            class="max-w-xs bg-green-500 bg-opacity-50 text-white rounded-lg p-3 shadow-md backdrop-blur-sm"
-          >
-            <p class="text-sm">{{ message.content }}</p>
-            <p class="text-xs mt-1 text-gray-300">
-              {{ message.sentAt | date : "MMM d, y, hh:mm a" }}
-            </p>
+      <!-- Official Messages -->
+      <div *ngIf="!isFriendlyMode">
+        <div *ngFor="let message of messages" class="mb-4 message-container">
+          <!-- Player Messages (Right) -->
+          <div *ngIf="!message.isFromAdmin" class="flex justify-end">
+            <div
+              class="max-w-xs bg-green-500 bg-opacity-50 text-white rounded-lg p-3 shadow-md backdrop-blur-sm message-bubble"
+            >
+              <p class="text-sm">{{ message.content }}</p>
+              <p class="text-xs mt-1 text-gray-300">
+                {{ message.sentAt | date : "MMM d, y, hh:mm a" }}
+              </p>
+            </div>
+          </div>
+          <!-- Admin Messages (Left) -->
+          <div *ngIf="message.isFromAdmin" class="flex justify-start">
+            <div
+              class="max-w-xs bg-gray-300 bg-opacity-50 text-white rounded-lg p-3 shadow-md backdrop-blur-sm message-bubble"
+            >
+              <p class="text-sm">{{ message.content }}</p>
+              <p class="text-xs mt-1 text-gray-300">
+                {{ message.sentAt | date : "MMM d, y, hh:mm a" }}
+              </p>
+            </div>
           </div>
         </div>
-        <!-- Admin Messages (Left) -->
-        <div *ngIf="message.isFromAdmin" class="flex justify-start">
-          <div
-            class="max-w-xs bg-gray-300 bg-opacity-50 text-white rounded-lg p-3 shadow-md backdrop-blur-sm"
-          >
-            <p class="text-sm">{{ message.content }}</p>
-            <p class="text-xs mt-1 text-gray-300">
-              {{ message.sentAt | date : "MMM d, y, hh:mm a" }}
-            </p>
+      </div>
+
+      <!-- Friendly Messages -->
+      <div *ngIf="isFriendlyMode">
+        <div *ngFor="let message of friendlyMessages" class="mb-4 message-container">
+          <!-- Player Messages (Right) -->
+          <div *ngIf="!message.isFromAdmin" class="flex justify-end">
+            <div
+              class="max-w-xs bg-blue-500 bg-opacity-50 text-white rounded-lg p-3 shadow-md backdrop-blur-sm message-bubble"
+            >
+              <p class="text-sm">{{ message.content }}</p>
+              <p class="text-xs mt-1 text-gray-300">
+                {{ message.sentAt | date : "MMM d, y, hh:mm a" }}
+              </p>
+            </div>
           </div>
+          <!-- Admin Messages (Left) -->
+          <div *ngIf="message.isFromAdmin" class="flex justify-start">
+            <div
+              class="max-w-xs bg-purple-300 bg-opacity-50 text-white rounded-lg p-3 shadow-md backdrop-blur-sm message-bubble"
+            >
+              <p class="text-sm">{{ message.content }}</p>
+              <p class="text-xs mt-1 text-gray-300">
+                {{ message.sentAt | date : "MMM d, y, hh:mm a" }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="currentMessages.length === 0 && !isLoading" class="text-center py-8">
+        <div class="text-gray-400 text-lg">
+          لا توجد {{ isFriendlyMode ? 'رسائل ودية' : 'رسائل رسمية' }} حالياً
+        </div>
+        <div class="text-gray-500 text-sm mt-2">
+          ابدأ المحادثة بإرسال رسالة جديدة
         </div>
       </div>
     </div>
@@ -38,15 +109,15 @@
           type="text"
           [(ngModel)]="newMessage"
           name="newMessage"
-          placeholder="Write Your Message..."
+          [placeholder]="isFriendlyMode ? 'اكتب رسالة ودية...' : 'اكتب رسالة رسمية...'"
           class="flex-1 p-2 bg-black bg-opacity-50 text-white border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-300 placeholder-gray-400"
         />
         <button
           type="submit"
-          class="bg-gray-800 text-white p-2 rounded-lg hover:bg-gray-700 disabled:bg-gray-600"
-          [disabled]="!newMessage"
+          class="bg-gray-800 text-white p-2 rounded-lg hover:bg-gray-700 disabled:bg-gray-600 transition-colors"
+          [disabled]="!newMessage.trim()"
         >
-          Send
+          إرسال
         </button>
       </form>
     </div>

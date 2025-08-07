@@ -102,7 +102,6 @@ export class LoginComponent {
         },
         error: (err) => {
           this.toastr.error('حصل خطأ أثناء إعادة تعيين كلمة السر');
-          console.error(err);
         },
       });
   }

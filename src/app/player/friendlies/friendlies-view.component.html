@@ -60,32 +60,25 @@
           *ngFor="let player of players"
           class="p-3 rounded-lg bg-gray-700 hover:bg-gray-600"
         >
-          <!-- First Row: Name and W/L/D -->
-          <div class="flex items-center justify-between mb-2">
+          <!-- First Row: Name and Total/Difference -->
+          <div class="flex items-center justify-between ">
             <h3 class="text-white font-bold text-base">
               {{ player.fullName }}
             </h3>
-            <div class="flex items-center space-x-1">
-              <span class="text-green-400 font-bold text-sm"
-                >{{ player.totalWins }}W</span
+            <div class="text-sm font-bold mb-3">
+              <span
+                [class.text-green-400]="
+                  getPlayerScoreDifference(player.playerId) > 0
+                "
+                [class.text-red-400]="
+                  getPlayerScoreDifference(player.playerId) < 0
+                "
+                [class.text-yellow-400]="
+                  getPlayerScoreDifference(player.playerId) === 0
+                "
               >
-              <span class="text-red-400 font-bold text-sm"
-                >{{ player.totalLosses }}L</span
-              >
-              <span class="text-yellow-400 font-bold text-sm"
-                >{{ player.totalDraws }}D</span
-              >
-            </div>
-          </div>
-
-          <!-- Second Row: Matches/Stats and Total/Difference -->
-          <div class="flex items-center justify-between">
-            <div class="text-gray-400 text-sm font-semibold">
-              {{ player.totalMatches }} matches •
-              {{ player.winRate.toFixed(1) }}%
-            </div>
-            <div class="text-sm text-gray-300 font-semibold">
-              {{ getPlayerScoreDisplay(player.playerId) }}
+                {{ getPlayerScoreDisplay(player.playerId) }}
+              </span>
               <span
                 [class.text-green-400]="
                   getPlayerScoreDifference(player.playerId) > 0
@@ -98,16 +91,26 @@
                 "
                 class="ml-1"
               >
-                <span *ngIf="getPlayerScoreDifference(player.playerId) > 0"
-                  >📈</span
-                >
-                <span *ngIf="getPlayerScoreDifference(player.playerId) < 0"
-                  >📉</span
-                >
-                <span *ngIf="getPlayerScoreDifference(player.playerId) === 0"
-                  >⚖️</span
-                >
               </span>
+            </div>
+          </div>
+
+          <!-- Second Row: Matches/Stats and W/L/D -->
+          <div class="flex items-center justify-between">
+            <div class="text-gray-400 text-sm font-semibold">
+              {{ player.totalMatches }} matches •
+              {{ player.winRate.toFixed(1) }}%
+            </div>
+            <div class="flex items-center space-x-1">
+              <span class="text-green-400 font-bold text-sm"
+                >{{ player.totalWins }}W</span
+              >
+              <span class="text-red-400 font-bold text-sm px-3"
+                >{{ player.totalLosses }}L</span
+              >
+              <span class="text-yellow-400 font-bold text-sm"
+                >{{ player.totalDraws }}D</span
+              >
             </div>
           </div>
         </div>
@@ -124,8 +127,6 @@
 
     <!-- Matches Tab -->
     <div *ngIf="activeTab === 'matches'">
- 
-
       <!-- Filters Section -->
       <div class="mb-6 p-4 bg-gray-700 rounded-lg">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">

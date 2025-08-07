@@ -75,7 +75,7 @@ export class LeagueTableComponent implements OnInit {
         this.currentLeague = response.league;
       },
       error: (err: any) => {
-        console.error('Error loading current league:', err);
+
         this.currentLeague = null;
       },
     });

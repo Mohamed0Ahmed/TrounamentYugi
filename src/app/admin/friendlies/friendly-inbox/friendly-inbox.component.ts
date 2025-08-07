@@ -16,8 +16,9 @@ import {
 import { Subscription } from 'rxjs';
 
 interface PlayerChat {
-  senderId: number;
+  senderId: string; // استخدام string فقط للتوافق مع GUID
   senderFullName: string;
+  senderPhoneNumber: string; // إضافة رقم الهاتف
   lastMessage: string;
   lastMessageDate: string;
   unreadCount: number;
@@ -33,7 +34,7 @@ export class FriendlyInboxComponent
   implements OnInit, AfterViewChecked, OnDestroy
 {
   playerChats: PlayerChat[] = [];
-  selectedPlayerId: number | null = null;
+  selectedPlayerId: string | null = null;
   selectedChat: PlayerChat | null = null;
   replyMessages: { [messageId: number]: string } = {};
   private updateStatusSubscription?: Subscription;
@@ -79,19 +80,6 @@ export class FriendlyInboxComponent
           const unreadMessages = response.messages.filter(
             (msg) => !msg.isRead && !msg.isFromAdmin
           ).length;
-
-          if (totalMessages > 0) {
-            this.toastr.success(
-              `تم جلب ${totalMessages} رسالة بنجاح${
-                unreadMessages > 0
-                  ? ` (${unreadMessages} رسالة غير مقروءة)`
-                  : ''
-              }`,
-              'تم تحميل الرسائل'
-            );
-          } else {
-            this.toastr.info('لا توجد رسائل ودية حالياً', 'معلومات');
-          }
         } else {
           this.toastr.error(response.message || 'لا يوجد رسائل ودية');
         }
@@ -154,13 +142,33 @@ export class FriendlyInboxComponent
   }
 
   groupMessagesBySender(messages: FriendlyMessageDto[]): PlayerChat[] {
-    const chatMap: { [senderId: number]: PlayerChat } = {};
+    const chatMap: { [senderId: string | number]: PlayerChat } = {};
     messages.forEach((msg) => {
-      const playerId = msg.playerId;
+      // استخدام senderId كـ playerId (قد يكون string أو number)
+      let playerId = msg.senderId || msg.playerId;
+
+      // إذا كان senderId هو GUID، نستخدمه كما هو
+      if (typeof playerId === 'string' && playerId.includes('-')) {
+        // هذا GUID، نستخدمه كما هو
+      } else if (typeof playerId === 'string') {
+        // محاولة تحويل إلى number
+        const parsedId = parseInt(playerId, 10);
+        if (!isNaN(parsedId) && parsedId > 0) {
+          playerId = parsedId;
+        }
+      }
+
+      // تأكد من أن playerId موجود
+      if (!playerId) {
+        return; // تخطي هذه الرسالة
+      }
+
       if (!chatMap[playerId]) {
         chatMap[playerId] = {
-          senderId: playerId,
-          senderFullName: msg.playerFullName,
+          senderId: String(playerId), // تحويل إلى string
+          senderFullName:
+            msg.senderFullName || msg.playerFullName || `اللاعب ${playerId}`, // fallback للاسم
+          senderPhoneNumber: msg.senderPhoneNumber || 'غير متوفر', // استخدام الحقل الصحيح مع fallback
           lastMessage: '',
           lastMessageDate: '',
           unreadCount: 0,
@@ -173,7 +181,7 @@ export class FriendlyInboxComponent
       }
     });
 
-    return Object.values(chatMap).map((chat) => {
+    const result = Object.values(chatMap).map((chat) => {
       // ترتيب الرسائل من الأقدم للأحدث
       chat.messages = chat.messages.sort(
         (a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime()
@@ -184,13 +192,20 @@ export class FriendlyInboxComponent
       chat.lastMessageDate = lastMsg?.sentAt ?? '';
       return chat;
     });
+
+    return result;
   }
 
-  openChat(playerId: number): void {
+  openChat(playerId: string): void {
     this.selectedPlayerId = playerId;
     this.selectedChat =
       this.playerChats.find((chat) => chat.senderId === playerId) || null;
+
     if (this.selectedChat) {
+      // تأكد من وجود اسم اللاعب
+      if (!this.selectedChat.senderFullName) {
+        this.selectedChat.senderFullName = `اللاعب ${this.selectedChat.senderId}`;
+      }
       // Mark messages as read when opening chat
       this.selectedChat.messages
         .filter((msg) => !msg.isRead && !msg.isFromAdmin)
@@ -232,6 +247,20 @@ export class FriendlyInboxComponent
       this.toastr.warning('الرجاء اختيار محادثة');
       return;
     }
+
+    if (!this.selectedChat.senderId) {
+      this.toastr.error('خطأ: معرف اللاعب غير صحيح');
+      return;
+    }
+
+    if (
+      !this.selectedChat.messages ||
+      this.selectedChat.messages.length === 0
+    ) {
+      this.toastr.error('خطأ: لا توجد رسائل في هذه المحادثة');
+      return;
+    }
+
     const replyContent =
       this.replyMessages[this.selectedChat.messages[0].id]?.trim();
     if (!replyContent) {
@@ -244,16 +273,23 @@ export class FriendlyInboxComponent
       .subscribe({
         next: (response: FriendlyMessageResponse) => {
           if (response.success) {
+            const playerName =
+              this.selectedChat!.senderFullName ||
+              `اللاعب ${this.selectedChat!.senderId}`;
             this.toastr.success(
-              `تم إرسال الرد بنجاح إلى ${this.selectedChat!.senderFullName}`,
+              `تم إرسال الرد بنجاح إلى ${playerName}`,
               'تم الإرسال'
             );
             this.replyMessages[this.selectedChat!.messages[0].id] = '';
 
             const newMessage: FriendlyMessageDto = {
               id: Math.random(),
-              playerId: this.selectedChat!.senderId,
-              playerFullName: this.selectedChat!.senderFullName,
+              senderId: this.selectedChat!.senderId,
+              senderFullName:
+                this.selectedChat!.senderFullName ||
+                `اللاعب ${this.selectedChat!.senderId}`,
+              senderPhoneNumber:
+                this.selectedChat!.senderPhoneNumber || 'غير متوفر',
               content: replyContent,
               isRead: true,
               sentAt: new Date().toISOString(),
@@ -271,6 +307,13 @@ export class FriendlyInboxComponent
             // تحديث آخر رسالة في قائمة المحادثات
             this.selectedChat!.lastMessage = replyContent;
             this.selectedChat!.lastMessageDate = newMessage.sentAt;
+
+            // تحديث اسم اللاعب إذا كان غير موجود
+            if (!this.selectedChat!.senderFullName) {
+              this.selectedChat!.senderFullName = `اللاعب ${
+                this.selectedChat!.senderId
+              }`;
+            }
 
             // إعادة ترتيب قائمة المحادثات حسب الأحدث
             this.playerChats.sort(
@@ -309,7 +352,7 @@ export class FriendlyInboxComponent
     }
   }
 
-  trackByPlayerId(index: number, chat: PlayerChat): number {
+  trackByPlayerId(index: number, chat: PlayerChat): string {
     return chat.senderId;
   }
 
