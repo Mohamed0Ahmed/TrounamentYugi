@@ -14,7 +14,7 @@ import {
 })
 export class FriendliesViewComponent implements OnInit {
   // Tab management
-  activeTab: 'players' | 'matches' | 'shutouts' = 'players';
+  activeTab: 'players' | 'matches' | 'shutouts' = 'matches';
 
   // Data
   players: FriendlyPlayerDto[] = [];
@@ -29,6 +29,11 @@ export class FriendliesViewComponent implements OnInit {
   // Filtered data
   filteredMatches: FriendlyMatchHistoryDto[] = [];
   filteredShutouts: ShutoutResultDto[] = [];
+
+  // Filter state tracking
+  hasActiveFilters: boolean = false;
+  noMatchesFound: boolean = false;
+  noShutoutsFound: boolean = false;
 
   // Player scores cache
   playerScores: Map<number, { scored: number; conceded: number }> = new Map();
@@ -167,12 +172,18 @@ export class FriendliesViewComponent implements OnInit {
 
   // Utility methods
   getDisplayMatches(): FriendlyMatchHistoryDto[] {
+    if (this.hasActiveFilters && this.noMatchesFound) {
+      return [];
+    }
     return this.filteredMatches.length > 0
       ? this.filteredMatches
       : this.matches;
   }
 
   getDisplayShutouts(): ShutoutResultDto[] {
+    if (this.hasActiveFilters && this.noShutoutsFound) {
+      return [];
+    }
     return this.filteredShutouts.length > 0
       ? this.filteredShutouts
       : this.shutouts;
@@ -243,11 +254,20 @@ export class FriendliesViewComponent implements OnInit {
       dateFilter: DateFilter.AllTime,
     };
     this.currentPage = 1;
+    this.hasActiveFilters = false;
+    this.noMatchesFound = false;
+    this.noShutoutsFound = false;
     this.applyFilters();
   }
 
   applyFilters(): void {
     let filtered = [...this.matches];
+
+    // Check if there are active filters
+    this.hasActiveFilters =
+      this.filterForm.dateFilter !== DateFilter.AllTime ||
+      this.filterForm.player1Id !== 0 ||
+      this.filterForm.player2Id !== 0;
 
     // Apply date filter
     if (this.filterForm.dateFilter !== DateFilter.AllTime) {
@@ -313,6 +333,7 @@ export class FriendliesViewComponent implements OnInit {
     );
 
     this.filteredMatches = filtered;
+    this.noMatchesFound = this.hasActiveFilters && filtered.length === 0;
     this.totalPages = Math.ceil(
       this.getDisplayMatches().length / this.itemsPerPage
     );
@@ -385,6 +406,8 @@ export class FriendliesViewComponent implements OnInit {
     );
 
     this.filteredShutouts = filteredShutouts;
+    this.noShutoutsFound =
+      this.hasActiveFilters && filteredShutouts.length === 0;
   }
 
   getPaginatedMatches(): FriendlyMatchHistoryDto[] {

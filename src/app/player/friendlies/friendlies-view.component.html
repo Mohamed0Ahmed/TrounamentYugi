@@ -61,7 +61,7 @@
           class="p-3 rounded-lg bg-gray-700 hover:bg-gray-600"
         >
           <!-- First Row: Name and Total/Difference -->
-          <div class="flex items-center justify-between ">
+          <div class="flex items-center justify-between">
             <h3 class="text-white font-bold text-base">
               {{ player.fullName }}
             </h3>
@@ -199,7 +199,10 @@
       </div>
 
       <!-- Matches Table -->
-      <div *ngIf="!isLoadingMatches" class="overflow-x-auto">
+      <div
+        *ngIf="!isLoadingMatches && (!hasActiveFilters || !noMatchesFound)"
+        class="overflow-x-auto"
+      >
         <table class="w-full text-white">
           <thead class="text-center">
             <tr class="border-b border-gray-600">
@@ -251,7 +254,10 @@
       </div>
 
       <!-- Pagination -->
-      <div *ngIf="totalPages > 1" class="flex justify-center mt-6">
+      <div
+        *ngIf="totalPages > 1 && (!hasActiveFilters || !noMatchesFound)"
+        class="flex justify-center mt-6"
+      >
         <div class="flex space-x-2">
           <button
             class="bg-gray-600 px-3 py-2 text-white rounded hover:bg-gray-700 transition"
@@ -287,7 +293,10 @@
         </div>
       </div>
 
-      <div class="text-center mt-4 text-gray-300">
+      <div
+        *ngIf="!hasActiveFilters || !noMatchesFound"
+        class="text-center mt-4 text-gray-300"
+      >
         Showing {{ (currentPage - 1) * itemsPerPage + 1 }} -
         {{ Math.min(currentPage * itemsPerPage, getDisplayMatches().length) }}
         of {{ getDisplayMatches().length }} matches
@@ -298,7 +307,10 @@
         *ngIf="!isLoadingMatches && getPaginatedMatches().length === 0"
         class="text-center py-8"
       >
-        <p class="text-gray-400">No matches found</p>
+        <p *ngIf="!hasActiveFilters" class="text-gray-400">No matches found</p>
+        <p *ngIf="hasActiveFilters && noMatchesFound" class="text-red-400">
+          No matches found
+        </p>
       </div>
     </div>
 
@@ -315,7 +327,10 @@
       </div>
 
       <!-- Shutouts Table -->
-      <div *ngIf="!isLoadingShutouts" class="overflow-x-auto">
+      <div
+        *ngIf="!isLoadingShutouts && (!hasActiveFilters || !noShutoutsFound)"
+        class="overflow-x-auto"
+      >
         <table class="w-full text-white">
           <thead>
             <tr class="border-b text-center border-gray-600">
@@ -354,7 +369,10 @@
         *ngIf="!isLoadingShutouts && getDisplayShutouts().length === 0"
         class="text-center py-8"
       >
-        <p class="text-gray-400">No shutouts found</p>
+        <p *ngIf="!hasActiveFilters" class="text-gray-400">No shutouts found</p>
+        <p *ngIf="hasActiveFilters && noShutoutsFound" class="text-red-400">
+          No shutouts found
+        </p>
       </div>
     </div>
   </div>
