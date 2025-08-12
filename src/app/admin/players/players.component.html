@@ -159,11 +159,11 @@
         </button>
         <!-- Tournament Stage Button -->
         <button
-          class="bg-purple-600 text-white px-3 py-2 rounded mb-4 hover:bg-purple-700 transition"
+          class="bg-purple-600 text-white px-3 py-2 rounded mb-4 hover:bg-purple-700 transition font-bold"
           *ngIf="showTournamentStageButton && leagueData != null"
           (click)="onTournamentStageButtonClick()"
         >
-          {{ tournamentStageButtonText }}
+          🏆 {{ tournamentStageButtonText }}
         </button>
         <button
           class="bg-indigo-600 text-white px-3 py-2 rounded mb-4 hover:bg-indigo-700 transition"
@@ -188,24 +188,26 @@
         <div
           class="bg-black bg-opacity-50 backdrop-blur-sm shadow-md rounded p-6 text-center"
         >
-          <h3 class="text-lg font-semibold mb-2 text-white">League Type</h3>
-          <p
-            *ngIf="leagueData.typeOfLeague === 0"
-            class="font-bold text-gray-300"
-          >
-            Single
+          <h3 class="text-lg font-semibold mb-2 text-white">نوع البطولة</h3>
+          <p class="font-bold text-gray-300">
+            <span *ngIf="leagueData.typeOfLeague === 0">👤</span>
+            <span *ngIf="leagueData.typeOfLeague === 1">👥</span>
+            <span *ngIf="leagueData.typeOfLeague === 2">🏆</span>
+            {{ getLeagueTypeText(leagueData.typeOfLeague) }}
           </p>
-          <p
-            *ngIf="leagueData.typeOfLeague === 1"
-            class="font-bold text-gray-300"
-          >
-            Multi
-          </p>
-          <p
-            *ngIf="leagueData.typeOfLeague === 2"
-            class="font-bold text-gray-300"
-          >
-            Groups
+        </div>
+        <div
+          class="bg-black bg-opacity-50 backdrop-blur-sm shadow-md rounded p-6 text-center"
+        >
+          <h3 class="text-lg font-semibold mb-2 text-white">نظام البطولة</h3>
+          <p class="font-bold text-gray-300">
+            <span *ngIf="leagueData.systemOfLeague === 0">📊</span>
+            <span *ngIf="leagueData.systemOfLeague === 1">⚔️</span>
+            {{
+              leagueData.systemOfLeague !== undefined
+                ? getSystemTypeText(leagueData.systemOfLeague)
+                : "غير محدد"
+            }}
           </p>
         </div>
         <div
@@ -290,24 +292,10 @@
               </td>
 
               <td class="px-3 py-2 whitespace-nowrap text-white">
-                {{
-                  league.leagueType === 0
-                    ? "Single"
-                    : league.leagueType === 1
-                    ? "Multi"
-                    : league.leagueType === 2
-                    ? "Groups"
-                    : "Unknown"
-                }}
+                {{ getLeagueTypeTextForTable(league.leagueType) }}
               </td>
               <td class="px-3 py-2 whitespace-nowrap text-white">
-                {{
-                  league.systemOfLeague === 0
-                    ? "Points"
-                    : league.systemOfLeague === 1
-                    ? "Classic"
-                    : "Unknown"
-                }}
+                {{ getSystemTypeTextForTable(league.systemOfLeague) }}
               </td>
               <td class="px-3 py-2 whitespace-nowrap text-white">
                 {{ league.createdOn | date : "yyyy/MM/dd" }}

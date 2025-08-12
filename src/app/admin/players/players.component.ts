@@ -10,6 +10,7 @@ import {
   Note,
   TournamentStage,
   LeagueType,
+  SystemOfLeague,
 } from 'src/app/models/interfaces';
 import { ToastrService } from 'ngx-toastr';
 import { LeagueService } from 'src/app/core/services/league.service';
@@ -26,11 +27,14 @@ import { Subscription, interval } from 'rxjs';
   styleUrls: ['./players.component.css'],
 })
 export class PlayersComponent implements OnInit, OnDestroy {
+  // Main data properties
   players: Player[] = [];
   selectedPlayer: Player | null = null;
   playerMatches: Match[] = [];
   displayMatches: Match[] = [];
   notes: Note[] = [];
+
+  // UI state properties
   showModal = false;
   newPlayerName = '';
   isSidebarOpen = false;
@@ -39,9 +43,8 @@ export class PlayersComponent implements OnInit, OnDestroy {
   showDeleteLeagueModal = false;
   showEndLeagueModal = false;
   loadingMatches: { [matchId: number]: boolean } = {};
-  private requestQueue: Array<() => Promise<void>> = [];
-  private isProcessingQueue = false;
-  showResetModal: boolean = false;
+
+  // League management properties
   leagueData: League | null = null;
   showStartLeagueModal: boolean = false;
   newLeague: StartLeagueDto = {
@@ -51,6 +54,8 @@ export class PlayersComponent implements OnInit, OnDestroy {
     systemOfLeague: 0,
     roundsPerMatch: 3, // Default value for Points system
   };
+
+  // Statistics properties
   totalMessagesLeft: number = 0;
   totalPlayers: number = 0;
   totalMatches: number = 0;
@@ -60,11 +65,16 @@ export class PlayersComponent implements OnInit, OnDestroy {
   newNote: string = '';
   selectedLeagueToDelete: AllLeagueRank | null = null;
 
-  // New properties for tournament stage management
+  // Tournament stage management properties
   currentMatches: Match[] = [];
   showTournamentStageButton = false;
   tournamentStageButtonText = '';
   tournamentStageButtonAction: (() => void) | null = null;
+
+  // Queue management properties
+  private requestQueue: Array<() => Promise<void>> = [];
+  private isProcessingQueue = false;
+  showResetModal: boolean = false;
 
   constructor(
     private playerService: PlayerService,
@@ -116,6 +126,20 @@ export class PlayersComponent implements OnInit, OnDestroy {
       },
       error: (err) => {
         this.toastr.error('حدث خطأ أثناء تحميل البيانات');
+      },
+    });
+  }
+
+  // New method to load current matches for tournament stage logic
+  private loadCurrentMatches(): void {
+    this.matchService.getAdminMatches().subscribe({
+      next: (matches) => {
+        this.currentMatches = matches;
+        this.updateTournamentStageButton();
+      },
+      error: (err) => {
+        this.currentMatches = [];
+        this.updateTournamentStageButton(); // Update button state even on error
       },
     });
   }
@@ -473,35 +497,45 @@ export class PlayersComponent implements OnInit, OnDestroy {
     this.showNoteModal = false;
   }
 
-  // New method to load current matches for tournament stage logic
-  private loadCurrentMatches(): void {
-    this.matchService.getAdminMatches().subscribe({
-      next: (matches) => {
-        this.currentMatches = matches;
-        this.updateTournamentStageButton();
-      },
-      error: (err) => {
-        this.currentMatches = [];
-        this.updateTournamentStageButton(); // Update button state even on error
-      },
-    });
-  }
-
   // Method to determine tournament stage and update button
+  // This method checks the current tournament stage and shows appropriate buttons
+  // For Groups type leagues, it shows buttons to progress through tournament stages
   private updateTournamentStageButton(): void {
+    console.log('🔍 updateTournamentStageButton called');
+    console.log('📊 leagueData:', this.leagueData);
+    console.log('👥 totalPlayers:', this.totalPlayers);
+    console.log('⚽ currentMatches:', this.currentMatches);
+
     // Only show button for Groups type leagues
-    if (
-      !this.leagueData ||
-      this.leagueData.typeOfLeague !== LeagueType.Groups
-    ) {
+    if (!this.leagueData) {
+      console.log('❌ No league data available');
       this.showTournamentStageButton = false;
       return;
     }
 
+    console.log('🏆 League type:', this.leagueData.typeOfLeague);
+    console.log('🏆 LeagueType.Groups:', LeagueType.Groups);
+
+    // Check if it's a Groups type league (can be string 'Groups' or number 2)
+    const leagueType = this.leagueData.typeOfLeague as any;
+    const isGroupsLeague =
+      leagueType === LeagueType.Groups ||
+      leagueType === 'Groups' ||
+      leagueType === 2;
+
+    if (!isGroupsLeague) {
+      console.log('❌ Not a Groups type league');
+      this.showTournamentStageButton = false;
+      return;
+    }
+
+    console.log('✅ Confirmed: This is a Groups type league');
+
     // Check if there are players but no matches (need to start group stage)
     if (this.totalPlayers > 0 && this.currentMatches.length === 0) {
+      console.log('✅ Showing start group stage button');
       this.showTournamentStageButton = true;
-      this.tournamentStageButtonText = 'Start Group Stage';
+      this.tournamentStageButtonText = 'ابدأ دور المجموعات';
       this.tournamentStageButtonAction = () => this.startGroupStage();
       return;
     }
@@ -526,6 +560,11 @@ export class PlayersComponent implements OnInit, OnDestroy {
       (m) => m.stage === TournamentStage.Final || m.tournamentStage === 'Final'
     );
 
+    console.log('📊 Group matches:', groupMatches.length);
+    console.log('📊 Quarter matches:', quarterMatches.length);
+    console.log('📊 Semi matches:', semiMatches.length);
+    console.log('📊 Final matches:', finalMatches.length);
+
     // Check if all matches in a stage are completed
     const allGroupMatchesCompleted =
       groupMatches.length > 0 &&
@@ -542,8 +581,9 @@ export class PlayersComponent implements OnInit, OnDestroy {
       allGroupMatchesCompleted &&
       quarterMatches.length === 0
     ) {
+      console.log('✅ Showing start quarter button');
       this.showTournamentStageButton = true;
-      this.tournamentStageButtonText = 'Start Quarter';
+      this.tournamentStageButtonText = 'ابدأ دور ربع النهائي';
       this.tournamentStageButtonAction = () => this.startQuarterStage();
       return;
     }
@@ -554,8 +594,9 @@ export class PlayersComponent implements OnInit, OnDestroy {
       allQuarterMatchesCompleted &&
       semiMatches.length === 0
     ) {
+      console.log('✅ Showing start semi final button');
       this.showTournamentStageButton = true;
-      this.tournamentStageButtonText = 'Start Semi Final';
+      this.tournamentStageButtonText = 'ابدأ دور نصف النهائي';
       this.tournamentStageButtonAction = () => this.startSemiFinalStage();
       return;
     }
@@ -566,19 +607,22 @@ export class PlayersComponent implements OnInit, OnDestroy {
       allSemiMatchesCompleted &&
       finalMatches.length === 0
     ) {
+      console.log('✅ Showing start final button');
       this.showTournamentStageButton = true;
-      this.tournamentStageButtonText = 'Start Final';
+      this.tournamentStageButtonText = 'ابدأ النهائي';
       this.tournamentStageButtonAction = () => this.startFinalStage();
       return;
     }
 
     if (finalMatches.length > 0) {
       // Final stage is active, hide button
+      console.log('🏁 Final stage active, hiding button');
       this.showTournamentStageButton = false;
       return;
     }
 
     // Default: hide button
+    console.log('❌ No button to show');
     this.showTournamentStageButton = false;
   }
 
@@ -668,6 +712,56 @@ export class PlayersComponent implements OnInit, OnDestroy {
   onTournamentStageButtonClick(): void {
     if (this.tournamentStageButtonAction) {
       this.tournamentStageButtonAction();
+    }
+  }
+
+  // Helper method to get readable league type
+  getLeagueTypeText(type: LeagueType): string {
+    switch (type) {
+      case LeagueType.Single:
+        return 'بطولة فردية';
+      case LeagueType.Multi:
+        return 'بطولة متعددة';
+      case LeagueType.Groups:
+        return 'بطولة مجموعات';
+      default:
+        return 'غير محدد';
+    }
+  }
+
+  // Helper method to get readable system type
+  getSystemTypeText(system: SystemOfLeague): string {
+    switch (system) {
+      case SystemOfLeague.Points:
+        return 'نظام النقاط';
+      case SystemOfLeague.Classic:
+        return 'النظام الكلاسيكي';
+      default:
+        return 'غير محدد';
+    }
+  }
+
+  // Helper method to get readable league type for table (handles both string and number)
+  getLeagueTypeTextForTable(leagueType: any): string {
+    if (leagueType === 0 || leagueType === 'Single') {
+      return 'بطولة فردية';
+    } else if (leagueType === 1 || leagueType === 'Multi') {
+      return 'بطولة متعددة';
+    } else if (leagueType === 2 || leagueType === 'Groups') {
+      return 'بطولة مجموعات';
+    } else {
+      return 'غير محدد';
+    }
+  }
+
+  // Helper method to get readable system type for table (handles both string and number)
+  getSystemTypeTextForTable(systemType: any): string {
+    if (systemType === 0 || systemType === 'Points') {
+      return 'نظام النقاط';
+    } else if (systemType === 1 || systemType === 'Classic') {
+      return 'النظام الكلاسيكي';
+    } else {
+      return 'غير محدد';
     }
   }
 }
