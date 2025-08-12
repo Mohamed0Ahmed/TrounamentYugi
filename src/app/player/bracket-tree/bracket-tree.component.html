@@ -1,4 +1,15 @@
 <div class="bracket-container">
+  <!-- رسالة في حالة عدم وجود مباريات إقصائية -->
+  <div
+    *ngIf="!hasQuarterFinals() && !hasSemiFinals() && !hasFinal()"
+    class="no-matches-message"
+  >
+    <h3 class="text-center text-gray-400">لا توجد مباريات إقصائية بعد</h3>
+    <p class="text-center text-gray-500">
+      سيتم عرض المباريات الإقصائية هنا عندما تبدأ مرحلة الإقصاء
+    </p>
+  </div>
+
   <div class="bracket-stage">
     <div class="stage-container" *ngIf="hasQuarterFinals()">
       <h3>Quarter Finals</h3>
@@ -62,7 +73,7 @@
   </div>
 
   <div class="bracket-stage">
-    <div class="stage-container" *ngIf="final()">
+    <div class="stage-container" *ngIf="hasFinal()">
       <h3>Final</h3>
       <div class="matches">
         <div class="match">

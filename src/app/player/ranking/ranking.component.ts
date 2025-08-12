@@ -36,6 +36,7 @@ export class RankingComponent implements OnInit {
         this.updateDrawAnimationState();
       },
       error: (err: any) => {
+        console.error('خطأ في جلب الدوري:', err);
         this.currentLeague = null;
       },
     });
@@ -52,6 +53,7 @@ export class RankingComponent implements OnInit {
         this.updateDrawAnimationState();
       },
       error: (err) => {
+        console.error('خطأ في جلب اللاعبين:', err);
         this.toastr.error('حدث خطا اثناء جلب اللاعبين');
       },
     });
@@ -69,7 +71,8 @@ export class RankingComponent implements OnInit {
     // 2. توجد مجموعات (تم تنفيذ Start Group Stage)
     // 3. كل اللاعبين لم يلعبوا أي مباريات
     const isGroupsTournament =
-      this.currentLeague.typeOfLeague === LeagueType.Groups;
+      this.currentLeague.typeOfLeague === LeagueType.Groups ||
+      String(this.currentLeague.typeOfLeague) === 'Groups';
     const hasGroups = this.players.some((player) => player.groupNumber);
     const noMatchesPlayed = this.players.every(
       (player) => player.matchesPlayed === 0
@@ -80,5 +83,13 @@ export class RankingComponent implements OnInit {
 
   onDrawAnimationComplete(): void {
     this.showDrawAnimation = false;
+  }
+
+  // التحقق من أن البطولة من نوع المجموعات
+  isGroupsTournament(): boolean {
+    return (
+      this.currentLeague?.typeOfLeague === LeagueType.Groups ||
+      String(this.currentLeague?.typeOfLeague) === 'Groups'
+    );
   }
 }

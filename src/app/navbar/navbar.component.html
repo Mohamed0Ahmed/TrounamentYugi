@@ -54,6 +54,13 @@
             🎮 Friendlies
           </a>
           <a
+            routerLink="/player/teams"
+            routerLinkActive="!text-indigo-300 bg-white/10 border-b-2 border-white"
+            class="text-white hover:text-gray-300 hover:bg-gray-700 transition rounded py-2 px-2"
+          >
+            👥 Teams
+          </a>
+          <a
             routerLink="/player/forbidden"
             routerLinkActive="!text-indigo-300 bg-white/10 border-b-2 border-white"
             class="text-white hover:text-gray-300 hover:bg-gray-700 transition rounded py-2 px-2"
@@ -155,6 +162,14 @@
             (click)="closeMenu()"
           >
             🎮 Friendlies
+          </a>
+          <a
+            routerLink="/player/teams"
+            routerLinkActive="!text-indigo-300 bg-white/10 border-b-2 border-white"
+            class="text-white hover:text-gray-300 hover:bg-gray-700 transition rounded py-2 px-2"
+            (click)="closeMenu()"
+          >
+            👥 Teams
           </a>
           <a
             routerLink="/player/forbidden"

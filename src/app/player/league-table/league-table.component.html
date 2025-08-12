@@ -3,8 +3,6 @@
     Games Table
   </h2>
 
-
-
   <div *ngIf="!currentLeague" class="flex justify-center text-gray-500">
     <div class="w-1/2 text-center mt-10">
       <h1
@@ -17,12 +15,12 @@
 
   <!-- عرض مكون مواجهات المجموعات للبطولات من نوع Groups -->
   <app-groups-matches-table
-    *ngIf="currentLeague && currentLeague?.typeOfLeague === LeagueType.Groups"
+    *ngIf="currentLeague && isGroupsTournament()"
   ></app-groups-matches-table>
 
   <!-- عرض الجدول العادي للبطولات الأخرى -->
   <div
-    *ngIf="currentLeague && currentLeague?.typeOfLeague !== LeagueType.Groups"
+    *ngIf="currentLeague && !isGroupsTournament()"
     class="table-container relative overflow-x-auto shadow-md sm:rounded-lg"
   >
     <table class="w-full text-sm text-left rtl:text-right text-gray-400">

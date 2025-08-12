@@ -1,0 +1,493 @@
+<div class="md:container mx-auto">
+  <!-- Teams Tournament Dashboard -->
+  <div class="p-6">
+    <!-- Header -->
+    <div class="mb-6">
+      <h2 class="text-2xl font-bold text-white mb-4">
+        Teams Tournament Management
+      </h2>
+
+      <!-- Quick Actions -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <button
+          class="bg-green-600 text-white p-4 rounded-lg hover:bg-green-700 transition-all"
+          (click)="openCreateTournamentModal()"
+        >
+          <h3 class="text-lg font-bold">Create Tournament</h3>
+          <p class="text-sm">Create a new teams tournament</p>
+        </button>
+
+        <button
+          class="bg-purple-600 text-white p-4 rounded-lg hover:bg-purple-700 transition-all"
+          (click)="showAddPlayerModal = true"
+        >
+          <h3 class="text-lg font-bold">Add Player</h3>
+          <p class="text-sm">Add new player to the pool</p>
+        </button>
+
+        <button
+          class="bg-blue-600 text-white p-4 rounded-lg hover:bg-blue-700 transition-all"
+          routerLink="/admin/friendlies"
+        >
+          <h3 class="text-lg font-bold">👥 Teams Tournament</h3>
+          <p class="text-sm">Manage teams tournament</p>
+        </button>
+
+        <div class="bg-gray-700 p-4 rounded-lg">
+          <h3 class="text-lg font-bold text-white">Statistics</h3>
+          <p class="text-sm text-gray-300">
+            Tournaments: {{ tournaments.length }}
+          </p>
+          <p class="text-sm text-gray-300">
+            Available Players: {{ availablePlayers.length }}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading Tournaments -->
+    <div *ngIf="isLoadingTournaments" class="flex justify-center py-8">
+      <div
+        class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"
+      ></div>
+    </div>
+
+    <!-- Tournaments List -->
+    <div *ngIf="!isLoadingTournaments" class="space-y-4">
+      <h3 class="text-xl font-semibold text-white">All Tournaments</h3>
+
+      <div *ngIf="tournaments.length === 0" class="text-center py-8">
+        <p class="text-gray-400">No tournaments created yet.</p>
+      </div>
+    </div>
+
+    <!-- Tournament Players Section -->
+    <div class="mt-8">
+      <h3 class="text-xl font-semibold text-white mb-4">Tournament Players</h3>
+
+      <div *ngIf="isLoadingPlayers" class="flex justify-center py-8">
+        <div
+          class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"
+        ></div>
+      </div>
+
+      <!-- Players Grid -->
+      <div
+        *ngIf="!isLoadingPlayers && availablePlayers.length > 0"
+        class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+      >
+        <div
+          *ngFor="let player of availablePlayers"
+          class="bg-gray-700 p-4 rounded-lg cursor-pointer hover:bg-gray-600 transition-all border-2 border-gray-600"
+          (click)="selectPlayer(player)"
+        >
+          <div class="text-center">
+            <div class="text-lg font-bold text-white mb-2">
+              {{ player.fullName }}
+            </div>
+            <div class="text-sm text-gray-300">
+              Tournaments: {{ player.multiParticipations }}
+            </div>
+            <div class="text-sm text-gray-300">
+              Titles: {{ player.multiTitlesWon }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div
+        *ngIf="!isLoadingPlayers && availablePlayers.length === 0"
+        class="text-center py-8"
+      >
+        <p class="text-gray-400">No players available. Add players first.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Create Tournament Modal -->
+  <div
+    *ngIf="showCreateTournamentModal"
+    class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75 z-50"
+  >
+    <div class="bg-gray-800 p-6 rounded-lg max-w-md w-full mx-4">
+      <h2 class="text-lg font-bold mb-4 text-white">Create New Tournament</h2>
+
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium mb-1 text-gray-300"
+            >Tournament Name</label
+          >
+          <input
+            type="text"
+            [(ngModel)]="createTournamentForm.name"
+            placeholder="Enter tournament name"
+            class="border border-gray-600 p-2 w-full bg-gray-700 text-white rounded placeholder-gray-400"
+          />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium mb-1 text-gray-300"
+            >Scoring System</label
+          >
+          <select
+            [(ngModel)]="createTournamentForm.systemOfScoring"
+            class="border border-gray-600 p-2 w-full bg-gray-700 text-white rounded"
+          >
+            <option value="Classic">Classic (Win/Draw/Loss)</option>
+            <option value="Points">Points System</option>
+          </select>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium mb-1 text-gray-300"
+              >Teams Count</label
+            >
+            <input
+              type="number"
+              [(ngModel)]="createTournamentForm.teamCount"
+              min="2"
+              max="16"
+              class="border border-gray-600 p-2 w-full bg-gray-700 text-white rounded"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1 text-gray-300"
+              >Players per Team</label
+            >
+            <input
+              type="number"
+              [(ngModel)]="createTournamentForm.playersPerTeam"
+              min="1"
+              max="10"
+              class="border border-gray-600 p-2 w-full bg-gray-700 text-white rounded"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div class="flex justify-end space-x-4 mt-6">
+        <button
+          (click)="closeCreateTournamentModal()"
+          class="bg-gray-600 px-4 py-2 text-white rounded hover:bg-gray-700 transition"
+        >
+          Cancel
+        </button>
+        <button
+          (click)="createTournament()"
+          [disabled]="isCreatingTournament || !createTournamentForm.name.trim()"
+          class="bg-green-600 px-4 py-2 text-white rounded hover:bg-green-700 transition disabled:opacity-50"
+        >
+          {{ isCreatingTournament ? "Creating..." : "Create Tournament" }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Create Team Modal -->
+  <div
+    *ngIf="showCreateTeamModal"
+    class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75 z-50"
+  >
+    <div
+      class="bg-gray-800 p-6 rounded-lg max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto"
+    >
+      <h2 class="text-lg font-bold mb-4 text-white">
+        Create Team for {{ activeTournament?.name }}
+      </h2>
+
+      <div class="mb-4">
+        <label class="block text-sm font-medium mb-1 text-gray-300"
+          >Team Name</label
+        >
+        <input
+          type="text"
+          [(ngModel)]="createTeamForm.teamName"
+          placeholder="Enter team name"
+          class="border border-gray-600 p-2 w-full bg-gray-700 text-white rounded placeholder-gray-400"
+        />
+      </div>
+
+      <div class="mb-4">
+        <label class="block text-sm font-medium mb-2 text-gray-300">
+          Select Players ({{ createTeamForm.playerIds.length }}/{{
+            activeTournament?.playersPerTeam
+          }})
+        </label>
+
+        <!-- Loading Players -->
+        <div *ngIf="isLoadingPlayers" class="flex justify-center py-4">
+          <div
+            class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"
+          ></div>
+        </div>
+
+        <!-- No Players Message -->
+        <div
+          *ngIf="!isLoadingPlayers && availablePlayers.length === 0"
+          class="text-center py-4 text-gray-400"
+        >
+          No players available. Add players first.
+        </div>
+
+        <!-- Players Grid -->
+        <div
+          *ngIf="!isLoadingPlayers && availablePlayers.length > 0"
+          class="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-60 overflow-y-auto"
+        >
+          <div
+            *ngFor="let player of availablePlayers"
+            (click)="togglePlayerSelection(player.playerId)"
+            class="p-3 rounded border cursor-pointer transition-all"
+            [class.bg-blue-600]="isPlayerSelected(player.playerId)"
+            [class.border-blue-500]="isPlayerSelected(player.playerId)"
+            [class.bg-gray-700]="!isPlayerSelected(player.playerId)"
+            [class.border-gray-600]="!isPlayerSelected(player.playerId)"
+          >
+            <div class="text-white font-medium">{{ player.fullName }}</div>
+            <div class="text-xs text-gray-300">
+              Tournaments: {{ player.multiParticipations }} | Titles:
+              {{ player.multiTitlesWon }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex justify-end space-x-4 mt-6">
+        <button
+          (click)="closeCreateTeamModal()"
+          class="bg-gray-600 px-4 py-2 text-white rounded hover:bg-gray-700 transition"
+        >
+          Cancel
+        </button>
+        <button
+          (click)="createTeam()"
+          [disabled]="
+            isCreatingTeam ||
+            !createTeamForm.teamName.trim() ||
+            createTeamForm.playerIds.length !== activeTournament?.playersPerTeam
+          "
+          class="bg-blue-600 px-4 py-2 text-white rounded hover:bg-blue-700 transition disabled:opacity-50"
+        >
+          {{ isCreatingTeam ? "Creating..." : "Create Team" }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Player Modal -->
+  <div
+    *ngIf="showAddPlayerModal"
+    class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75 z-50"
+  >
+    <div class="bg-gray-800 p-6 rounded-lg max-w-md w-full mx-4">
+      <h2 class="text-lg font-bold mb-4 text-white">Add New Player</h2>
+
+      <input
+        type="text"
+        [(ngModel)]="newPlayerName"
+        placeholder="Enter player name"
+        class="border border-gray-600 p-2 w-full bg-gray-700 text-white rounded placeholder-gray-400"
+      />
+
+      <div class="flex justify-end space-x-4 mt-6">
+        <button
+          (click)="showAddPlayerModal = false"
+          class="bg-gray-600 px-4 py-2 text-white rounded hover:bg-gray-700 transition"
+        >
+          Cancel
+        </button>
+        <button
+          (click)="addNewPlayer()"
+          [disabled]="isAddingPlayer || !newPlayerName.trim()"
+          class="bg-purple-600 px-4 py-2 text-white rounded hover:bg-purple-700 transition disabled:opacity-50"
+        >
+          {{ isAddingPlayer ? "Adding..." : "Add Player" }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Record Match Result Modal -->
+  <div
+    *ngIf="showRecordResultModal"
+    class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75 z-50"
+  >
+    <div class="bg-gray-800 p-6 rounded-lg max-w-md w-full mx-4">
+      <h2 class="text-lg font-bold mb-4 text-white">Record Match Result</h2>
+
+      <div class="grid grid-cols-2 gap-4 mb-4">
+        <div>
+          <label class="block text-sm font-medium mb-1 text-gray-300"
+            >{{ getPlayerName(selectedPlayer1Id) }}
+          </label>
+          <input
+            type="number"
+            [(ngModel)]="recordingScore1"
+            min="0"
+            class="w-full px-3 py-2 border border-gray-600 bg-gray-700 text-white rounded"
+          />
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1 text-gray-300"
+            >{{ getPlayerName(selectedPlayer2Id) }}
+          </label>
+          <input
+            type="number"
+            [(ngModel)]="recordingScore2"
+            min="0"
+            class="w-full px-3 py-2 border border-gray-600 bg-gray-700 text-white rounded"
+          />
+        </div>
+      </div>
+
+      <div
+        *ngIf="activeTournament?.systemOfScoring === 'Classic'"
+        class="mb-4 text-xs text-gray-400"
+      >
+        Classic System: Winner will be determined automatically based on scores
+      </div>
+
+      <div class="flex justify-end space-x-4">
+        <button
+          (click)="closeRecordResultModal()"
+          class="bg-gray-600 px-4 py-2 text-white rounded hover:bg-gray-700 transition"
+        >
+          Cancel
+        </button>
+        <button
+          (click)="recordMatchResult()"
+          [disabled]="
+            isRecordingResult ||
+            recordingScore1 === null ||
+            recordingScore2 === null
+          "
+          class="bg-green-600 px-4 py-2 text-white rounded hover:bg-green-700 transition disabled:opacity-50"
+        >
+          {{ isRecordingResult ? "Recording..." : "Record Result" }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Player Matches Modal -->
+  <div
+    *ngIf="showPlayerMatchesModal"
+    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+  >
+    <div
+      class="bg-gray-800 rounded-lg p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto"
+    >
+      <!-- Modal Header -->
+      <div class="flex justify-between items-center mb-6">
+        <h3 class="text-2xl font-bold text-white">
+          Matches for {{ selectedPlayer?.fullName }}
+        </h3>
+        <button
+          (click)="closePlayerMatchesModal()"
+          class="text-gray-400 hover:text-white text-2xl font-bold transition-colors"
+        >
+          ×
+        </button>
+      </div>
+
+      <!-- Loading State -->
+      <div *ngIf="isLoadingMatches" class="flex justify-center py-8">
+        <div
+          class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"
+        ></div>
+      </div>
+
+      <!-- Matches List -->
+      <div
+        *ngIf="
+          !isLoadingMatches &&
+          getPlayerMatches(selectedPlayer?.playerId || 0).length > 0
+        "
+        class="space-y-4"
+      >
+        <div
+          *ngFor="let match of getPlayerMatches(selectedPlayer?.playerId || 0)"
+          class="bg-gray-700 rounded-lg p-4"
+        >
+          <div class="flex justify-between items-center">
+            <div class="flex-1">
+              <span class="text-white font-semibold">{{
+                match.player1Name
+              }}</span>
+            </div>
+
+            <div class="px-4 text-center">
+              <div *ngIf="match.isCompleted" class="font-bold text-lg">
+                <span
+                  [class]="
+                    (match.score1 || 0) > (match.score2 || 0)
+                      ? 'text-green-400'
+                      : (match.score1 || 0) < (match.score2 || 0)
+                      ? 'text-red-400'
+                      : 'text-yellow-400'
+                  "
+                >
+                  {{ match.score1 || 0 }}
+                </span>
+                <span class="text-white mx-2">-</span>
+                <span
+                  [class]="
+                    (match.score2 || 0) > (match.score1 || 0)
+                      ? 'text-green-400'
+                      : (match.score2 || 0) < (match.score1 || 0)
+                      ? 'text-red-400'
+                      : 'text-yellow-400'
+                  "
+                >
+                  {{ match.score2 || 0 }}
+                </span>
+              </div>
+              <div *ngIf="!match.isCompleted" class="text-gray-400 text-sm">
+                Pending
+                <button
+                  *ngIf="activeTournament?.status === 'Started'"
+                  (click)="openRecordResultModal(match)"
+                  class="ml-2 bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded text-xs transition-all"
+                >
+                  Record
+                </button>
+              </div>
+            </div>
+
+            <!-- Undo Button for completed matches -->
+            <div
+              *ngIf="
+                match.isCompleted && activeTournament?.status === 'Started'
+              "
+              class="ml-2"
+            >
+              <button
+                (click)="undoMatchResult(match)"
+                class="bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded text-xs transition-all"
+              >
+                Undo
+              </button>
+            </div>
+            <div class="flex-1 text-right">
+              <span class="text-white font-semibold">{{
+                match.player2Name
+              }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- No Matches Message -->
+      <div
+        *ngIf="
+          !isLoadingMatches &&
+          getPlayerMatches(selectedPlayer?.playerId || 0).length === 0
+        "
+        class="text-center py-8"
+      >
+        <p class="text-gray-400">No matches found for this player.</p>
+      </div>
+    </div>
+  </div>
+</div>

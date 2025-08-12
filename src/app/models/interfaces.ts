@@ -89,6 +89,8 @@ export interface StartLeagueDto {
   description: string;
   typeOfLeague: LeagueType;
   systemOfLeague: SystemOfLeague;
+  // Optional: applies when SystemOfLeague = Points
+  roundsPerMatch?: number;
 }
 
 export enum LeagueType {
@@ -140,4 +142,129 @@ export interface AllLeagueRank {
   groups: Group[] | null;
   matches: Match[] | null;
   knockoutMatches: Match[] | null;
+}
+
+// Multi-Tournament Types
+export type SystemOfScoring = 'Classic' | 'Points';
+export type TournamentStatus = 'Created' | 'Started' | 'Finished';
+
+export interface Tournament {
+  multiTournamentId: number;
+  name: string;
+  systemOfScoring: SystemOfScoring;
+  teamCount: number;
+  playersPerTeam: number;
+  status: TournamentStatus;
+  isActive: boolean;
+  createdOn: string;
+  startedOn?: string;
+  finishedOn?: string;
+  championTeamId?: number;
+  championTeamName?: string;
+  teams: Team[];
+}
+
+export interface Team {
+  multiTeamId: number;
+  teamName: string;
+  totalPoints: number;
+  wins: number;
+  draws: number;
+  losses: number;
+  createdOn: string;
+  players: MultiPlayer[];
+}
+
+export interface MultiPlayer {
+  playerId: number;
+  fullName: string;
+  isActive: boolean;
+  createdOn: string;
+  multiParticipations: number;
+  multiTitlesWon: number;
+}
+
+export interface MultiMatch {
+  multiMatchId: number;
+  team1Id: number;
+  team1Name: string;
+  team2Id: number;
+  team2Name: string;
+  player1Id: number;
+  player1Name: string;
+  player2Id: number;
+  player2Name: string;
+  score1?: number;
+  score2?: number;
+  totalPoints1?: number;
+  totalPoints2?: number;
+  isCompleted: boolean;
+  completedOn?: string;
+}
+
+export interface MatchFixture {
+  team1Id: number;
+  team1Name: string;
+  team2Id: number;
+  team2Name: string;
+  matches: MultiMatch[];
+}
+
+export interface Standings {
+  tournamentId: number;
+  tournamentName: string;
+  status: string;
+  championTeamId?: number;
+  standings: TeamStanding[];
+}
+
+export interface TeamStanding {
+  position: number;
+  multiTeamId: number;
+  teamName: string;
+  totalPoints: number;
+  wins: number;
+  draws: number;
+  losses: number;
+  matchesPlayed: number;
+}
+
+// Request DTOs
+export interface CreateTournamentRequest {
+  name: string;
+  systemOfScoring: SystemOfScoring;
+  teamCount: number;
+  playersPerTeam: number;
+}
+
+export interface UpdateTournamentStatusRequest {
+  status: TournamentStatus;
+}
+
+export interface CreateTeamRequest {
+  teamName: string;
+  playerIds: number[];
+}
+
+export interface UpdateTeamRequest {
+  teamName?: string;
+  playerIds?: number[];
+}
+
+export interface MatchResultRequest {
+  score1?: number;
+  score2?: number;
+  totalPoints1?: number;
+  totalPoints2?: number;
+}
+
+export interface AddPlayerRequest {
+  fullName: string;
+}
+
+// API Response
+export interface ApiResponse<T = any> {
+  success: boolean;
+  message: string;
+  data?: T;
 }

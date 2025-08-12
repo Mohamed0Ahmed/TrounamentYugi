@@ -78,7 +78,11 @@ export class NavbarComponent implements OnInit, AfterViewInit {
 
   getNotes(): void {
     this.noteService.getNotes().subscribe((response) => {
-      this.notes = response.notes.filter((n) => n.isHidden == false);
+      // Handle if response.notes is wrapped in an object or not an array
+      const notes = Array.isArray(response.notes)
+        ? response.notes
+        : (response.notes as any)?.data || [];
+      this.notes = notes.filter((n: Note) => n.isHidden == false);
       // Recalculate height after notes change
       setTimeout(() => this.calculateNavbarHeight(), 50);
     });

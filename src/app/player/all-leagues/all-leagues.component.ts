@@ -37,11 +37,8 @@ export class AllLeaguesComponent implements OnInit {
   ngOnInit(): void {
     this.leagueService.GetAllLeaguesRank().subscribe({
       next: (response) => {
-        // console.log(response);
-
         if (response) {
           this.leaguesRank = this.sortLeaguesForDisplay(response);
-          // console.log('All leagues data loaded from cache or server');
         } else {
           this.toastr.error(response);
         }
@@ -56,7 +53,6 @@ export class AllLeaguesComponent implements OnInit {
   onCarouselChanged(event: any): void {
     if (event && event.startPosition !== undefined) {
       this.currentSlideIndex = event.startPosition;
-      
     }
   }
 
@@ -220,7 +216,7 @@ export class AllLeaguesComponent implements OnInit {
     if (!league) return [];
 
     // للدوريات العادية، نرجع matches
-    if (league.leagueType !== 2) {
+    if (!this.isGroupsTournament(league.leagueType)) {
       return league.matches || [];
     }
 
@@ -266,5 +262,10 @@ export class AllLeaguesComponent implements OnInit {
   isLastSlide(): boolean {
     if (this.leaguesRank.length === 0) return true;
     return this.currentSlideIndex >= this.leaguesRank.length - 1;
+  }
+
+  // التحقق من أن البطولة من نوع المجموعات
+  isGroupsTournament(leagueType: any): boolean {
+    return leagueType === 2 || leagueType === 'Groups';
   }
 }

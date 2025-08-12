@@ -53,7 +53,11 @@ export class LeagueGroupsPreviewComponent implements OnInit {
 
   // التحقق من أن البطولة من نوع المجموعات
   isGroupsTournament(): boolean {
-    return this.leagueType === LeagueType.Groups;
+    return (
+      this.leagueType === LeagueType.Groups ||
+      this.leagueType === 2 ||
+      String(this.leagueType) === 'Groups'
+    );
   }
 
   // الحصول على نتيجة المباراة بين لاعبين

@@ -32,7 +32,7 @@ export class GroupsTableComponent implements OnInit {
         this.currentLeague = response.league;
       },
       error: (err: any) => {
-
+        console.error('Groups Table - خطأ في جلب الدوري:', err);
         this.currentLeague = null;
       },
     });
@@ -47,8 +47,8 @@ export class GroupsTableComponent implements OnInit {
         );
       },
       error: (err) => {
+        console.error('Groups Table - خطأ في جلب اللاعبين:', err);
         this.toastr.error('حدث خطأ أثناء جلب اللاعبين');
-
       },
     });
   }
@@ -57,29 +57,15 @@ export class GroupsTableComponent implements OnInit {
   getGroupedPlayers(): { [groupNumber: number]: Player[] } {
     const groupedPlayers: { [groupNumber: number]: Player[] } = {};
 
-    // تجميع اللاعبين حسب groupNumber من الخادم
+    // تجميع اللاعبين حسب groupNumber من الخادم فقط
     this.players.forEach((player) => {
-      if (player.groupNumber) {
+      if (player.groupNumber && player.groupNumber > 0) {
         if (!groupedPlayers[player.groupNumber]) {
           groupedPlayers[player.groupNumber] = [];
         }
         groupedPlayers[player.groupNumber].push(player);
       }
     });
-
-    // إذا لم يكن هناك groupNumber، استخدم التقسيم المحلي كاحتياطي
-    if (Object.keys(groupedPlayers).length === 0) {
-      const sortedPlayers = [...this.players].sort(
-        (a, b) => b.points - a.points
-      );
-      sortedPlayers.forEach((player, index) => {
-        const groupNumber = (index % 4) + 1;
-        if (!groupedPlayers[groupNumber]) {
-          groupedPlayers[groupNumber] = [];
-        }
-        groupedPlayers[groupNumber].push(player);
-      });
-    }
 
     // ترتيب اللاعبين في كل مجموعة حسب النقاط
     Object.keys(groupedPlayers).forEach((groupKey) => {
@@ -106,8 +92,9 @@ export class GroupsTableComponent implements OnInit {
 
   // التحقق من أن البطولة من نوع المجموعات
   isGroupsTournament(): boolean {
-    return this.currentLeague?.typeOfLeague === LeagueType.Groups;
+    return (
+      this.currentLeague?.typeOfLeague === LeagueType.Groups ||
+      String(this.currentLeague?.typeOfLeague) === 'Groups'
+    );
   }
-
-
 }

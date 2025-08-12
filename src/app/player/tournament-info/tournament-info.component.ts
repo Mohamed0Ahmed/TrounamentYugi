@@ -28,7 +28,7 @@ export class TournamentInfoComponent implements OnInit {
         this.currentLeague = response.league;
       },
       error: (err: any) => {
-
+        console.error('Tournament Info - خطأ في جلب الدوري:', err);
         this.currentLeague = null;
       },
     });
@@ -60,7 +60,10 @@ export class TournamentInfoComponent implements OnInit {
 
   // التحقق من أن البطولة من نوع المجموعات
   isGroupsTournament(): boolean {
-    return this.currentLeague?.typeOfLeague === LeagueType.Groups;
+    return (
+      this.currentLeague?.typeOfLeague === LeagueType.Groups ||
+      String(this.currentLeague?.typeOfLeague) === 'Groups'
+    );
   }
 
   // الحصول على تاريخ البطولة

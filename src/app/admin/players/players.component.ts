@@ -49,6 +49,7 @@ export class PlayersComponent implements OnInit, OnDestroy {
     description: '',
     typeOfLeague: 0,
     systemOfLeague: 0,
+    roundsPerMatch: 3, // Default value for Points system
   };
   totalMessagesLeft: number = 0;
   totalPlayers: number = 0;
@@ -347,6 +348,7 @@ export class PlayersComponent implements OnInit, OnDestroy {
       description: '',
       typeOfLeague: 0,
       systemOfLeague: 0,
+      roundsPerMatch: 3, // Default value for Points system
     };
   }
 
@@ -357,6 +359,18 @@ export class PlayersComponent implements OnInit, OnDestroy {
   startLeague(): void {
     if (!this.newLeague.name.trim()) {
       this.toastr.error('League name is required', 'Error');
+      return;
+    }
+
+    // Validate rounds per match for Points system
+    if (
+      this.newLeague.systemOfLeague === 0 &&
+      (!this.newLeague.roundsPerMatch || this.newLeague.roundsPerMatch < 1)
+    ) {
+      this.toastr.error(
+        'Rounds per match is required for Points system and must be at least 1',
+        'Error'
+      );
       return;
     }
 

@@ -40,7 +40,7 @@ export class FriendliesViewComponent implements OnInit {
 
   // Pagination
   currentPage = 1;
-  itemsPerPage = 10;
+  itemsPerPage = 20;
   totalPages = 0;
   Math = Math; // Make Math available in template
 

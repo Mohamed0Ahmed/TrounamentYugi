@@ -1,0 +1,144 @@
+/* Teams Dashboard Styles */
+:host {
+  display: block;
+  width: 100%;
+}
+
+.teams-dashboard {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+}
+
+.tournament-card {
+  transition: all 0.3s ease;
+  border: 1px solid transparent;
+}
+
+.tournament-card:hover {
+  border-color: #3b82f6;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+.status-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.status-created {
+  background-color: #fbbf24;
+  color: #1f2937;
+}
+
+.status-started {
+  background-color: #10b981;
+  color: #ffffff;
+}
+
+.status-finished {
+  background-color: #3b82f6;
+  color: #ffffff;
+}
+
+.team-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.5rem;
+  background-color: #3b82f6;
+  color: #ffffff;
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.action-button {
+  transition: all 0.2s ease;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+}
+
+.action-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.action-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.match-card {
+  background-color: #374151;
+  border: 1px solid #4b5563;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  transition: all 0.2s ease;
+}
+
+.match-card:hover {
+  background-color: #4b5563;
+  border-color: #6b7280;
+}
+
+.score-display {
+  font-family: "Courier New", monospace;
+  font-weight: bold;
+  font-size: 1.125rem;
+}
+
+.player-name {
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.modal-overlay {
+  backdrop-filter: blur(4px);
+}
+
+.loading-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.grid-responsive {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+@media (max-width: 768px) {
+  .grid-responsive {
+    grid-template-columns: 1fr;
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

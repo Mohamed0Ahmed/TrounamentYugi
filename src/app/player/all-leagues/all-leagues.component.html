@@ -8,14 +8,14 @@
       (click)="previousSlide()"
       [disabled]="isFirstSlide()"
     >
-      <i class="fa-solid fa-chevron-left mr-2"></i>Prev
+      <i class="fa-solid fa-chevron-left mr-2"></i>Next
     </button>
     <button
       class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-all disabled:bg-gray-500 disabled:cursor-not-allowed disabled:opacity-50"
       (click)="nextSlide()"
       [disabled]="isLastSlide()"
     >
-      Next<i class="fa-solid fa-chevron-right ml-2"></i>
+      Prev<i class="fa-solid fa-chevron-right ml-2"></i>
     </button>
   </div>
 
@@ -25,7 +25,6 @@
     (changed)="onCarouselChanged($event)"
     (initialized)="currentSlideIndex = 0"
     (dragged)="onCarouselChanged($event)"
-  
   >
     <ng-container *ngFor="let league of leaguesRank">
       <ng-template carouselSlide>
@@ -93,7 +92,10 @@
           </p>
 
           <!-- زر عرض المباريات الإقصائية للبطولات من نوع Groups -->
-          <div *ngIf="league.leagueType === 2" class="mt-4 text-center">
+          <div
+            *ngIf="isGroupsTournament(league.leagueType)"
+            class="mt-4 text-center"
+          >
             <button
               class="px-4 py-2 bg-purple-600 hover:bg-purple-700 transition-all text-white rounded-lg font-semibold"
               (click)="openKnockoutModal(league.leagueId)"
@@ -104,7 +106,7 @@
 
           <!-- عرض معاينة المجموعات للبطولات من نوع Groups -->
           <app-league-groups-preview
-            *ngIf="league.leagueType === 2"
+            *ngIf="isGroupsTournament(league.leagueType)"
             [groups]="league.groups || []"
             [matches]="getLeagueMatches(league.leagueId)"
             [systemOfLeague]="league.systemOfLeague"
@@ -114,14 +116,14 @@
 
           <!-- عرض شجرة البطولة الإقصائية -->
           <div
-            *ngIf="league.leagueType === 2 && showKnockoutMatches"
+            *ngIf="isGroupsTournament(league.leagueType) && showKnockoutMatches"
             class="mt-4"
           >
             <app-bracket-tree [leagueId]="league.leagueId"></app-bracket-tree>
           </div>
 
           <div
-            *ngIf="league.leagueType !== 2"
+            *ngIf="!isGroupsTournament(league.leagueType)"
             class="relative overflow-x-auto shadow-md sm:rounded-lg"
           >
             <button

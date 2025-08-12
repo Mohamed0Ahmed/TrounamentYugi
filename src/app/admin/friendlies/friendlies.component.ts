@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FriendlyMatchService } from '../../core/services/friendly-match.service';
 import { FriendlyMessageService } from '../../core/services/friendly-message.service';
+
 import { ToastrService } from 'ngx-toastr';
 import { DateFilter } from 'friendly-match-types';
 import { calculateUnreadCount } from 'friendly-message-types';
@@ -11,6 +12,9 @@ import { calculateUnreadCount } from 'friendly-message-types';
   styleUrls: ['./friendlies.component.css'],
 })
 export class FriendliesComponent implements OnInit {
+  // Tab management
+  activeTab: 'friendlies' = 'friendlies';
+
   // Sidebar state
   isSidebarOpen = false;
 
@@ -26,8 +30,8 @@ export class FriendliesComponent implements OnInit {
   selectedPlayerToDelete: any = null;
   selectedPlayerForMatch: any = null;
 
-  // Form data
-  newPlayerName = '';
+  // Form data (for friendly matches)
+  friendlyPlayerName = '';
   matchForm = {
     player1Id: 0,
     player2Id: 0,
@@ -81,7 +85,6 @@ export class FriendliesComponent implements OnInit {
         } else {
           this.totalUnreadFriendlyMessages = 0;
         }
-        console.log(this.totalUnreadFriendlyMessages);
       },
       error: (error: any) => {
         console.error('Error loading unread friendly messages count:', error);
@@ -156,30 +159,30 @@ export class FriendliesComponent implements OnInit {
     });
   }
 
-  // Modal methods
+  // Modal methods (for friendly players)
   openModal(): void {
     this.showModal = true;
-    this.newPlayerName = '';
+    this.friendlyPlayerName = '';
   }
 
   closeModal(): void {
     this.showModal = false;
-    this.newPlayerName = '';
+    this.friendlyPlayerName = '';
   }
 
   addPlayer(): void {
-    if (!this.newPlayerName.trim()) {
+    if (!this.friendlyPlayerName.trim()) {
       this.toastr.warning('الرجاء إدخال اسم اللاعب', 'تحذير');
       return;
     }
 
     this.friendlyMatchService
-      .addFriendlyPlayerAsync(this.newPlayerName)
+      .addFriendlyPlayerAsync(this.friendlyPlayerName)
       .subscribe({
         next: (response: any) => {
           if (response.success) {
             this.toastr.success(
-              `تم إضافة اللاعب ${this.newPlayerName} بنجاح`,
+              `تم إضافة اللاعب ${this.friendlyPlayerName} بنجاح`,
               'تم الإضافة'
             );
             // Refresh cache and reload players

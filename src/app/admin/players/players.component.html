@@ -137,6 +137,12 @@
           </div>
         </button>
         <button
+          routerLink="/admin/teams-dashboard"
+          class="bg-blue-600 hover:bg-blue-700 text-white mb-4 px-3 py-2 rounded transition-all"
+        >
+          👥 Teams Tournament
+        </button>
+        <button
           class="bg-green-600 text-white px-3 py-2 rounded mb-4 hover:bg-green-700 transition"
           (click)="openStartLeagueModal()"
           *ngIf="leagueData == null"
@@ -471,6 +477,23 @@
           <option [ngValue]="0">Points</option>
           <option [ngValue]="1">Classic</option>
         </select>
+      </div>
+      <!-- Rounds Per Match field - only shown when Points system is selected -->
+      <div class="mb-4" *ngIf="newLeague.systemOfLeague === 0">
+        <label class="block text-sm font-medium mb-1 text-gray-300"
+          >Rounds Per Match</label
+        >
+        <input
+          type="number"
+          [(ngModel)]="newLeague.roundsPerMatch"
+          min="1"
+          max="10"
+          class="border border-gray-600 p-2 w-full rounded bg-gray-800 text-white placeholder-gray-400"
+          placeholder="Enter number of rounds per match (e.g., 3)"
+        />
+        <small class="text-gray-400 text-xs mt-1 block">
+          Number of rounds each player will play in a match (Points system only)
+        </small>
       </div>
       <div class="mt-4 flex justify-end">
         <button

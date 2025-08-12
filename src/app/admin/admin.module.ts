@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 
 import { AdminRoutingModule } from './admin-routing.module';
 import { PlayersComponent } from './players/players.component';
@@ -12,6 +13,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { UtcToLocalPipe } from '../pipes/utcToLocal.pipe';
 import { PlayerModule } from '../player/player.module';
 import { SharedModule } from '../shared/shared.module';
+import { TeamsDashboardComponent } from './teams-dashboard/teams-dashboard.component';
 
 @NgModule({
   declarations: [
@@ -21,10 +23,12 @@ import { SharedModule } from '../shared/shared.module';
     FriendlyInboxComponent,
     FindPlayerPipe,
     UtcToLocalPipe,
+    TeamsDashboardComponent,
   ],
   imports: [
     CommonModule,
     AdminRoutingModule,
+    RouterModule,
     FormsModule,
     HttpClientModule,
     PlayerModule,

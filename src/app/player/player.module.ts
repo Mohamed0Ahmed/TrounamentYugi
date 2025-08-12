@@ -17,6 +17,7 @@ import { SharedModule } from '../shared/shared.module';
 import { BracketTreeComponent } from './bracket-tree/bracket-tree.component';
 import { GroupDrawAnimationComponent } from './group-draw-animation/group-draw-animation.component';
 import { FriendliesViewComponent } from './friendlies/friendlies-view.component';
+import { TeamsComponent } from './teams/teams.component';
 
 @NgModule({
   declarations: [
@@ -31,6 +32,7 @@ import { FriendliesViewComponent } from './friendlies/friendlies-view.component'
     PlayerInboxComponent,
     GroupDrawAnimationComponent,
     FriendliesViewComponent,
+    TeamsComponent,
   ],
   imports: [
     CommonModule,

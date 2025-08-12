@@ -75,7 +75,7 @@ export class LeagueTableComponent implements OnInit {
         this.currentLeague = response.league;
       },
       error: (err: any) => {
-
+        console.error('League Table - خطأ في جلب الدوري:', err);
         this.currentLeague = null;
       },
     });
@@ -157,6 +157,14 @@ export class LeagueTableComponent implements OnInit {
   highlightColumn(playerId: number) {
     this.highlightedColumn =
       this.highlightedColumn === playerId ? null : playerId;
+  }
+
+  // التحقق من أن البطولة من نوع المجموعات
+  isGroupsTournament(): boolean {
+    return (
+      this.currentLeague?.typeOfLeague === LeagueType.Groups ||
+      String(this.currentLeague?.typeOfLeague) === 'Groups'
+    );
   }
   @HostListener('document:click', ['$event'])
   onClickOutside(event: Event) {
