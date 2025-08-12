@@ -25,14 +25,6 @@
           <p class="text-sm">Add new player to the pool</p>
         </button>
 
-        <button
-          class="bg-blue-600 text-white p-4 rounded-lg hover:bg-blue-700 transition-all"
-          routerLink="/admin/friendlies"
-        >
-          <h3 class="text-lg font-bold">👥 Teams Tournament</h3>
-          <p class="text-sm">Manage teams tournament</p>
-        </button>
-
         <div class="bg-gray-700 p-4 rounded-lg">
           <h3 class="text-lg font-bold text-white">Statistics</h3>
           <p class="text-sm text-gray-300">
@@ -78,18 +70,12 @@
       >
         <div
           *ngFor="let player of availablePlayers"
-          class="bg-gray-700 p-4 rounded-lg cursor-pointer hover:bg-gray-600 transition-all border-2 border-gray-600"
+          class="bg-black bg-opacity-50 p-4 rounded-lg cursor-pointer hover:bg-gray-400 transition-all border-2 border-gray-600"
           (click)="selectPlayer(player)"
         >
           <div class="text-center">
-            <div class="text-lg font-bold text-white mb-2">
+            <div class="text-base font-bold text-white">
               {{ player.fullName }}
-            </div>
-            <div class="text-sm text-gray-300">
-              Tournaments: {{ player.multiParticipations }}
-            </div>
-            <div class="text-sm text-gray-300">
-              Titles: {{ player.multiTitlesWon }}
             </div>
           </div>
         </div>
