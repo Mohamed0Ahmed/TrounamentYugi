@@ -19,7 +19,6 @@ import {
   AdminDashboardService,
   AdminDashboardData,
 } from 'src/app/core/services/admin-dashboard.service';
-import { Subscription, interval } from 'rxjs';
 
 @Component({
   selector: 'app-players',
@@ -92,19 +91,6 @@ export class PlayersComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {}
 
-  private loadCurrentLeagueFromServer(): void {
-    this.leagueService.getAdminCurrentLeague().subscribe({
-      next: (data) => {
-        this.leagueData = data.league;
-        this.updateTournamentStageButton(); // Update button state when league data changes
-      },
-      error: (err) => {
-        this.leagueData = null;
-        this.updateTournamentStageButton(); // Update button state when league data changes
-      },
-    });
-  }
-
   private loadEssentialData(): void {
     this.adminDashboardService.getEssentialData().subscribe({
       next: (data: AdminDashboardData) => {
@@ -112,7 +98,8 @@ export class PlayersComponent implements OnInit, OnDestroy {
         this.players = data.players;
         this.currentMatches = data.matches;
         this.leagueData = data.currentLeague;
-        this.leagues = data.allLeagues;
+        this.leagues = data.allLeagues.reverse();
+
         this.notes = data.notes;
 
         // ✅ عرض إحصائيات كاملة بما فيها عدد الرسائل
@@ -126,20 +113,6 @@ export class PlayersComponent implements OnInit, OnDestroy {
       },
       error: (err) => {
         this.toastr.error('حدث خطأ أثناء تحميل البيانات');
-      },
-    });
-  }
-
-  // New method to load current matches for tournament stage logic
-  private loadCurrentMatches(): void {
-    this.matchService.getAdminMatches().subscribe({
-      next: (matches) => {
-        this.currentMatches = matches;
-        this.updateTournamentStageButton();
-      },
-      error: (err) => {
-        this.currentMatches = [];
-        this.updateTournamentStageButton(); // Update button state even on error
       },
     });
   }
@@ -501,20 +474,11 @@ export class PlayersComponent implements OnInit, OnDestroy {
   // This method checks the current tournament stage and shows appropriate buttons
   // For Groups type leagues, it shows buttons to progress through tournament stages
   private updateTournamentStageButton(): void {
-    console.log('🔍 updateTournamentStageButton called');
-    console.log('📊 leagueData:', this.leagueData);
-    console.log('👥 totalPlayers:', this.totalPlayers);
-    console.log('⚽ currentMatches:', this.currentMatches);
-
     // Only show button for Groups type leagues
     if (!this.leagueData) {
-      console.log('❌ No league data available');
       this.showTournamentStageButton = false;
       return;
     }
-
-    console.log('🏆 League type:', this.leagueData.typeOfLeague);
-    console.log('🏆 LeagueType.Groups:', LeagueType.Groups);
 
     // Check if it's a Groups type league (can be string 'Groups' or number 2)
     const leagueType = this.leagueData.typeOfLeague as any;
@@ -524,16 +488,12 @@ export class PlayersComponent implements OnInit, OnDestroy {
       leagueType === 2;
 
     if (!isGroupsLeague) {
-      console.log('❌ Not a Groups type league');
       this.showTournamentStageButton = false;
       return;
     }
 
-    console.log('✅ Confirmed: This is a Groups type league');
-
     // Check if there are players but no matches (need to start group stage)
     if (this.totalPlayers > 0 && this.currentMatches.length === 0) {
-      console.log('✅ Showing start group stage button');
       this.showTournamentStageButton = true;
       this.tournamentStageButtonText = 'ابدأ دور المجموعات';
       this.tournamentStageButtonAction = () => this.startGroupStage();
@@ -560,11 +520,6 @@ export class PlayersComponent implements OnInit, OnDestroy {
       (m) => m.stage === TournamentStage.Final || m.tournamentStage === 'Final'
     );
 
-    console.log('📊 Group matches:', groupMatches.length);
-    console.log('📊 Quarter matches:', quarterMatches.length);
-    console.log('📊 Semi matches:', semiMatches.length);
-    console.log('📊 Final matches:', finalMatches.length);
-
     // Check if all matches in a stage are completed
     const allGroupMatchesCompleted =
       groupMatches.length > 0 &&
@@ -581,7 +536,6 @@ export class PlayersComponent implements OnInit, OnDestroy {
       allGroupMatchesCompleted &&
       quarterMatches.length === 0
     ) {
-      console.log('✅ Showing start quarter button');
       this.showTournamentStageButton = true;
       this.tournamentStageButtonText = 'ابدأ دور ربع النهائي';
       this.tournamentStageButtonAction = () => this.startQuarterStage();
@@ -594,7 +548,6 @@ export class PlayersComponent implements OnInit, OnDestroy {
       allQuarterMatchesCompleted &&
       semiMatches.length === 0
     ) {
-      console.log('✅ Showing start semi final button');
       this.showTournamentStageButton = true;
       this.tournamentStageButtonText = 'ابدأ دور نصف النهائي';
       this.tournamentStageButtonAction = () => this.startSemiFinalStage();
@@ -607,7 +560,6 @@ export class PlayersComponent implements OnInit, OnDestroy {
       allSemiMatchesCompleted &&
       finalMatches.length === 0
     ) {
-      console.log('✅ Showing start final button');
       this.showTournamentStageButton = true;
       this.tournamentStageButtonText = 'ابدأ النهائي';
       this.tournamentStageButtonAction = () => this.startFinalStage();
@@ -616,13 +568,12 @@ export class PlayersComponent implements OnInit, OnDestroy {
 
     if (finalMatches.length > 0) {
       // Final stage is active, hide button
-      console.log('🏁 Final stage active, hiding button');
+
       this.showTournamentStageButton = false;
       return;
     }
 
     // Default: hide button
-    console.log('❌ No button to show');
     this.showTournamentStageButton = false;
   }
 
@@ -763,5 +714,58 @@ export class PlayersComponent implements OnInit, OnDestroy {
     } else {
       return 'غير محدد';
     }
+  }
+
+  // دالة جديدة لتحديد الفائز بناءً على نوع البطولة
+  getWinnerForLeague(league: AllLeagueRank): string {
+    // إذا كانت البطولة من نوع المجموعات
+    if (
+      league.leagueType === 2 ||
+      league.leagueType === LeagueType.Groups ||
+      String(league.leagueType) === 'Groups'
+    ) {
+      // البحث عن ماتش الفاينال في knockoutMatches
+      if (league.knockoutMatches && league.knockoutMatches.length > 0) {
+        const finalMatch = league.knockoutMatches.find((match) => {
+          const stage = match.stage || match.tournamentStage;
+          return stage === 'Final';
+        });
+
+        if (finalMatch && finalMatch.isCompleted && finalMatch.winnerId) {
+          // البحث عن اسم الفائز
+          if (finalMatch.winnerId === finalMatch.player1Id) {
+            return finalMatch.player1Name;
+          } else if (finalMatch.winnerId === finalMatch.player2Id) {
+            return finalMatch.player2Name;
+          }
+        }
+      }
+
+      // إذا لم نجد فائز في الفاينال، نبحث في الماتشات العادية
+      if (league.matches && league.matches.length > 0) {
+        const finalMatch = league.matches.find((match) => {
+          const stage = match.stage || match.tournamentStage;
+          return stage === 'Final';
+        });
+
+        if (finalMatch && finalMatch.isCompleted && finalMatch.winnerId) {
+          if (finalMatch.winnerId === finalMatch.player1Id) {
+            return finalMatch.player1Name;
+          } else if (finalMatch.winnerId === finalMatch.player2Id) {
+            return finalMatch.player2Name;
+          }
+        }
+      }
+
+      // إذا لم نجد فائز بعد، نعود للطريقة القديمة
+      return league.players && league.players.length > 0
+        ? league.players[0].fullName
+        : 'No Winner Yet';
+    }
+
+    // للبطولات الأخرى (فردية أو متعددة)، نستخدم الطريقة القديمة
+    return league.players && league.players.length > 0
+      ? league.players[0].fullName
+      : 'No Winner Yet';
   }
 }

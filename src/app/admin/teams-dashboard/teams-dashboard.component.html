@@ -34,6 +34,16 @@
             Available Players: {{ availablePlayers.length }}
           </p>
         </div>
+
+        <div class="bg-blue-700 p-4 rounded-lg">
+          <h3 class="text-lg font-bold text-white">Active Tournament</h3>
+          <p class="text-sm text-gray-300" *ngIf="activeTournament">
+            {{ activeTournament.name }}
+          </p>
+          <p class="text-sm text-gray-300" *ngIf="!activeTournament">
+            No active tournament
+          </p>
+        </div>
       </div>
     </div>
 
@@ -50,6 +60,136 @@
 
       <div *ngIf="tournaments.length === 0" class="text-center py-8">
         <p class="text-gray-400">No tournaments created yet.</p>
+      </div>
+
+      <!-- Tournaments Grid -->
+      <div
+        *ngIf="tournaments.length > 0"
+        class="grid grid-cols-1 lg:grid-cols-2 gap-6"
+      >
+        <div
+          *ngFor="let tournament of tournaments"
+          class="bg-gray-800 rounded-lg p-6 border border-gray-700"
+        >
+          <!-- Tournament Header -->
+          <div class="flex justify-between items-start mb-4">
+            <div>
+              <h4 class="text-xl font-bold text-white mb-2">
+                {{ tournament.name }}
+              </h4>
+              <div class="flex items-center space-x-4 text-sm">
+                <span class="text-gray-300"
+                  >Status:
+                  <span [class]="getStatusColor(tournament.status)">{{
+                    tournament.status
+                  }}</span></span
+                >
+                <span class="text-gray-300"
+                  >Teams: {{ tournament.teams.length }}/{{
+                    tournament.teamCount
+                  }}</span
+                >
+                <span class="text-gray-300"
+                  >Players per team: {{ tournament.playersPerTeam }}</span
+                >
+              </div>
+            </div>
+            <div class="text-right">
+              <span class="text-sm text-gray-400">{{
+                tournament.systemOfScoring
+              }}</span>
+            </div>
+          </div>
+
+          <!-- Tournament Actions -->
+          <div class="flex flex-wrap gap-2 mb-4">
+            <!-- Create Team Button -->
+            <button
+              *ngIf="
+                tournament.status === 'Created' &&
+                getRemainingTeams(tournament) > 0
+              "
+              (click)="openCreateTeamModal(tournament)"
+              class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm transition-all"
+            >
+              Create Team ({{ getRemainingTeams(tournament) }} remaining)
+            </button>
+
+            <!-- Start Tournament Button -->
+            <button
+              *ngIf="canStartTournament(tournament)"
+              (click)="startTournament(tournament)"
+              class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm transition-all"
+            >
+              Start Tournament
+            </button>
+
+            <!-- Finish Tournament Button -->
+            <button
+              *ngIf="canFinishTournament(tournament)"
+              (click)="finishTournament(tournament)"
+              class="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded text-sm transition-all"
+            >
+              Finish Tournament
+            </button>
+
+            <!-- Delete Tournament Button -->
+            <button
+              *ngIf="canDeleteTournament(tournament)"
+              (click)="deleteTournament(tournament)"
+              class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded text-sm transition-all"
+            >
+              Delete Tournament
+            </button>
+          </div>
+
+          <!-- Teams List -->
+          <div *ngIf="tournament.teams.length > 0" class="mb-4">
+            <h5 class="text-lg font-semibold text-white mb-3">Teams</h5>
+            <div class="space-y-2">
+              <div
+                *ngFor="let team of tournament.teams"
+                class="bg-gray-700 rounded p-3"
+              >
+                <div class="font-medium text-white mb-2">
+                  {{ team.teamName }}
+                </div>
+                <div class="text-sm text-gray-300">
+                  Players: {{ getTeamPlayersNames(team) }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- No Teams Message -->
+          <div *ngIf="tournament.teams.length === 0" class="text-center py-4">
+            <p class="text-gray-400">No teams created yet.</p>
+            <p class="text-sm text-gray-500">
+              Create teams to start the tournament
+            </p>
+          </div>
+
+          <!-- Tournament Progress -->
+          <div class="mt-4 pt-4 border-t border-gray-700">
+            <div class="flex justify-between text-sm text-gray-400">
+              <span>Progress</span>
+              <span
+                >{{
+                  (tournament.teams.length / tournament.teamCount) * 100
+                    | number : "1.0-0"
+                }}%</span
+              >
+            </div>
+            <div class="w-full bg-gray-700 rounded-full h-2 mt-1">
+              <div
+                class="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                [style.width.%]="
+                  (tournament.teams.length / tournament.teamCount) * 100
+                "
+              ></div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -234,6 +374,13 @@
             <div class="text-xs text-gray-300">
               Tournaments: {{ player.multiParticipations }} | Titles:
               {{ player.multiTitlesWon }}
+            </div>
+            <!-- Selection Indicator -->
+            <div
+              *ngIf="isPlayerSelected(player.playerId)"
+              class="text-blue-200 text-xs mt-1"
+            >
+              ✓ Selected
             </div>
           </div>
         </div>

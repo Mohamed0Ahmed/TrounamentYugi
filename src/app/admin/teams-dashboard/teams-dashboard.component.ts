@@ -9,6 +9,7 @@ import {
   AddPlayerDto,
   TeamMatchesDto,
   MatchDetail,
+  TeamDetail,
   ApiResponse,
 } from '../../core/services/multi-tournament.service';
 
@@ -316,7 +317,7 @@ export class TeamsDashboardComponent implements OnInit {
       .subscribe({
         next: (response: ApiResponse) => {
           if (response.success) {
-            this.toastr.success('تم إنشاء الفريق بنجاح', 'نجاح');
+            this.toastr.success(`تم إنشاء الفريق "${this.createTeamForm.teamName}" بنجاح`, 'نجاح');
             this.loadTournaments();
             this.closeCreateTeamModal();
           } else {
@@ -557,5 +558,13 @@ export class TeamsDashboardComponent implements OnInit {
 
     const player = this.availablePlayers.find((p) => p.playerId === playerId);
     return player ? player.fullName : 'Unknown Player';
+  }
+
+  // Get Team Players Names
+  getTeamPlayersNames(team: TeamDetail): string {
+    if (!team.players || team.players.length === 0) {
+      return 'No players';
+    }
+    return team.players.map(p => p.fullName).join(', ');
   }
 }
