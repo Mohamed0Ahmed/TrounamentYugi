@@ -23,7 +23,9 @@ export class TeamsDashboardComponent implements OnInit {
   tournaments: MultiTournamentDto[] = [];
   activeTournament: MultiTournamentDto | null = null;
   availablePlayers: PlayerDetail[] = [];
+  filteredPlayers: PlayerDetail[] = [];
   tournamentMatches: TeamMatchesDto[] = [];
+  filteredPlayerMatches: MatchDetail[] = [];
   selectedPlayer: PlayerDetail | null = null;
 
   // Modals
@@ -32,6 +34,16 @@ export class TeamsDashboardComponent implements OnInit {
   showAddPlayerModal = false;
   showRecordResultModal = false;
   showPlayerMatchesModal = false;
+
+  // Confirmation Modals
+  showConfirmStartTournamentModal = false;
+  showConfirmFinishTournamentModal = false;
+  showConfirmDeleteTournamentModal = false;
+  showConfirmUndoMatchModal = false;
+
+  // Confirmation Data
+  tournamentToConfirm: MultiTournamentDto | null = null;
+  matchToUndo: MatchDetail | null = null;
 
   // Forms
   createTournamentForm: CreateTournamentDto = {
@@ -47,6 +59,8 @@ export class TeamsDashboardComponent implements OnInit {
   };
 
   newPlayerName = '';
+  playerSearchTerm = '';
+  opponentSearchTerm = '';
 
   // Match Recording
   selectedMatchId: number | null = null;
@@ -179,6 +193,7 @@ export class TeamsDashboardComponent implements OnInit {
       next: (response: ApiResponse<PlayerDetail[]>) => {
         if (response.success && response.data) {
           this.availablePlayers = response.data.filter((p) => p.isActive);
+          this.filteredPlayers = [...this.availablePlayers];
         }
         this.isLoadingPlayers = false;
       },
@@ -200,6 +215,12 @@ export class TeamsDashboardComponent implements OnInit {
       next: (response: ApiResponse<TeamMatchesDto[]>) => {
         if (response.success && response.data) {
           this.tournamentMatches = response.data;
+          // Initialize filtered player matches if a player is selected
+          if (this.selectedPlayer) {
+            this.filteredPlayerMatches = this.getPlayerMatches(
+              this.selectedPlayer.playerId || 0
+            );
+          }
         }
         this.isLoadingMatches = false;
       },
@@ -213,81 +234,89 @@ export class TeamsDashboardComponent implements OnInit {
 
   // Start Tournament
   startTournament(tournament: MultiTournamentDto): void {
-    if (confirm(`هل أنت متأكد من بدء البطولة "${tournament.name}"؟`)) {
-      this.multiTournamentService
-        .startTournament(tournament.multiTournamentId)
-        .subscribe({
-          next: (response: ApiResponse) => {
-            if (response.success) {
-              this.toastr.success('تم بدء البطولة بنجاح', 'نجاح');
-              this.loadTournaments();
-            } else {
-              this.toastr.error(
-                response.message || 'فشل في بدء البطولة',
-                'خطأ'
-              );
-            }
-          },
-          error: (error) => {
-            console.error('Error starting tournament:', error);
-            this.toastr.error('خطأ في بدء البطولة', 'خطأ');
-          },
-        });
-    }
+    this.openConfirmStartTournamentModal(tournament);
+  }
+
+  // Confirm and Start Tournament
+  confirmStartTournament(): void {
+    if (!this.tournamentToConfirm) return;
+
+    this.multiTournamentService
+      .startTournament(this.tournamentToConfirm.multiTournamentId)
+      .subscribe({
+        next: (response: ApiResponse) => {
+          if (response.success) {
+            this.toastr.success('تم بدء البطولة بنجاح', 'نجاح');
+            this.loadTournaments();
+            this.closeConfirmStartTournamentModal();
+          } else {
+            this.toastr.error(response.message || 'فشل في بدء البطولة', 'خطأ');
+          }
+        },
+        error: (error) => {
+          console.error('Error starting tournament:', error);
+          this.toastr.error('خطأ في بدء البطولة', 'خطأ');
+        },
+      });
   }
 
   // Finish Tournament
   finishTournament(tournament: MultiTournamentDto): void {
-    if (confirm(`هل أنت متأكد من إنهاء البطولة "${tournament.name}"؟`)) {
-      this.multiTournamentService
-        .finishTournament(tournament.multiTournamentId)
-        .subscribe({
-          next: (response: ApiResponse) => {
-            if (response.success) {
-              this.toastr.success('تم إنهاء البطولة بنجاح', 'نجاح');
-              this.loadTournaments();
-            } else {
-              this.toastr.error(
-                response.message || 'فشل في إنهاء البطولة',
-                'خطأ'
-              );
-            }
-          },
-          error: (error) => {
-            console.error('Error finishing tournament:', error);
-            this.toastr.error('خطأ في إنهاء البطولة', 'خطأ');
-          },
-        });
-    }
+    this.openConfirmFinishTournamentModal(tournament);
+  }
+
+  // Confirm and Finish Tournament
+  confirmFinishTournament(): void {
+    if (!this.tournamentToConfirm) return;
+
+    this.multiTournamentService
+      .finishTournament(this.tournamentToConfirm.multiTournamentId)
+      .subscribe({
+        next: (response: ApiResponse) => {
+          if (response.success) {
+            this.toastr.success('تم إنهاء البطولة بنجاح', 'نجاح');
+            this.loadTournaments();
+            this.closeConfirmFinishTournamentModal();
+          } else {
+            this.toastr.error(
+              response.message || 'فشل في إنهاء البطولة',
+              'خطأ'
+            );
+          }
+        },
+        error: (error) => {
+          console.error('Error finishing tournament:', error);
+          this.toastr.error('خطأ في إنهاء البطولة', 'خطأ');
+        },
+      });
   }
 
   // Delete Tournament
   deleteTournament(tournament: MultiTournamentDto): void {
-    if (
-      confirm(
-        `هل أنت متأكد من حذف البطولة "${tournament.name}"؟ سيتم حذف كل البيانات المرتبطة بها.`
-      )
-    ) {
-      this.multiTournamentService
-        .deleteTournament(tournament.multiTournamentId)
-        .subscribe({
-          next: (response: ApiResponse) => {
-            if (response.success) {
-              this.toastr.success('تم حذف البطولة بنجاح', 'نجاح');
-              this.loadTournaments();
-            } else {
-              this.toastr.error(
-                response.message || 'فشل في حذف البطولة',
-                'خطأ'
-              );
-            }
-          },
-          error: (error) => {
-            console.error('Error deleting tournament:', error);
-            this.toastr.error('خطأ في حذف البطولة', 'خطأ');
-          },
-        });
-    }
+    this.openConfirmDeleteTournamentModal(tournament);
+  }
+
+  // Confirm and Delete Tournament
+  confirmDeleteTournament(): void {
+    if (!this.tournamentToConfirm) return;
+
+    this.multiTournamentService
+      .deleteTournament(this.tournamentToConfirm.multiTournamentId)
+      .subscribe({
+        next: (response: ApiResponse) => {
+          if (response.success) {
+            this.toastr.success('تم حذف البطولة بنجاح', 'نجاح');
+            this.loadTournaments();
+            this.closeConfirmDeleteTournamentModal();
+          } else {
+            this.toastr.error(response.message || 'فشل في حذف البطولة', 'خطأ');
+          }
+        },
+        error: (error) => {
+          console.error('Error deleting tournament:', error);
+          this.toastr.error('خطأ في حذف البطولة', 'خطأ');
+        },
+      });
   }
 
   // Create Team
@@ -317,7 +346,10 @@ export class TeamsDashboardComponent implements OnInit {
       .subscribe({
         next: (response: ApiResponse) => {
           if (response.success) {
-            this.toastr.success(`تم إنشاء الفريق "${this.createTeamForm.teamName}" بنجاح`, 'نجاح');
+            this.toastr.success(
+              `تم إنشاء الفريق "${this.createTeamForm.teamName}" بنجاح`,
+              'نجاح'
+            );
             this.loadTournaments();
             this.closeCreateTeamModal();
           } else {
@@ -440,28 +472,34 @@ export class TeamsDashboardComponent implements OnInit {
   }
 
   undoMatchResult(match: MatchDetail): void {
-    if (confirm('هل أنت متأكد من إلغاء نتيجة هذه المباراة؟')) {
-      this.multiTournamentService
-        .undoMatchResult(match.multiMatchId)
-        .subscribe({
-          next: (response: ApiResponse) => {
-            if (response.success) {
-              this.toastr.success('تم إلغاء نتيجة المباراة بنجاح', 'نجاح');
-              this.loadTournaments();
-              this.loadTournamentMatches();
-            } else {
-              this.toastr.error(
-                response.message || 'فشل في إلغاء النتيجة',
-                'خطأ'
-              );
-            }
-          },
-          error: (error) => {
-            console.error('Error undoing match result:', error);
-            this.toastr.error('خطأ في إلغاء نتيجة المباراة', 'خطأ');
-          },
-        });
-    }
+    this.openConfirmUndoMatchModal(match);
+  }
+
+  // Confirm and Undo Match Result
+  confirmUndoMatchResult(): void {
+    if (!this.matchToUndo) return;
+
+    this.multiTournamentService
+      .undoMatchResult(this.matchToUndo.multiMatchId)
+      .subscribe({
+        next: (response: ApiResponse) => {
+          if (response.success) {
+            this.toastr.success('تم إلغاء نتيجة المباراة بنجاح', 'نجاح');
+            this.loadTournaments();
+            this.loadTournamentMatches();
+            this.closeConfirmUndoMatchModal();
+          } else {
+            this.toastr.error(
+              response.message || 'فشل في إلغاء النتيجة',
+              'خطأ'
+            );
+          }
+        },
+        error: (error) => {
+          console.error('Error undoing match result:', error);
+          this.toastr.error('خطأ في إلغاء نتيجة المباراة', 'خطأ');
+        },
+      });
   }
 
   // Modal Controls
@@ -486,6 +524,47 @@ export class TeamsDashboardComponent implements OnInit {
     this.selectedPlayer2Id = null;
     this.recordingScore1 = null;
     this.recordingScore2 = null;
+  }
+
+  // Confirmation Modal Controls
+  openConfirmStartTournamentModal(tournament: MultiTournamentDto): void {
+    this.tournamentToConfirm = tournament;
+    this.showConfirmStartTournamentModal = true;
+  }
+
+  closeConfirmStartTournamentModal(): void {
+    this.showConfirmStartTournamentModal = false;
+    this.tournamentToConfirm = null;
+  }
+
+  openConfirmFinishTournamentModal(tournament: MultiTournamentDto): void {
+    this.tournamentToConfirm = tournament;
+    this.showConfirmFinishTournamentModal = true;
+  }
+
+  closeConfirmFinishTournamentModal(): void {
+    this.showConfirmFinishTournamentModal = false;
+    this.tournamentToConfirm = null;
+  }
+
+  openConfirmDeleteTournamentModal(tournament: MultiTournamentDto): void {
+    this.tournamentToConfirm = tournament;
+    this.showConfirmDeleteTournamentModal = true;
+  }
+
+  closeConfirmDeleteTournamentModal(): void {
+    this.showConfirmDeleteTournamentModal = false;
+    this.tournamentToConfirm = null;
+  }
+
+  openConfirmUndoMatchModal(match: MatchDetail): void {
+    this.matchToUndo = match;
+    this.showConfirmUndoMatchModal = true;
+  }
+
+  closeConfirmUndoMatchModal(): void {
+    this.showConfirmUndoMatchModal = false;
+    this.matchToUndo = null;
   }
 
   getTrophyIcon(position: number): string {
@@ -529,6 +608,7 @@ export class TeamsDashboardComponent implements OnInit {
   // Player Selection
   selectPlayer(player: PlayerDetail): void {
     this.selectedPlayer = player;
+    this.opponentSearchTerm = '';
     this.showPlayerMatchesModal = true;
     this.loadTournamentMatches();
   }
@@ -561,10 +641,48 @@ export class TeamsDashboardComponent implements OnInit {
   }
 
   // Get Team Players Names
-  getTeamPlayersNames(team: TeamDetail): string {
+  getTeamPlayersNames(team: TeamDetail): string[] {
     if (!team.players || team.players.length === 0) {
-      return 'No players';
+      return ['No players'];
     }
-    return team.players.map(p => p.fullName).join(', ');
+    return team.players.map((p) => p.fullName);
+  }
+
+  // Filter Players by Search Term
+  filterPlayers(): void {
+    if (!this.playerSearchTerm || this.playerSearchTerm.trim() === '') {
+      this.filteredPlayers = [...this.availablePlayers];
+    } else {
+      const searchTerm = this.playerSearchTerm.trim();
+      this.filteredPlayers = this.availablePlayers.filter((player) =>
+        player.fullName.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+  }
+
+  // Filter Player Matches by Opponent Name
+  filterPlayerMatches(): void {
+    if (!this.selectedPlayer) return;
+
+    const allMatches = this.getPlayerMatches(this.selectedPlayer.playerId || 0);
+
+    if (!this.opponentSearchTerm || this.opponentSearchTerm.trim() === '') {
+      this.filteredPlayerMatches = allMatches;
+    } else {
+      const searchTerm = this.opponentSearchTerm.trim();
+      this.filteredPlayerMatches = allMatches.filter((match) => {
+        const player1Name = match.player1Name?.toLowerCase() || '';
+        const player2Name = match.player2Name?.toLowerCase() || '';
+        const searchLower = searchTerm.toLowerCase();
+
+        // Search in both player names (excluding the selected player)
+        if (match.player1Id === this.selectedPlayer?.playerId) {
+          return player2Name.includes(searchLower);
+        } else if (match.player2Id === this.selectedPlayer?.playerId) {
+          return player1Name.includes(searchLower);
+        }
+        return false;
+      });
+    }
   }
 }

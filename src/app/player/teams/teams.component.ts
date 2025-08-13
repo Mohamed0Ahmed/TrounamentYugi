@@ -20,6 +20,7 @@ export class TeamsComponent implements OnInit {
   // Team Matches Modal
   showTeamMatchesModal = false;
   selectedTeam: any = null;
+  selectedOpponent: any = null;
   teamMatches: TeamMatchesDto[] = [];
   isLoadingMatches = false;
 
@@ -144,31 +145,44 @@ export class TeamsComponent implements OnInit {
   }
 
   // Team Matches Modal Methods
-  showTeamMatches(team: any): void {
+  showTeamMatches(team: any, opponent: any): void {
     this.selectedTeam = team;
+    this.selectedOpponent = opponent;
     this.showTeamMatchesModal = true;
-    this.loadTeamMatches(team);
+    this.loadTeamMatches(team, opponent);
   }
 
   closeTeamMatchesModal(): void {
     this.showTeamMatchesModal = false;
     this.selectedTeam = null;
+    this.selectedOpponent = null;
     this.teamMatches = [];
   }
 
-  private loadTeamMatches(team: any): void {
+  private loadTeamMatches(team: any, opponent: any): void {
     if (!this.activeTournament || !this.tournamentMatches) return;
 
     this.isLoadingMatches = true;
 
-    // Filter matches where the selected team is involved
+    // Filter matches between the selected team and opponent
     this.teamMatches = this.tournamentMatches.filter((fixture) => {
       const team1Name = fixture.team1Name;
       const team2Name = fixture.team2Name;
-      return team1Name === team.teamName || team2Name === team.teamName;
+      return (
+        (team1Name === team.teamName && team2Name === opponent.teamName) ||
+        (team1Name === opponent.teamName && team2Name === team.teamName)
+      );
     });
 
     this.isLoadingMatches = false;
+  }
+
+  // Get all opponents for a team (excluding the team itself)
+  getTeamOpponents(team: any): any[] {
+    if (!this.activeTournament) return [];
+    return this.activeTournament.teams.filter(
+      (t) => t.teamName !== team.teamName
+    );
   }
 
   // Archive Methods

@@ -65,11 +65,11 @@
       <!-- Tournaments Grid -->
       <div
         *ngIf="tournaments.length > 0"
-        class="grid grid-cols-1 lg:grid-cols-2 gap-6"
+        class="grid grid-cols-1 lg:grid-cols-1 gap-6"
       >
         <div
           *ngFor="let tournament of tournaments"
-          class="bg-gray-800 rounded-lg p-6 border border-gray-700"
+          class="bg-black bg-opacity-50 rounded-lg p-6 border border-gray-700"
         >
           <!-- Tournament Header -->
           <div class="flex justify-between items-start mb-4">
@@ -92,12 +92,10 @@
                 <span class="text-gray-300"
                   >Players per team: {{ tournament.playersPerTeam }}</span
                 >
+                <span class="text-sm text-gray-300"
+                  >Scoring System: {{ tournament.systemOfScoring }}</span
+                >
               </div>
-            </div>
-            <div class="text-right">
-              <span class="text-sm text-gray-400">{{
-                tournament.systemOfScoring
-              }}</span>
             </div>
           </div>
 
@@ -146,16 +144,21 @@
           <!-- Teams List -->
           <div *ngIf="tournament.teams.length > 0" class="mb-4">
             <h5 class="text-lg font-semibold text-white mb-3">Teams</h5>
-            <div class="space-y-2">
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
               <div
                 *ngFor="let team of tournament.teams"
-                class="bg-gray-700 rounded p-3"
+                class="bg-black bg-opacity-80 rounded p-3"
               >
-                <div class="font-medium text-white mb-2">
+                <div class="font-medium text-white mb-2 text-center">
                   {{ team.teamName }}
                 </div>
-                <div class="text-sm text-gray-300">
-                  Players: {{ getTeamPlayersNames(team) }}
+                <div class="text-sm text-gray-300 grid grid-cols-3 gap-2">
+                  <span
+                    *ngFor="let playerName of getTeamPlayersNames(team)"
+                    class="px-2 py-2 text-center items-center justify-center flex bg-black bg-opacity-50 border border-gray-600 rounded-full text-white text-xs"
+                  >
+                    {{ playerName }}
+                  </span>
                 </div>
               </div>
             </div>
@@ -197,6 +200,36 @@
     <div class="mt-8">
       <h3 class="text-xl font-semibold text-white mb-4">Tournament Players</h3>
 
+      <!-- Search Bar -->
+      <div class="mb-4">
+        <div class="relative">
+          <input
+            type="text"
+            [(ngModel)]="playerSearchTerm"
+            (input)="filterPlayers()"
+            placeholder="Search players by name..."
+            class="w-full px-4 py-2 pl-10 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          />
+          <div
+            class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
+          >
+            <svg
+              class="h-5 w-5 text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              ></path>
+            </svg>
+          </div>
+        </div>
+      </div>
+
       <div *ngIf="isLoadingPlayers" class="flex justify-center py-8">
         <div
           class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"
@@ -205,11 +238,11 @@
 
       <!-- Players Grid -->
       <div
-        *ngIf="!isLoadingPlayers && availablePlayers.length > 0"
+        *ngIf="!isLoadingPlayers && filteredPlayers.length > 0"
         class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
       >
         <div
-          *ngFor="let player of availablePlayers"
+          *ngFor="let player of filteredPlayers"
           class="bg-black bg-opacity-50 p-4 rounded-lg cursor-pointer hover:bg-gray-400 transition-all border-2 border-gray-600"
           (click)="selectPlayer(player)"
         >
@@ -222,10 +255,21 @@
       </div>
 
       <div
-        *ngIf="!isLoadingPlayers && availablePlayers.length === 0"
+        *ngIf="!isLoadingPlayers && filteredPlayers.length === 0"
         class="text-center py-8"
       >
-        <p class="text-gray-400">No players available. Add players first.</p>
+        <p
+          class="text-gray-400"
+          *ngIf="playerSearchTerm && playerSearchTerm.trim() !== ''"
+        >
+          No players found matching "{{ playerSearchTerm }}"
+        </p>
+        <p
+          class="text-gray-400"
+          *ngIf="!playerSearchTerm || playerSearchTerm.trim() === ''"
+        >
+          No players available. Add players first.
+        </p>
       </div>
     </div>
   </div>
@@ -509,117 +553,362 @@
     class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
   >
     <div
-      class="bg-gray-800 rounded-lg p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto"
+      class="bg-black bg-opacity-50 rounded-lg w-full max-w-4xl max-h-[90vh] overflow-hidden relative"
     >
-      <!-- Modal Header -->
-      <div class="flex justify-between items-center mb-6">
-        <h3 class="text-2xl font-bold text-white">
-          Matches for {{ selectedPlayer?.fullName }}
-        </h3>
-        <button
-          (click)="closePlayerMatchesModal()"
-          class="text-gray-400 hover:text-white text-2xl font-bold transition-colors"
-        >
-          ×
-        </button>
-      </div>
-
-      <!-- Loading State -->
-      <div *ngIf="isLoadingMatches" class="flex justify-center py-8">
-        <div
-          class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"
-        ></div>
-      </div>
-
-      <!-- Matches List -->
-      <div
-        *ngIf="
-          !isLoadingMatches &&
-          getPlayerMatches(selectedPlayer?.playerId || 0).length > 0
-        "
-        class="space-y-4"
+      <!-- Fixed Close Button -->
+      <button
+        (click)="closePlayerMatchesModal()"
+        class="absolute top-4 right-6 z-10 text-white hover:text-white text-2xl font-bold transition-colors bg-black bg-opacity-50 rounded-full w-8 h-8 flex items-center justify-center hover:bg-opacity-75"
       >
-        <div
-          *ngFor="let match of getPlayerMatches(selectedPlayer?.playerId || 0)"
-          class="bg-gray-700 rounded-lg p-4"
-        >
-          <div class="flex justify-between items-center">
-            <div class="flex-1">
-              <span class="text-white font-semibold">{{
-                match.player1Name
-              }}</span>
-            </div>
+        ×
+      </button>
 
-            <div class="px-4 text-center">
-              <div *ngIf="match.isCompleted" class="font-bold text-lg">
-                <span
-                  [class]="
-                    (match.score1 || 0) > (match.score2 || 0)
-                      ? 'text-green-400'
-                      : (match.score1 || 0) < (match.score2 || 0)
-                      ? 'text-red-400'
-                      : 'text-yellow-400'
-                  "
-                >
-                  {{ match.score1 || 0 }}
-                </span>
-                <span class="text-white mx-2">-</span>
-                <span
-                  [class]="
-                    (match.score2 || 0) > (match.score1 || 0)
-                      ? 'text-green-400'
-                      : (match.score2 || 0) < (match.score1 || 0)
-                      ? 'text-red-400'
-                      : 'text-yellow-400'
-                  "
-                >
-                  {{ match.score2 || 0 }}
-                </span>
-              </div>
-              <div *ngIf="!match.isCompleted" class="text-gray-400 text-sm">
-                Pending
-                <button
-                  *ngIf="activeTournament?.status === 'Started'"
-                  (click)="openRecordResultModal(match)"
-                  class="ml-2 bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded text-xs transition-all"
-                >
-                  Record
-                </button>
-              </div>
-            </div>
+      <!-- Modal Content with Scroll -->
+      <div class="p-6 overflow-y-auto" style="max-height: calc(90vh - 2rem)">
+        <!-- Modal Header -->
+        <div class="flex justify-between items-center mb-6">
+          <h3 class="text-2xl font-bold text-white">
+            Matches for {{ selectedPlayer?.fullName }}
+          </h3>
+        </div>
 
-            <!-- Undo Button for completed matches -->
+        <!-- Search Bar for Opponents -->
+        <div class="mb-4">
+          <div class="relative">
+            <input
+              type="text"
+              [(ngModel)]="opponentSearchTerm"
+              (input)="filterPlayerMatches()"
+              placeholder="Search opponents by name..."
+              class="w-full px-4 py-2 pl-10 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
             <div
-              *ngIf="
-                match.isCompleted && activeTournament?.status === 'Started'
-              "
-              class="ml-2"
+              class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
             >
-              <button
-                (click)="undoMatchResult(match)"
-                class="bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded text-xs transition-all"
+              <svg
+                class="h-5 w-5 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
               >
-                Undo
-              </button>
-            </div>
-            <div class="flex-1 text-right">
-              <span class="text-white font-semibold">{{
-                match.player2Name
-              }}</span>
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                ></path>
+              </svg>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- No Matches Message -->
-      <div
-        *ngIf="
-          !isLoadingMatches &&
-          getPlayerMatches(selectedPlayer?.playerId || 0).length === 0
-        "
-        class="text-center py-8"
-      >
-        <p class="text-gray-400">No matches found for this player.</p>
+        <!-- Loading State -->
+        <div *ngIf="isLoadingMatches" class="flex justify-center py-8">
+          <div
+            class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"
+          ></div>
+        </div>
+
+        <!-- Matches List -->
+        <div
+          *ngIf="!isLoadingMatches && filteredPlayerMatches.length > 0"
+          class="space-y-4"
+        >
+          <div
+            *ngFor="let match of filteredPlayerMatches"
+            class="bg-black bg-opacity-50 rounded-lg p-4"
+          >
+            <div class="flex justify-between items-center">
+              <div class="flex-1">
+                <span class="text-white font-semibold">{{
+                  match.player1Name
+                }}</span>
+              </div>
+
+              <div class="px-4 text-center">
+                <div *ngIf="match.isCompleted" class="font-bold text-lg">
+                  <span
+                    [class]="
+                      (match.score1 || 0) > (match.score2 || 0)
+                        ? 'text-green-400'
+                        : (match.score1 || 0) < (match.score2 || 0)
+                        ? 'text-red-400'
+                        : 'text-yellow-400'
+                    "
+                  >
+                    {{ match.score1 || 0 }}
+                  </span>
+                  <span class="text-white mx-2">-</span>
+                  <span
+                    [class]="
+                      (match.score2 || 0) > (match.score1 || 0)
+                        ? 'text-green-400'
+                        : (match.score2 || 0) < (match.score1 || 0)
+                        ? 'text-red-400'
+                        : 'text-yellow-400'
+                    "
+                  >
+                    {{ match.score2 || 0 }}
+                  </span>
+                </div>
+                <div *ngIf="!match.isCompleted" class="text-gray-400 text-sm">
+                  Pending
+                  <button
+                    *ngIf="activeTournament?.status === 'Started'"
+                    (click)="openRecordResultModal(match)"
+                    class="ml-2 bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded text-xs transition-all"
+                  >
+                    Record
+                  </button>
+                </div>
+              </div>
+
+              <!-- Undo Button for completed matches -->
+              <div
+                *ngIf="
+                  match.isCompleted && activeTournament?.status === 'Started'
+                "
+                class="ml-2"
+              >
+                <button
+                  (click)="undoMatchResult(match)"
+                  class="bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded text-xs transition-all"
+                >
+                  Undo
+                </button>
+              </div>
+              <div class="flex-1 text-right">
+                <span class="text-white font-semibold">{{
+                  match.player2Name
+                }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- No Matches Message -->
+        <div
+          *ngIf="!isLoadingMatches && filteredPlayerMatches.length === 0"
+          class="text-center py-8"
+        >
+          <p
+            class="text-gray-400"
+            *ngIf="opponentSearchTerm && opponentSearchTerm.trim() !== ''"
+          >
+            No opponents found matching "{{ opponentSearchTerm }}"
+          </p>
+          <p
+            class="text-gray-400"
+            *ngIf="!opponentSearchTerm || opponentSearchTerm.trim() === ''"
+          >
+            No matches found for this player.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Confirmation Modals -->
+
+    <!-- Start Tournament Confirmation Modal -->
+    <div
+      *ngIf="showConfirmStartTournamentModal"
+      class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75 z-50"
+    >
+      <div class="bg-gray-800 p-6 rounded-lg max-w-md w-full mx-4">
+        <div class="text-center mb-6">
+          <div
+            class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4"
+          >
+            <svg
+              class="h-6 w-6 text-green-600"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M5 13l4 4L19 7"
+              />
+            </svg>
+          </div>
+          <h3 class="text-lg font-medium text-white mb-2">تأكيد بدء البطولة</h3>
+          <p class="text-sm text-gray-300">
+            هل أنت متأكد من بدء البطولة "{{ tournamentToConfirm?.name }}"؟
+          </p>
+        </div>
+
+        <div class="flex justify-end space-x-4">
+          <button
+            (click)="closeConfirmStartTournamentModal()"
+            class="bg-gray-600 px-4 py-2 text-white rounded hover:bg-gray-700 transition"
+          >
+            إلغاء
+          </button>
+          <button
+            (click)="confirmStartTournament()"
+            class="bg-green-600 px-4 py-2 text-white rounded hover:bg-green-700 transition"
+          >
+            بدء البطولة
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Finish Tournament Confirmation Modal -->
+    <div
+      *ngIf="showConfirmFinishTournamentModal"
+      class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75 z-50"
+    >
+      <div class="bg-gray-800 p-6 rounded-lg max-w-md w-full mx-4">
+        <div class="text-center mb-6">
+          <div
+            class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-yellow-100 mb-4"
+          >
+            <svg
+              class="h-6 w-6 text-yellow-600"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+          </div>
+          <h3 class="text-lg font-medium text-white mb-2">
+            تأكيد إنهاء البطولة
+          </h3>
+          <p class="text-sm text-gray-300">
+            هل أنت متأكد من إنهاء البطولة "{{ tournamentToConfirm?.name }}"؟
+          </p>
+        </div>
+
+        <div class="flex justify-end space-x-4">
+          <button
+            (click)="closeConfirmFinishTournamentModal()"
+            class="bg-gray-600 px-4 py-2 text-white rounded hover:bg-gray-700 transition"
+          >
+            إلغاء
+          </button>
+          <button
+            (click)="confirmFinishTournament()"
+            class="bg-yellow-600 px-4 py-2 text-white rounded hover:bg-yellow-700 transition"
+          >
+            إنهاء البطولة
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Delete Tournament Confirmation Modal -->
+    <div
+      *ngIf="showConfirmDeleteTournamentModal"
+      class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75 z-50"
+    >
+      <div class="bg-gray-800 p-6 rounded-lg max-w-md w-full mx-4">
+        <div class="text-center mb-6">
+          <div
+            class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4"
+          >
+            <svg
+              class="h-6 w-6 text-red-600"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
+              />
+            </svg>
+          </div>
+          <h3 class="text-lg font-medium text-white mb-2">تأكيد حذف البطولة</h3>
+          <p class="text-sm text-gray-300 mb-4">
+            هل أنت متأكد من حذف البطولة "{{ tournamentToConfirm?.name }}"؟
+          </p>
+          <p class="text-xs text-red-400">
+            ⚠️ سيتم حذف كل البيانات المرتبطة بها نهائياً
+          </p>
+        </div>
+
+        <div class="flex justify-end space-x-4">
+          <button
+            (click)="closeConfirmDeleteTournamentModal()"
+            class="bg-gray-600 px-4 py-2 text-white rounded hover:bg-gray-700 transition"
+          >
+            إلغاء
+          </button>
+          <button
+            (click)="confirmDeleteTournament()"
+            class="bg-red-600 px-4 py-2 text-white rounded hover:bg-red-700 transition"
+          >
+            حذف البطولة
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Undo Match Result Confirmation Modal -->
+    <div
+      *ngIf="showConfirmUndoMatchModal"
+      class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75 z-50"
+    >
+      <div class="bg-gray-800 p-6 rounded-lg max-w-md w-full mx-4">
+        <div class="text-center mb-6">
+          <div
+            class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-orange-100 mb-4"
+          >
+            <svg
+              class="h-6 w-6 text-orange-600"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+              />
+            </svg>
+          </div>
+          <h3 class="text-lg font-medium text-white mb-2">
+            تأكيد إلغاء النتيجة
+          </h3>
+          <p class="text-sm text-gray-300 mb-4">
+            هل أنت متأكد من إلغاء نتيجة المباراة؟
+          </p>
+          <div class="text-xs text-gray-400 bg-gray-700 p-3 rounded">
+            <p>
+              {{ matchToUndo?.player1Name }} vs {{ matchToUndo?.player2Name }}
+            </p>
+            <p>
+              النتيجة: {{ matchToUndo?.score1 }} - {{ matchToUndo?.score2 }}
+            </p>
+          </div>
+        </div>
+
+        <div class="flex justify-end space-x-4">
+          <button
+            (click)="closeConfirmUndoMatchModal()"
+            class="bg-gray-600 px-4 py-2 text-white rounded hover:bg-gray-700 transition"
+          >
+            إلغاء
+          </button>
+          <button
+            (click)="confirmUndoMatchResult()"
+            class="bg-orange-600 px-4 py-2 text-white rounded hover:bg-orange-700 transition"
+          >
+            إلغاء النتيجة
+          </button>
+        </div>
       </div>
     </div>
   </div>
