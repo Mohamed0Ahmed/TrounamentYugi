@@ -8,16 +8,19 @@ const routes: Routes = [
     path: 'player',
     loadChildren: () =>
       import('./player/player.module').then((m) => m.PlayerModule),
+    data: { title: 'Players' },
   },
   {
     path: 'auth',
     loadChildren: () => import('./auth/auth.module').then((m) => m.AuthModule),
+    data: { title: 'Auth' },
   },
   {
     path: 'admin',
     loadChildren: () =>
       import('./admin/admin.module').then((m) => m.AdminModule),
     canActivate: [authGuard],
+    data: { title: 'Admin' },
   },
   { path: '**', redirectTo: 'player' },
 ];

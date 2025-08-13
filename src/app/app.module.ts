@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
+import { BrowserModule, Title } from '@angular/platform-browser';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
@@ -10,6 +10,7 @@ import { AuthInterceptor } from './interceptors/auth-interceptor.service';
 import { CacheInterceptor } from './core/interceptors/cache-interceptor.service';
 import { PlayerModule } from './player/player.module';
 import { NgxSpinnerModule } from 'ngx-spinner';
+import { TitleStrategyService } from './core/services/title-strategy.service';
 
 @NgModule({
   declarations: [AppComponent, NavbarComponent],
@@ -29,6 +30,8 @@ import { NgxSpinnerModule } from 'ngx-spinner';
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: CacheInterceptor, multi: true },
     NgxSpinnerModule,
+    Title,
+    TitleStrategyService,
   ],
   bootstrap: [AppComponent],
 })

@@ -186,12 +186,25 @@
 
             <!-- Players List -->
             <div>
-              <div class="space-y-1">
+              <div class="space-y-2">
                 <div
                   *ngFor="let player of team.players"
-                  class="text-center bg-gray-800 text-gray-100 px-2 py-1 rounded"
+                  class="bg-gray-800 text-gray-100 px-8 py-2 rounded flex items-center justify-between"
                 >
-                  {{ player.fullName }}
+                  <!-- Player Points (Left - Green) -->
+                  <div class="text-green-400 font-bold text-lg">
+                    {{ getPlayerStats(player.playerId).totalPoints }}
+                  </div>
+
+                  <!-- Player Name (Center) -->
+                  <div class="text-center font-medium text-white">
+                    {{ player.fullName }}
+                  </div>
+
+                  <!-- Player Points Against (Right - Red) -->
+                  <div class="text-red-400 font-bold text-lg">
+                    {{ getPlayerStats(player.playerId).totalPointsAgainst }}
+                  </div>
                 </div>
               </div>
             </div>

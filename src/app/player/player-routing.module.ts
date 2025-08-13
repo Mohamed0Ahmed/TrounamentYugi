@@ -12,15 +12,43 @@ import { TeamsComponent } from './teams/teams.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'ranking', pathMatch: 'full' },
-  { path: 'league-table', component: LeagueTableComponent },
-  { path: 'ranking', component: RankingComponent },
-  { path: 'groups-table', component: GroupsTableComponent },
-  { path: 'groups-matches-table', component: GroupsMatchesTableComponent },
-  { path: 'allLeagues', component: AllLeaguesComponent },
-  { path: 'forbidden', component: ForbiddenCardsComponent },
-  { path: 'inbox', component: PlayerInboxComponent },
-  { path: 'friendlies', component: FriendliesViewComponent },
-  { path: 'teams', component: TeamsComponent },
+  {
+    path: 'league-table',
+    component: LeagueTableComponent,
+    data: { title: 'League Table' },
+  },
+  { path: 'ranking', component: RankingComponent, data: { title: 'Ranking' } },
+  {
+    path: 'groups-table',
+    component: GroupsTableComponent,
+    data: { title: 'Groups Table' },
+  },
+  {
+    path: 'groups-matches-table',
+    component: GroupsMatchesTableComponent,
+    data: { title: 'Groups Matches Table' },
+  },
+  {
+    path: 'allLeagues',
+    component: AllLeaguesComponent,
+    data: { title: 'All Leagues' },
+  },
+  {
+    path: 'forbidden',
+    component: ForbiddenCardsComponent,
+    data: { title: 'Forbidden Cards' },
+  },
+  {
+    path: 'inbox',
+    component: PlayerInboxComponent,
+    data: { title: 'Inbox' },
+  },
+  {
+    path: 'friendlies',
+    component: FriendliesViewComponent,
+    data: { title: 'Friendlies' },
+  },
+  { path: 'teams', component: TeamsComponent, data: { title: 'Teams' } },
 ];
 
 @NgModule({

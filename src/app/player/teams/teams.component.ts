@@ -24,6 +24,9 @@ export class TeamsComponent implements OnInit {
   teamMatches: TeamMatchesDto[] = [];
   isLoadingMatches = false;
 
+  // Player Stats Cache
+  playerStatsCache: { [playerId: number]: any } = {};
+
   // Archive Data
   allPlayers: any[] = [];
   pastTournaments: any[] = [];
@@ -88,6 +91,8 @@ export class TeamsComponent implements OnInit {
       next: (response) => {
         if (response.success && response.data) {
           this.tournamentMatches = response.data;
+          // مسح الـ cache عند تحديث المباريات
+          this.clearPlayerStatsCache();
         }
       },
       error: (error) => console.error('Error loading matches:', error),
@@ -183,6 +188,92 @@ export class TeamsComponent implements OnInit {
     return this.activeTournament.teams.filter(
       (t) => t.teamName !== team.teamName
     );
+  }
+
+  /**
+   * حساب إحصائيات اللاعب من المباريات الموجودة
+   * يستخدم tournamentMatches لحساب الانتصارات والخسائر والنقاط
+   *
+   * مثال: إذا لعب لاعب مع خصم 4 مباريات:
+   * - كسب 2-2 (4 نقاط)
+   * - خسر 1-3 (1 نقطة)
+   * - كسب 3-1 (3 نقاط)
+   * - خسر 0-4 (0 نقاط)
+   *
+   * النتيجة: 8 نقاط باللون الأخضر، 8 نقاط باللون الأحمر
+   */
+  getPlayerStats(playerId: number): any {
+    // استخدام الـ cache إذا كانت البيانات محفوظة
+    if (this.playerStatsCache[playerId]) {
+      return this.playerStatsCache[playerId];
+    }
+
+    if (!this.tournamentMatches || this.tournamentMatches.length === 0) {
+      const stats = {
+        wins: 0,
+        losses: 0,
+        totalPoints: 0,
+        totalPointsAgainst: 0,
+        totalMatches: 0,
+      };
+      this.playerStatsCache[playerId] = stats;
+      return stats;
+    }
+
+    let wins = 0;
+    let losses = 0;
+    let totalPoints = 0;
+    let totalPointsAgainst = 0;
+    let totalMatches = 0;
+
+    // البحث في جميع المباريات عن مباريات هذا اللاعب
+    this.tournamentMatches.forEach((fixture) => {
+      fixture.matches.forEach((match) => {
+        if (
+          match.isCompleted &&
+          (match.player1Id === playerId || match.player2Id === playerId)
+        ) {
+          totalMatches++;
+
+          const isPlayer1 = match.player1Id === playerId;
+          const playerScore = isPlayer1 ? match.score1 || 0 : match.score2 || 0;
+          const opponentScore = isPlayer1
+            ? match.score2 || 0
+            : match.score1 || 0;
+          // استخدام النقاط من النتيجة (score) بدلاً من totalPoints
+          const playerPoints = playerScore;
+          const opponentPoints = opponentScore;
+
+          if (playerScore > opponentScore) {
+            wins++;
+          } else {
+            losses++;
+          }
+
+          totalPoints += playerPoints;
+          totalPointsAgainst += opponentPoints;
+        }
+      });
+    });
+
+    const stats = {
+      wins,
+      losses,
+      totalPoints,
+      totalPointsAgainst,
+      totalMatches,
+    };
+
+    // حفظ النتائج في الـ cache
+    this.playerStatsCache[playerId] = stats;
+    return stats;
+  }
+
+  /**
+   * مسح cache إحصائيات اللاعبين
+   */
+  private clearPlayerStatsCache(): void {
+    this.playerStatsCache = {};
   }
 
   // Archive Methods

@@ -7,12 +7,28 @@ import { FriendlyInboxComponent } from './friendlies/friendly-inbox/friendly-inb
 import { TeamsDashboardComponent } from './teams-dashboard/teams-dashboard.component';
 
 const routes: Routes = [
-  { path: '', component: PlayersComponent },
-  { path: 'players', component: PlayersComponent },
-  { path: 'inbox', component: InboxComponent },
-  { path: 'friendlies', component: FriendliesComponent },
-  { path: 'friendly-inbox', component: FriendlyInboxComponent },
-  { path: 'teams-dashboard', component: TeamsDashboardComponent },
+  { path: '', component: PlayersComponent, data: { title: 'Players' } },
+  {
+    path: 'players',
+    component: PlayersComponent,
+    data: { title: 'Players' },
+  },
+  { path: 'inbox', component: InboxComponent, data: { title: 'Inbox' } },
+  {
+    path: 'friendlies',
+    component: FriendliesComponent,
+    data: { title: 'Friendlies' },
+  },
+  {
+    path: 'friendly-inbox',
+    component: FriendlyInboxComponent,
+    data: { title: 'Friendly Inbox' },
+  },
+  {
+    path: 'teams-dashboard',
+    component: TeamsDashboardComponent,
+    data: { title: 'Teams Dashboard' },
+  },
 ];
 
 @NgModule({
