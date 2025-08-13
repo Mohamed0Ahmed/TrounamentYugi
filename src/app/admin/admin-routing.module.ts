@@ -11,7 +11,7 @@ const routes: Routes = [
   {
     path: 'players',
     component: PlayersComponent,
-    data: { title: 'Players' },
+    data: { title: 'Admin Dashboard' },
   },
   { path: 'inbox', component: InboxComponent, data: { title: 'Inbox' } },
   {

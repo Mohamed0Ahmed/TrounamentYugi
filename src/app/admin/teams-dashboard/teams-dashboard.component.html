@@ -499,9 +499,9 @@
             >{{ getPlayerName(selectedPlayer1Id) }}
           </label>
           <input
-            type="number"
+            type="text"
             [(ngModel)]="recordingScore1"
-            min="0"
+            placeholder="Enter score"
             class="w-full px-3 py-2 border border-gray-600 bg-gray-700 text-white rounded"
           />
         </div>
@@ -510,9 +510,9 @@
             >{{ getPlayerName(selectedPlayer2Id) }}
           </label>
           <input
-            type="number"
+            type="text"
             [(ngModel)]="recordingScore2"
-            min="0"
+            placeholder="Enter score"
             class="w-full px-3 py-2 border border-gray-600 bg-gray-700 text-white rounded"
           />
         </div>
@@ -536,8 +536,8 @@
           (click)="recordMatchResult()"
           [disabled]="
             isRecordingResult ||
-            recordingScore1 === null ||
-            recordingScore2 === null
+            !recordingScore1.trim() ||
+            !recordingScore2.trim()
           "
           class="bg-green-600 px-4 py-2 text-white rounded hover:bg-green-700 transition disabled:opacity-50"
         >

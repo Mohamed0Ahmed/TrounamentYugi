@@ -24,6 +24,12 @@ export class TeamsComponent implements OnInit {
   teamMatches: TeamMatchesDto[] = [];
   isLoadingMatches = false;
 
+  // Player Individual Results Modal
+  showPlayerResultsModal = false;
+  selectedPlayer: any = null;
+  playerIndividualMatches: any[] = [];
+  isLoadingPlayerMatches = false;
+
   // Player Stats Cache
   playerStatsCache: { [playerId: number]: any } = {};
 
@@ -188,6 +194,80 @@ export class TeamsComponent implements OnInit {
     return this.activeTournament.teams.filter(
       (t) => t.teamName !== team.teamName
     );
+  }
+
+  // Player Individual Results Modal Methods
+  showPlayerResults(player: any): void {
+    this.selectedPlayer = player;
+    this.showPlayerResultsModal = true;
+    this.loadPlayerIndividualMatches(player);
+  }
+
+  closePlayerResultsModal(): void {
+    this.showPlayerResultsModal = false;
+    this.selectedPlayer = null;
+    this.playerIndividualMatches = [];
+  }
+
+  private loadPlayerIndividualMatches(player: any): void {
+    if (!this.activeTournament || !this.tournamentMatches) return;
+
+    this.isLoadingPlayerMatches = true;
+
+    // Filter all matches for this specific player
+    this.playerIndividualMatches = [];
+
+    this.tournamentMatches.forEach((fixture) => {
+      fixture.matches.forEach((match) => {
+        if (
+          match.player1Id === player.playerId ||
+          match.player2Id === player.playerId
+        ) {
+          // Create a match object with player info
+          const isPlayer1 = match.player1Id === player.playerId;
+          const playerName = isPlayer1 ? match.player1Name : match.player2Name;
+          const opponentName = isPlayer1
+            ? match.player2Name
+            : match.player1Name;
+          const playerScore = isPlayer1 ? match.score1 || 0 : match.score2 || 0;
+          const opponentScore = isPlayer1
+            ? match.score2 || 0
+            : match.score1 || 0;
+
+          this.playerIndividualMatches.push({
+            ...match,
+            playerName: playerName,
+            opponentName: opponentName,
+            playerScore: playerScore,
+            opponentScore: opponentScore,
+            isPlayer1: isPlayer1,
+            team1Name: fixture.team1Name,
+            team2Name: fixture.team2Name,
+          });
+        }
+      });
+    });
+
+    // Sort matches by completion status and then by date if available
+    this.playerIndividualMatches.sort((a, b) => {
+      if (a.isCompleted !== b.isCompleted) {
+        return b.isCompleted ? 1 : -1; // Completed matches first
+      }
+      return 0;
+    });
+
+    this.isLoadingPlayerMatches = false;
+  }
+
+  // Get player's team name
+  getPlayerTeamName(player: any): string {
+    if (!this.activeTournament || !player) return '';
+
+    const team = this.activeTournament.teams.find((t) =>
+      t.players.some((p) => p.playerId === player.playerId)
+    );
+
+    return team ? team.teamName : '';
   }
 
   /**

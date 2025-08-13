@@ -66,8 +66,8 @@ export class TeamsDashboardComponent implements OnInit {
   selectedMatchId: number | null = null;
   selectedPlayer1Id: number | null = null;
   selectedPlayer2Id: number | null = null;
-  recordingScore1: number | null = null;
-  recordingScore2: number | null = null;
+  recordingScore1: string = '';
+  recordingScore2: string = '';
 
   // Loading States
   isLoadingTournaments = false;
@@ -427,21 +427,39 @@ export class TeamsDashboardComponent implements OnInit {
   recordMatchResult(): void {
     if (!this.selectedMatchId || !this.activeTournament) return;
 
+    // Validate scores
+    if (!this.recordingScore1.trim() || !this.recordingScore2.trim()) {
+      this.toastr.warning('يرجى إدخال النتيجة للاعبين', 'تحذير');
+      return;
+    }
+
+    // Parse scores to numbers
+    const score1 = parseFloat(this.recordingScore1);
+    const score2 = parseFloat(this.recordingScore2);
+
+    // Check if scores are valid numbers
+    if (isNaN(score1) || isNaN(score2)) {
+      this.toastr.warning('يرجى إدخال أرقام صحيحة', 'تحذير');
+      return;
+    }
+
+
+
     let requestBody: any = {};
 
     if (this.activeTournament.systemOfScoring === 'Classic') {
       // Classic system: determine winner automatically based on scores
-      if (this.recordingScore1! > this.recordingScore2!) {
+      if (score1 > score2) {
         requestBody.winnerId = this.selectedPlayer1Id;
-      } else if (this.recordingScore2! > this.recordingScore1!) {
+      } else if (score2 > score1) {
         requestBody.winnerId = this.selectedPlayer2Id;
       } else {
         requestBody.winnerId = null; // Draw
       }
     } else {
       // Points system: send scores directly
-      requestBody.score1 = this.recordingScore1;
-      requestBody.score2 = this.recordingScore2;
+      requestBody.score1 = score1;
+      requestBody.score2 = score2;
     }
 
     this.isRecordingResult = true;
@@ -522,8 +540,8 @@ export class TeamsDashboardComponent implements OnInit {
     this.selectedMatchId = null;
     this.selectedPlayer1Id = null;
     this.selectedPlayer2Id = null;
-    this.recordingScore1 = null;
-    this.recordingScore2 = null;
+    this.recordingScore1 = '';
+    this.recordingScore2 = '';
   }
 
   // Confirmation Modal Controls
@@ -592,8 +610,8 @@ export class TeamsDashboardComponent implements OnInit {
     this.selectedMatchId = match.multiMatchId;
     this.selectedPlayer1Id = match.player1Id;
     this.selectedPlayer2Id = match.player2Id;
-    this.recordingScore1 = null;
-    this.recordingScore2 = null;
+    this.recordingScore1 = '';
+    this.recordingScore2 = '';
     this.showRecordResultModal = true;
     // Close player matches modal when opening record result modal
     this.showPlayerMatchesModal = false;

@@ -189,7 +189,9 @@
               <div class="space-y-2">
                 <div
                   *ngFor="let player of team.players"
-                  class="bg-gray-800 text-gray-100 px-8 py-2 rounded flex items-center justify-between"
+                  class="bg-gray-800 text-gray-100 px-8 py-2 rounded flex items-center justify-between cursor-pointer hover:bg-gray-700 transition-colors"
+                  (click)="showPlayerResults(player)"
+                  title="Click to view player results"
                 >
                   <!-- Player Points (Left - Green) -->
                   <div class="text-green-400 font-bold text-lg">
@@ -510,6 +512,115 @@
         class="text-center py-8"
       >
         <p class="text-gray-400">No matches found for this team.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Player Individual Results Modal -->
+<div
+  *ngIf="showPlayerResultsModal"
+  class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+>
+  <div
+    class="bg-black bg-opacity-50 rounded-lg w-full max-w-2xl max-h-[80vh] relative"
+  >
+    <!-- Fixed Close Button -->
+    <button
+      (click)="closePlayerResultsModal()"
+      class="absolute top-4 right-4 z-10 text-white hover:text-white text-2xl font-bold transition-colors bg-black bg-opacity-50 rounded-full w-8 h-8 flex items-center justify-center hover:bg-opacity-75"
+    >
+      ×
+    </button>
+
+    <!-- Modal Content -->
+    <div class="p-6 overflow-y-auto" style="max-height: calc(80vh - 6rem)">
+      <!-- Modal Header -->
+      <div class="text-center mb-6">
+        <h3 class="text-xl font-semibold text-white">
+          {{ selectedPlayer?.fullName }} Results
+        </h3>
+      </div>
+
+      <!-- Loading State -->
+      <div *ngIf="isLoadingPlayerMatches" class="flex justify-center py-8">
+        <div
+          class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"
+        ></div>
+      </div>
+
+      <!-- Simple Matches List -->
+      <div
+        *ngIf="!isLoadingPlayerMatches && playerIndividualMatches.length > 0"
+        class="space-y-3"
+      >
+        <div
+          *ngFor="let match of playerIndividualMatches"
+          class="bg-black bg-opacity-90 rounded-lg p-4"
+        >
+          <!-- Match Row with Equal Spacing -->
+          <div class="grid grid-cols-4 gap-4 items-center">
+            <!-- Opponent Name (Left) -->
+            <div class="text-center">
+              <div class="text-white font-medium text-sm">
+                {{ match.opponentName }}
+              </div>
+            </div>
+
+            <!-- Score Result (Center Right) -->
+            <div class="text-center">
+              <span
+                *ngIf="match.isCompleted"
+                class="text-base font-semibold text-white"
+              >
+                {{ match.playerScore }} - {{ match.opponentScore }}
+              </span>
+              <span *ngIf="!match.isCompleted" class="text-gray-400 text-xs">
+                -- - --
+              </span>
+            </div>
+            <!-- Win/Loss Status (Center Left) -->
+            <div class="text-center">
+              <span
+                *ngIf="match.isCompleted"
+                [class]="
+                  match.playerScore > match.opponentScore
+                    ? 'bg-green-600 text-white'
+                    : match.playerScore < match.opponentScore
+                    ? 'bg-red-600 text-white'
+                    : 'bg-yellow-600 text-black'
+                "
+                class="px-2 py-0.5 rounded-full text-xs font-medium"
+              >
+                {{
+                  match.playerScore > match.opponentScore
+                    ? "WIN"
+                    : match.playerScore < match.opponentScore
+                    ? "LOSS"
+                    : "DRAW"
+                }}
+              </span>
+              <span *ngIf="!match.isCompleted" class="text-gray-400 text-xs">
+                PENDING
+              </span>
+            </div>
+
+            <!-- Selected Player Name (Right) -->
+            <div class="text-center">
+              <div class="text-white font-medium text-sm">
+                {{ match.playerName }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- No Matches Message -->
+      <div
+        *ngIf="!isLoadingPlayerMatches && playerIndividualMatches.length === 0"
+        class="text-center py-8"
+      >
+        <p class="text-gray-400">No matches found for this player.</p>
       </div>
     </div>
   </div>
