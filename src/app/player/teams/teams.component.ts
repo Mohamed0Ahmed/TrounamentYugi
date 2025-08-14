@@ -49,7 +49,6 @@ export class TeamsComponent implements OnInit {
   constructor(private multiTournamentService: MultiTournamentService) {}
 
   ngOnInit(): void {
-    console.log('Teams component initialized');
     this.loadActiveTournament();
     this.loadArchiveData();
   }
@@ -365,13 +364,10 @@ export class TeamsComponent implements OnInit {
 
   private loadAllPlayers(): void {
     this.isLoadingPlayers = true;
-    console.log('Loading all players...');
     this.multiTournamentService.getAllPlayers().subscribe({
       next: (response) => {
-        console.log('Players response:', response);
         if (response.success && response.data) {
           this.allPlayers = response.data;
-          console.log('Players loaded:', this.allPlayers);
         } else {
           // Fallback data for testing
           this.allPlayers = [
@@ -386,13 +382,11 @@ export class TeamsComponent implements OnInit {
               multiTitlesWon: 1,
             },
           ];
-          console.log('Using fallback players:', this.allPlayers);
         }
         this.isLoadingPlayers = false;
         this.checkArchiveLoadingComplete();
       },
       error: (error) => {
-        console.error('Error loading players:', error);
         // Fallback data on error
         this.allPlayers = [
           {
@@ -414,16 +408,13 @@ export class TeamsComponent implements OnInit {
 
   private loadPastTournaments(): void {
     this.isLoadingPastTournaments = true;
-    console.log('Loading past tournaments...');
     this.multiTournamentService.getAllTournaments().subscribe({
       next: (response) => {
-        console.log('Tournaments response:', response);
         if (response.success && response.data) {
           // Filter finished tournaments and load their standings
           this.pastTournaments = response.data.filter(
             (t) => t.status === 'Finished'
           );
-          console.log('Past tournaments filtered:', this.pastTournaments);
           this.loadTournamentsStandings();
         } else {
           // Fallback data for testing
@@ -453,13 +444,11 @@ export class TeamsComponent implements OnInit {
               ],
             },
           ];
-          console.log('Using fallback tournaments:', this.pastTournaments);
         }
         this.isLoadingPastTournaments = false;
         this.checkArchiveLoadingComplete();
       },
       error: (error) => {
-        console.error('Error loading past tournaments:', error);
         // Fallback data on error
         this.pastTournaments = [
           {
@@ -477,13 +466,8 @@ export class TeamsComponent implements OnInit {
   }
 
   private checkArchiveLoadingComplete(): void {
-    console.log('Checking archive loading complete...', {
-      isLoadingPlayers: this.isLoadingPlayers,
-      isLoadingPastTournaments: this.isLoadingPastTournaments,
-    });
     if (!this.isLoadingPlayers && !this.isLoadingPastTournaments) {
       this.isLoadingArchive = false;
-      console.log('Archive loading complete!');
     }
   }
 

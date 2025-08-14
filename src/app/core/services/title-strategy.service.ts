@@ -10,18 +10,15 @@ export class TitleStrategyService {
   private readonly defaultTitle = 'Yugi-Oh Tournament';
 
   constructor(private title: Title, private router: Router) {
-    console.log('TitleStrategyService initialized');
     // Set initial title
     this.title.setTitle(this.defaultTitle);
     this.setupTitleUpdates();
   }
 
   private setupTitleUpdates(): void {
-    console.log('Setting up title updates');
     this.router.events
       .pipe(filter((event) => event instanceof NavigationEnd))
       .subscribe((event) => {
-        console.log('NavigationEnd event:', event);
         // Add a small delay to ensure route data is available
         setTimeout(() => {
           this.updateTitle();
@@ -30,17 +27,12 @@ export class TitleStrategyService {
   }
 
   private updateTitle(): void {
-    console.log('Updating title...');
     const currentRoute = this.getCurrentRoute();
-    console.log('Current route:', currentRoute);
-    console.log('Current route data:', currentRoute?.snapshot?.data);
 
     if (currentRoute?.snapshot?.data?.['title']) {
       const newTitle = currentRoute.snapshot.data['title'];
-      console.log('Setting title to:', newTitle);
       this.title.setTitle(newTitle);
     } else {
-      console.log('Setting default title:', this.defaultTitle);
       this.title.setTitle(this.defaultTitle);
     }
   }
@@ -59,9 +51,6 @@ export class TitleStrategyService {
       currentActivatedRoute = currentActivatedRoute.firstChild;
     }
 
-    console.log('Final route:', route);
-    console.log('Current activated route:', currentActivatedRoute);
-
     // Try to get title from the deepest route first
     if (route?.snapshot?.data?.['title']) {
       return route;
@@ -79,10 +68,8 @@ export class TitleStrategyService {
   setTitle(title: string): void {
     if (title) {
       const newTitle = title;
-      console.log('Manual title set to:', newTitle);
       this.title.setTitle(newTitle);
     } else {
-      console.log('Setting default title:', this.defaultTitle);
       this.title.setTitle(this.defaultTitle);
     }
   }

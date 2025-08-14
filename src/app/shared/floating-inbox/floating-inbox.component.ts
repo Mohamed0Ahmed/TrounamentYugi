@@ -1,4 +1,13 @@
-import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  HostListener,
+  ViewChild,
+  ElementRef,
+  AfterViewInit,
+  AfterViewChecked,
+} from '@angular/core';
 import { AuthService } from '../../core/services/auth.service';
 import { MessageService } from '../../core/services/message.service';
 import { AdminDashboardService } from '../../core/services/admin-dashboard.service';
@@ -20,7 +29,9 @@ interface PlayerChat {
   templateUrl: './floating-inbox.component.html',
   styleUrls: ['./floating-inbox.component.css'],
 })
-export class FloatingInboxComponent implements OnInit, OnDestroy {
+export class FloatingInboxComponent
+  implements OnInit, OnDestroy, AfterViewInit, AfterViewChecked
+{
   // Floating button properties
   isAdmin = false;
   showInboxOverlay = false;
@@ -29,6 +40,7 @@ export class FloatingInboxComponent implements OnInit, OnDestroy {
   dragOffset = { x: 0, y: 0 };
   hasMovedDuringDrag = false;
   unreadCount = 0;
+  isMobile = false;
 
   // Inbox properties
   playerChats: PlayerChat[] = [];
@@ -36,6 +48,19 @@ export class FloatingInboxComponent implements OnInit, OnDestroy {
   selectedChat: PlayerChat | null = null;
   replyText = ''; // New property for single reply input
   navbarHeight = 60;
+
+  // ViewChild for messages container
+  @ViewChild('messagesContainer')
+  messagesContainer!: ElementRef<HTMLDivElement>;
+
+  // Flag to control initial scroll
+  private shouldScrollToBottom = false;
+
+  // Cache management
+  private readonly CACHE_KEY = 'adminMessagesCache';
+  private readonly CACHE_DURATION = 30 * 60 * 1000; // 30 minutes in milliseconds
+  private cachedMessages: PlayerChat[] = [];
+  private lastCacheUpdate: number = 0;
 
   private updateStatusSubscription?: Subscription;
   private refreshSubscription?: Subscription;
@@ -51,8 +76,30 @@ export class FloatingInboxComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.checkAdminStatus();
     this.setInitialButtonPosition();
+
     if (this.isAdmin) {
+      // Load fresh data from server (like inbox.component)
       this.loadAdminMessages();
+    }
+  }
+
+  ngAfterViewInit(): void {
+    // View is initialized, can now access ViewChild elements
+  }
+
+  ngAfterViewChecked(): void {
+    // Only scroll to bottom if flag is set (first time opening chat)
+    if (
+      this.shouldScrollToBottom &&
+      this.selectedChat &&
+      this.messagesContainer
+    ) {
+      // Small delay to ensure DOM is fully updated
+      setTimeout(() => {
+        this.scrollToBottom();
+        // Reset flag after scrolling
+        this.shouldScrollToBottom = false;
+      }, 100);
     }
   }
 
@@ -87,15 +134,14 @@ export class FloatingInboxComponent implements OnInit, OnDestroy {
   }
 
   toggleInboxOverlay(): void {
-    if (!this.isDragging && !this.hasMovedDuringDrag) {
-      this.showInboxOverlay = !this.showInboxOverlay;
+    // Always toggle the overlay when clicked
+    this.showInboxOverlay = !this.showInboxOverlay;
 
-      if (this.showInboxOverlay) {
-        this.loadAdminMessages();
-        setTimeout(() => {
-          this.fixInboxComponentForOverlay();
-        }, 100);
-      }
+    if (this.showInboxOverlay) {
+      this.loadAdminMessages();
+      setTimeout(() => {
+        this.fixInboxComponentForOverlay();
+      }, 100);
     }
   }
 
@@ -188,6 +234,22 @@ export class FloatingInboxComponent implements OnInit, OnDestroy {
     document.body.classList.add('dragging');
   }
 
+  onButtonTouchEnd(event: TouchEvent): void {
+    if (this.isDragging && !this.hasMovedDuringDrag) {
+      // If no significant movement occurred, treat as a tap/click
+      // Don't call toggleInboxOverlay here as it will be handled by click event
+      // Just reset the dragging state
+    }
+
+    this.isDragging = false;
+    document.body.style.cursor = 'default';
+    document.body.classList.remove('dragging');
+
+    setTimeout(() => {
+      this.hasMovedDuringDrag = false;
+    }, 100);
+  }
+
   @HostListener('document:mousemove', ['$event'])
   onGlobalMouseMove(event: MouseEvent): void {
     if (this.isDragging) {
@@ -266,9 +328,13 @@ export class FloatingInboxComponent implements OnInit, OnDestroy {
     }
   }
 
-  @HostListener('document:touchend')
-  onGlobalTouchEnd(): void {
-    if (this.isDragging) {
+  @HostListener('document:touchend', ['$event'])
+  onGlobalTouchEnd(event: TouchEvent): void {
+    // Only handle global touch end if we're not handling button touch end
+    if (
+      this.isDragging &&
+      !(event.target as Element)?.closest('.floating-button')
+    ) {
       this.isDragging = false;
       document.body.style.cursor = 'default';
       document.body.classList.remove('dragging');
@@ -310,51 +376,205 @@ export class FloatingInboxComponent implements OnInit, OnDestroy {
     }
   }
 
+  // Cache management methods
+  private saveToCache(messages: PlayerChat[]): void {
+    try {
+      const cacheData = {
+        messages: messages,
+        timestamp: Date.now(),
+      };
+      localStorage.setItem(this.CACHE_KEY, JSON.stringify(cacheData));
+      this.cachedMessages = messages;
+      this.lastCacheUpdate = Date.now();
+    } catch (error) {
+      console.warn('Error saving messages to cache:', error);
+    }
+  }
+
+  private loadFromCache(): PlayerChat[] | null {
+    try {
+      const cachedData = localStorage.getItem(this.CACHE_KEY);
+      if (!cachedData) return null;
+
+      const parsed = JSON.parse(cachedData);
+      const cacheAge = Date.now() - parsed.timestamp;
+
+      // Check if cache is still valid (less than 30 minutes old)
+      if (cacheAge < this.CACHE_DURATION) {
+        this.cachedMessages = parsed.messages;
+        this.lastCacheUpdate = parsed.timestamp;
+        return parsed.messages;
+      }
+
+      // Cache expired, remove it
+      localStorage.removeItem(this.CACHE_KEY);
+      return null;
+    } catch (error) {
+      console.warn('Error loading messages from cache:', error);
+      localStorage.removeItem(this.CACHE_KEY);
+      return null;
+    }
+  }
+
+  private isCacheValid(): boolean {
+    return (
+      this.cachedMessages.length > 0 &&
+      Date.now() - this.lastCacheUpdate < this.CACHE_DURATION
+    );
+  }
+
+  // Public method to get cache status
+  getCacheStatus(): { isValid: boolean; lastUpdate: Date | null; age: number } {
+    if (this.cachedMessages.length === 0) {
+      return { isValid: false, lastUpdate: null, age: 0 };
+    }
+
+    const age = Date.now() - this.lastCacheUpdate;
+    const isValid = age < this.CACHE_DURATION;
+
+    return {
+      isValid,
+      lastUpdate: new Date(this.lastCacheUpdate),
+      age: Math.floor(age / 1000 / 60), // Age in minutes
+    };
+  }
+
+  // Method to clear cache manually
+  clearCache(): void {
+    try {
+      localStorage.removeItem(this.CACHE_KEY);
+      this.cachedMessages = [];
+      this.lastCacheUpdate = 0;
+    } catch (error) {
+      console.warn('Error clearing cache:', error);
+    }
+  }
+
+  // Method to update cache with new data
+  private updateCacheWithNewData(newMessages: any[]): void {
+    if (newMessages.length === 0) return;
+
+    // Update existing chat messages
+    newMessages.forEach((newMessage) => {
+      const existingChat = this.cachedMessages.find(
+        (chat) => chat.playerId === newMessage.senderId
+      );
+
+      if (existingChat) {
+        // Check if message already exists
+        const messageExists = existingChat.messages.some(
+          (msg) => msg.id === newMessage.id
+        );
+
+        if (!messageExists) {
+          // Add new message
+          existingChat.messages.push(newMessage);
+
+          // Update last message and date
+          if (
+            new Date(newMessage.sentAt) > new Date(existingChat.lastMessageDate)
+          ) {
+            existingChat.lastMessage = newMessage.content;
+            existingChat.lastMessageDate = newMessage.sentAt;
+          }
+
+          // Update unread count
+          if (!newMessage.isRead && !newMessage.isFromAdmin) {
+            existingChat.unreadCount++;
+          }
+        }
+      } else {
+        // Create new chat
+        const newChat: PlayerChat = {
+          playerId: newMessage.senderId,
+          playerFullName: newMessage.senderFullName,
+          lastMessage: newMessage.content,
+          lastMessageDate: newMessage.sentAt,
+          unreadCount: !newMessage.isRead && !newMessage.isFromAdmin ? 1 : 0,
+          messages: [newMessage],
+        };
+        this.cachedMessages.push(newChat);
+      }
+    });
+
+    // Sort chats by last message date
+    this.cachedMessages.sort(
+      (a, b) =>
+        new Date(b.lastMessageDate).getTime() -
+        new Date(a.lastMessageDate).getTime()
+    );
+
+    // Save updated cache
+    this.saveToCache(this.cachedMessages);
+
+    // Update UI
+    this.playerChats = [...this.cachedMessages];
+  }
+
   // Inbox functionality
   private loadAdminMessages(): void {
-    this.loadFromServer();
+    // Always load fresh data from server (like inbox.component)
+    this.loadFromServer(false);
   }
 
-  private loadFromCache(): void {
-    this.loadFromServer();
-  }
-
-  private loadFromServer(): void {
+  private loadFromServer(isBackgroundRefresh: boolean = false): void {
     this.adminDashboardService.getSecondaryData('messages').subscribe({
       next: (messages) => {
         if (messages && messages.length > 0) {
           const groupedMessages = this.groupMessagesBySender(messages);
+
+          // Always update playerChats (like inbox.component)
           this.playerChats = groupedMessages.sort(
             (a, b) =>
               new Date(b.lastMessageDate).getTime() -
               new Date(a.lastMessageDate).getTime()
           );
+
+          // Save to cache for offline use
+          this.saveToCache(this.playerChats);
+
+          if (!isBackgroundRefresh) {
+            // this.toastr.success('تم تحديث الرسائل بنجاح');
+          }
         } else {
           this.toastr.error('لا يوجد رسائل');
+          this.playerChats = []; // Clear chats if no messages
+          this.saveToCache([]); // Save empty cache
         }
       },
       error: (err) => {
         this.toastr.error(err.message);
+        this.playerChats = []; // Clear chats on error
+        this.saveToCache([]); // Save empty cache on error
       },
     });
   }
 
   refreshMessages(): void {
+    // Force refresh from server and update cache
     this.messageService.getAdminMessages().subscribe({
       next: (response) => {
         if (response && response.messages) {
           const groupedMessages = this.groupMessagesBySender(response.messages);
+
+          // Update playerChats
           this.playerChats = groupedMessages.sort(
             (a, b) =>
               new Date(b.lastMessageDate).getTime() -
               new Date(a.lastMessageDate).getTime()
           );
+
+          // Update cache
+          this.saveToCache(this.playerChats);
+
+          // Update UI
+          this.cdr.detectChanges();
         } else {
           this.toastr.error('لا يوجد رسائل');
         }
       },
       error: (err) => {
-        this.toastr.error(err.message);
+        this.toastr.error(err.message || 'فشل في تحديث الرسائل');
       },
     });
   }
@@ -362,41 +582,82 @@ export class FloatingInboxComponent implements OnInit, OnDestroy {
   selectChat(chat: PlayerChat): void {
     this.selectedChat = chat;
     this.selectedPlayerId = chat.playerId;
-    this.loadChatMessages(chat.playerId);
 
-    // Scroll to bottom after selecting chat
-    setTimeout(() => {
-      this.scrollToBottom();
-    }, 100);
+    // Use cached data directly (no new request)
+    if (this.selectedChat && this.selectedChat.messages) {
+      // Automatically mark unread messages as read
+      this.markUnreadMessagesAsRead(chat.playerId);
+
+      // Set flag to scroll to bottom on next view check
+      this.shouldScrollToBottom = true;
+    }
   }
 
   private loadChatMessages(playerId: string): void {
-    // Load chat messages for specific player
-    this.messageService.getAdminMessages().subscribe({
-      next: (response) => {
-        if (response && response.messages) {
-          const playerMessages = response.messages.filter(
-            (msg: any) => msg.senderId === playerId
-          );
+    // Use cached messages instead of making new request
+    if (this.cachedMessages.length > 0) {
+      const playerMessages =
+        this.cachedMessages.find((chat) => chat.playerId === playerId)
+          ?.messages || [];
 
-          // Sort messages by date (newest first) so they appear from bottom
-          playerMessages.sort(
-            (a: any, b: any) =>
-              new Date(b.sentAt).getTime() - new Date(a.sentAt).getTime()
-          );
+      if (this.selectedChat) {
+        this.selectedChat.messages = playerMessages;
 
-          this.selectedChat!.messages = playerMessages;
+        // Automatically mark unread messages as read
+        this.markUnreadMessagesAsRead(playerId);
 
-          // Scroll to bottom after messages load to show latest message
-          setTimeout(() => {
-            this.scrollToBottom();
-          }, 100);
-        }
-      },
-      error: (err) => {
-        this.toastr.error(err.message);
-      },
-    });
+        // Scroll to bottom after messages load
+        setTimeout(() => {
+          this.scrollToBottom();
+        }, 100);
+      }
+    } else {
+      // Fallback: load from server if no cache
+      this.loadFromServer(false);
+    }
+  }
+
+  // New method to automatically mark unread messages as read
+  private markUnreadMessagesAsRead(playerId: string): void {
+    if (!this.selectedChat) return;
+
+    const unreadMessages = this.selectedChat.messages.filter(
+      (msg) => !msg.isFromAdmin && !msg.isRead
+    );
+
+    if (unreadMessages.length > 0) {
+      // Mark all unread messages as read
+      unreadMessages.forEach((message) => {
+        this.messageService.toggleMarkMessage(message.id, true).subscribe({
+          next: (response: any) => {
+            if (response.success) {
+              // Update local cache
+              message.isRead = true;
+
+              // Update unread count in chat list
+              const chatInList = this.playerChats.find(
+                (c) => c.playerId === playerId
+              );
+              if (chatInList) {
+                chatInList.unreadCount = Math.max(
+                  0,
+                  chatInList.unreadCount - 1
+                );
+              }
+
+              // Update cache with new read status
+              this.saveToCache(this.playerChats);
+
+              // Update UI
+              this.cdr.detectChanges();
+            }
+          },
+          error: (err: any) => {
+            console.error('Error marking message as read:', err);
+          },
+        });
+      });
+    }
   }
 
   private scrollToTop(): void {
@@ -407,9 +668,10 @@ export class FloatingInboxComponent implements OnInit, OnDestroy {
   }
 
   private scrollToBottom(): void {
-    const messagesContainer = document.querySelector('#messagesContainer');
-    if (messagesContainer) {
-      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    if (this.messagesContainer && this.messagesContainer.nativeElement) {
+      // Scroll to bottom to show latest messages
+      this.messagesContainer.nativeElement.scrollTop =
+        this.messagesContainer.nativeElement.scrollHeight;
     }
   }
 
@@ -442,6 +704,13 @@ export class FloatingInboxComponent implements OnInit, OnDestroy {
       }
     });
 
+    // Sort messages within each chat from oldest to newest
+    Array.from(chatMap.values()).forEach((chat) => {
+      chat.messages.sort(
+        (a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime()
+      );
+    });
+
     return Array.from(chatMap.values());
   }
 
@@ -451,12 +720,49 @@ export class FloatingInboxComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.messageService.sendAdminReply(playerId, this.replyText).subscribe({
+    const replyContent = this.replyText; // Store before clearing
+    this.replyText = ''; // Clear the input
+
+    this.messageService.sendAdminReply(playerId, replyContent).subscribe({
       next: (response: any) => {
         if (response.success) {
           this.toastr.success('تم إرسال الرد بنجاح');
-          this.replyText = ''; // Clear the input
-          this.loadAdminMessages();
+
+          // Add the new reply to local data immediately (like inbox.component)
+          if (this.selectedChat) {
+            const newReply = {
+              id: response.messageId || Date.now(),
+              content: replyContent,
+              sentAt: new Date().toISOString(),
+              isFromAdmin: true,
+              isRead: true,
+              senderId: 'admin',
+              senderFullName: 'Admin',
+            };
+
+            // Add to selected chat
+            this.selectedChat.messages.push(newReply);
+
+            // Update last message in chat list
+            const chatInList = this.playerChats.find(
+              (c) => c.playerId === playerId
+            );
+            if (chatInList) {
+              chatInList.lastMessage = replyContent;
+              chatInList.lastMessageDate = newReply.sentAt;
+
+              // Re-sort chats by latest message
+              this.playerChats.sort(
+                (a, b) =>
+                  new Date(b.lastMessageDate).getTime() -
+                  new Date(a.lastMessageDate).getTime()
+              );
+            }
+
+            // Update cache
+            this.saveToCache(this.playerChats);
+          }
+
           this.cdr.detectChanges();
 
           // Scroll to bottom after sending reply
@@ -477,7 +783,30 @@ export class FloatingInboxComponent implements OnInit, OnDestroy {
     this.messageService.toggleMarkMessage(messageId, true).subscribe({
       next: (response: any) => {
         if (response.success) {
-          this.loadAdminMessages();
+          // Update local data immediately (like inbox.component)
+          if (this.selectedChat) {
+            const message = this.selectedChat.messages.find(
+              (msg) => msg.id === messageId
+            );
+            if (message) {
+              message.isRead = true;
+
+              // Update unread count in chat list
+              const chatInList = this.playerChats.find(
+                (c) => c.playerId === this.selectedChat?.playerId
+              );
+              if (chatInList) {
+                chatInList.unreadCount = Math.max(
+                  0,
+                  chatInList.unreadCount - 1
+                );
+              }
+
+              // Update cache
+              this.saveToCache(this.playerChats);
+            }
+          }
+
           this.cdr.detectChanges();
         }
       },

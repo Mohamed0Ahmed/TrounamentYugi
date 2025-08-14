@@ -7,10 +7,11 @@
   [class.dragging]="isDragging"
   (mousedown)="onButtonMouseDown($event)"
   (touchstart)="onButtonTouchStart($event)"
+  (touchend)="onButtonTouchEnd($event)"
   (click)="toggleInboxOverlay()"
 >
   <div
-    class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center hover:scale-110 floating-button relative group border-2 border-blue-400"
+    class="w-12 h-12 md:w-12 md:h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center hover:scale-110 floating-button relative group border-2 border-blue-400"
     [class.shadow-2xl]="isDragging"
   >
     <i class="fa-solid fa-comments text-lg text-white"></i>
@@ -30,11 +31,11 @@
 <!-- Inbox Component Overlay -->
 <div
   *ngIf="isAdmin && showInboxOverlay"
-  class="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center pt-[50px] sm:p-4"
+  class="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center pt-[50px] sm:p-4 md:p-4"
   (click)="closeInboxOverlay()"
 >
   <div
-    class="bg-gray-900 rounded-lg shadow-2xl overflow-hidden overlay-enter"
+    class="bg-gray-900 rounded-lg shadow-2xl overflow-hidden overlay-enter w-full h-full md:w-auto md:h-auto"
     (click)="$event.stopPropagation()"
     style="
       min-width: 320px;
@@ -53,7 +54,7 @@
       </div>
       <button
         (click)="closeInboxOverlay()"
-        class="text-gray-400 hover:text-white transition-colors p-2 rounded-lg hover:bg-gray-700"
+        class="text-gray-400 hover:text-white transition-colors p-2 rounded-lg hover:bg-gray-700 active:bg-gray-600"
         title="Close"
       >
         <i class="fa-solid fa-times text-xl"></i>
@@ -66,17 +67,19 @@
       <div *ngIf="!selectedChat" class="h-full flex flex-col">
         <!-- Header with refresh button -->
         <div
-          class="bg-gray-700 p-3 border-b border-gray-600 flex justify-between items-center"
+          class="bg-gray-700 p-3 border-b border-gray-600 flex flex-col space-y-2"
         >
-          <h3 class="text-white font-semibold">المحادثات</h3>
-          <button
-            (click)="refreshMessages()"
-            class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm transition-colors"
-            title="تحديث"
-          >
-            <i class="fa-solid fa-refresh mr-1"></i>
-            تحديث
-          </button>
+          <!-- Action Buttons -->
+          <div class="flex items-center space-x-2 rtl:space-x-reverse">
+            <button
+              (click)="refreshMessages()"
+              class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm transition-colors active:bg-blue-800 min-w-[80px]"
+              title="تحديث"
+            >
+              <i class="fa-solid fa-refresh mr-1"></i>
+              <span class="hidden sm:inline">تحديث</span>
+            </button>
+          </div>
         </div>
 
         <!-- Chat List with Scroll -->
@@ -84,11 +87,11 @@
           <div
             *ngFor="let chat of playerChats"
             (click)="selectChat(chat)"
-            class="bg-gray-800 hover:bg-gray-700 rounded-lg p-3 mb-2 cursor-pointer transition-colors border-l-4 border-transparent hover:border-blue-500"
+            class="bg-gray-800 hover:bg-gray-700 rounded-lg p-3 mb-2 cursor-pointer transition-colors border-l-4 border-transparent hover:border-blue-500 active:bg-gray-600"
           >
             <div class="flex justify-between items-start">
-              <div class="flex-1">
-                <h4 class="text-white font-medium text-sm">
+              <div class="flex-1 min-w-0">
+                <h4 class="text-white font-medium text-sm truncate">
                   {{ chat.playerFullName }}
                 </h4>
                 <p class="text-gray-300 text-xs mt-1 truncate">
@@ -100,7 +103,7 @@
               </div>
               <div
                 *ngIf="chat.unreadCount > 0"
-                class="bg-red-500 text-white text-xs rounded-full px-2 py-1 min-w-[20px] text-center"
+                class="bg-red-500 text-white text-xs rounded-full px-2 py-1 min-w-[20px] text-center flex-shrink-0 ml-2"
               >
                 {{ chat.unreadCount }}
               </div>
@@ -112,23 +115,25 @@
       <!-- Chat View -->
       <div *ngIf="selectedChat" class="h-full flex flex-col">
         <!-- Chat Header -->
-        <div class="bg-gray-700 px-2 border-b border-gray-600 flex items-center">
+        <div
+          class="bg-gray-700 px-2 border-b border-gray-600 flex items-center"
+        >
           <button
             (click)="goBack()"
-            class="text-gray-400 hover:text-white mr-3 transition-colors"
+            class="text-gray-400 hover:text-white mr-3 transition-colors p-2 rounded active:bg-gray-600"
             title="رجوع"
           >
             <i class="fa-solid fa-arrow-left text-lg"></i>
           </button>
-          <h3 class="text-white text-sm font-semibold">
+          <h3 class="text-white text-sm font-semibold truncate flex-1">
             {{ selectedChat.playerFullName }}
           </h3>
         </div>
 
         <!-- Messages Container with Scroll -->
         <div
-          class="flex-1 overflow-y-auto p-3 space-y-3 max-h-80 flex flex-col-reverse"
           #messagesContainer
+          class="flex-1 overflow-y-auto p-3 space-y-3 max-h-80"
         >
           <div
             *ngFor="
@@ -142,13 +147,15 @@
             }"
           >
             <div
-              class="inline-block p-3 rounded-lg max-w-xs"
+              class="inline-block p-3 rounded-lg max-w-[85%] md:max-w-xs"
               [ngClass]="{
                 'bg-green-700': !message.isFromAdmin,
                 'bg-gray-700': message.isFromAdmin
               }"
             >
-              <p class="text-white text-sm">{{ message.content }}</p>
+              <p class="text-white text-sm break-words">
+                {{ message.content }}
+              </p>
               <p class="text-xs mt-1 text-gray-300">
                 {{ message.sentAt | date : "MMM d, y, hh:mm a" }}
               </p>
@@ -160,11 +167,11 @@
               >
                 <button
                   (click)="markAsRead(message.id)"
-                  class="text-green-400 hover:text-green-300 text-xs transition-colors"
+                  class="text-green-400 hover:text-green-300 text-xs transition-colors p-1 rounded active:bg-green-800"
                   title="تحديد كمقروءة"
                 >
                   <i class="fa-solid fa-check mr-1"></i>
-                  تحديد كمقروءة
+                  <span class="hidden sm:inline">تحديد كمقروءة</span>
                 </button>
               </div>
             </div>
@@ -178,16 +185,19 @@
               type="text"
               [(ngModel)]="replyText"
               placeholder="اكتب ردك هنا..."
-              class="flex-1 bg-gray-600 text-white text-sm px-3 py-2 rounded border border-gray-500 focus:border-blue-500 focus:outline-none"
+              class="flex-1 bg-gray-600 text-white text-sm px-3 py-2 md:py-2 rounded border border-gray-500 focus:border-blue-500 focus:outline-none"
               (keyup.enter)="sendReply(selectedChat.playerId)"
+              autocomplete="off"
+              autocorrect="off"
+              autocapitalize="off"
             />
             <button
               (click)="sendReply(selectedChat.playerId)"
-              class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm transition-colors"
+              class="bg-blue-600 hover:bg-blue-700 text-white px-3 md:px-4 py-2 md:py-2 rounded text-sm transition-colors min-w-[60px] md:min-w-[80px]"
               title="إرسال"
             >
               <i class="fa-solid fa-paper-plane mr-1"></i>
-              إرسال
+              <span class="hidden sm:inline">إرسال</span>
             </button>
           </div>
         </div>
