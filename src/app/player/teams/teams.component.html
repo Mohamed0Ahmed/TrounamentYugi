@@ -406,16 +406,18 @@
 <div
   *ngIf="showTeamMatchesModal"
   class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+  (click)="closeTeamMatchesModal()"
 >
   <div
     class="bg-black bg-opacity-50 rounded-lg w-full max-w-6xl max-h-[90vh] relative"
+    (click)="$event.stopPropagation()"
   >
     <!-- Fixed Close Button -->
     <button
       (click)="closeTeamMatchesModal()"
-      class="absolute top-4 right-5 z-10 text-gray-100 hover:text-white text-2xl font-bold transition-colors bg-black bg-opacity-70 rounded-full w-8 h-8 flex items-center justify-center"
+      class="absolute top-4 right-5 z-10 p-2 text-gray-100 hover:text-white text-lg font-bold transition-colors bg-gray-800 bg-opacity-70 rounded-full h-8 flex items-center justify-center"
     >
-      ×
+      Exit ×
     </button>
 
     <!-- Modal Content with Padding -->
@@ -442,11 +444,7 @@
             >
               {{ fixture.team1Name }}
             </h4>
-            <h4
-              class="text-lg font-bold text-white mb-3 bg-black bg-opacity-50 pb-2"
-            >
-              vs
-            </h4>
+
             <h4
               class="text-lg font-bold text-white mb-3 bg-black bg-opacity-50 pb-2"
             >
@@ -454,52 +452,81 @@
             </h4>
           </div>
 
-          <div class="grid gap-3">
-            <div
-              *ngFor="let match of fixture.matches"
-              class="bg-black bg-opacity-50 p-3 rounded flex justify-between items-center"
-            >
-              <div class="flex-1">
-                <span class="text-white font-semibold">{{
-                  match.player1Name
-                }}</span>
-              </div>
-
-              <div class="px-4 text-center">
-                <div *ngIf="match.isCompleted" class="font-bold text-lg">
-                  <span
-                    [class]="
-                      (match.score1 || 0) > (match.score2 || 0)
-                        ? 'text-green-400'
-                        : (match.score1 || 0) < (match.score2 || 0)
-                        ? 'text-red-400'
-                        : 'text-yellow-400'
-                    "
-                  >
-                    {{ match.score1 || 0 }}
-                  </span>
-                  <span class="text-white mx-2">-</span>
-                  <span
-                    [class]="
-                      (match.score2 || 0) > (match.score1 || 0)
-                        ? 'text-green-400'
-                        : (match.score2 || 0) < (match.score1 || 0)
-                        ? 'text-red-400'
-                        : 'text-yellow-400'
-                    "
-                  >
-                    {{ match.score2 || 0 }}
-                  </span>
+          <!-- Completed Matches First -->
+          <div
+            class="mb-4"
+            *ngIf="getCompletedMatches(fixture.matches).length > 0"
+          >
+            <div class="grid gap-3">
+              <div
+                *ngFor="let match of getCompletedMatches(fixture.matches)"
+                class="bg-black bg-opacity-50 p-3 rounded flex justify-between items-center"
+              >
+                <div class="flex-1">
+                  <span class="text-white font-semibold">{{
+                    match.player1Name
+                  }}</span>
                 </div>
-                <div *ngIf="!match.isCompleted" class="text-gray-400 text-sm">
-                  Pending
+
+                <div class="px-4 text-center">
+                  <div class="font-bold text-lg">
+                    <span
+                      [class]="
+                        (match.score1 || 0) > (match.score2 || 0)
+                          ? 'text-green-400'
+                          : (match.score1 || 0) < (match.score2 || 0)
+                          ? 'text-red-400'
+                          : 'text-yellow-400'
+                      "
+                    >
+                      {{ match.score1 || 0 }}
+                    </span>
+                    <span class="text-white mx-2">-</span>
+                    <span
+                      [class]="
+                        (match.score2 || 0) > (match.score1 || 0)
+                          ? 'text-green-400'
+                          : (match.score2 || 0) < (match.score1 || 0)
+                          ? 'text-red-400'
+                          : 'text-yellow-400'
+                      "
+                    >
+                      {{ match.score2 || 0 }}
+                    </span>
+                  </div>
+                </div>
+
+                <div class="flex-1 text-right">
+                  <span class="text-white font-semibold">{{
+                    match.player2Name
+                  }}</span>
                 </div>
               </div>
+            </div>
+          </div>
 
-              <div class="flex-1 text-right">
-                <span class="text-white font-semibold">{{
-                  match.player2Name
-                }}</span>
+          <!-- Pending Matches Second -->
+          <div *ngIf="getPendingMatches(fixture.matches).length > 0">
+            <div class="grid gap-3">
+              <div
+                *ngFor="let match of getPendingMatches(fixture.matches)"
+                class="bg-black bg-opacity-50 p-3 rounded flex justify-between items-center"
+              >
+                <div class="flex-1">
+                  <span class="text-white font-semibold">{{
+                    match.player1Name
+                  }}</span>
+                </div>
+
+                <div class="px-4 text-center">
+                  <div class="text-gray-400 text-sm">Pending</div>
+                </div>
+
+                <div class="flex-1 text-right">
+                  <span class="text-white font-semibold">{{
+                    match.player2Name
+                  }}</span>
+                </div>
               </div>
             </div>
           </div>
@@ -521,16 +548,18 @@
 <div
   *ngIf="showPlayerResultsModal"
   class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+  (click)="closePlayerResultsModal()"
 >
   <div
     class="bg-black bg-opacity-50 rounded-lg w-full max-w-2xl max-h-[80vh] relative"
+    (click)="$event.stopPropagation()"
   >
     <!-- Fixed Close Button -->
     <button
       (click)="closePlayerResultsModal()"
-      class="absolute top-4 right-4 z-10 text-white hover:text-white text-2xl font-bold transition-colors bg-black bg-opacity-50 rounded-full w-8 h-8 flex items-center justify-center hover:bg-opacity-75"
+      class="absolute top-4 right-5 z-10 p-2 text-gray-100 hover:text-white text-lg font-bold transition-colors bg-gray-800 bg-opacity-70 rounded-full h-8 flex items-center justify-center"
     >
-      ×
+      Exit ×
     </button>
 
     <!-- Modal Content -->

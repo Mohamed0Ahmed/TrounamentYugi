@@ -505,4 +505,15 @@ export class TeamsComponent implements OnInit {
         });
     });
   }
+
+  /**
+   * ترتيب المباريات: المكتملة أولاً، ثم المعلقة
+   */
+  getCompletedMatches(matches: any[]): any[] {
+    return matches.filter((match) => match.isCompleted);
+  }
+
+  getPendingMatches(matches: any[]): any[] {
+    return matches.filter((match) => !match.isCompleted);
+  }
 }

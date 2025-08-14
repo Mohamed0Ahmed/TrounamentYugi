@@ -278,8 +278,19 @@
   <div
     *ngIf="showCreateTournamentModal"
     class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75 z-50"
+    (click)="closeCreateTournamentModal()"
   >
-    <div class="bg-gray-800 p-6 rounded-lg max-w-md w-full mx-4">
+    <div
+      class="bg-gray-800 p-6 rounded-lg max-w-md w-full mx-4 relative"
+      (click)="$event.stopPropagation()"
+    >
+      <!-- Fixed Close Button -->
+      <button
+        (click)="closeCreateTournamentModal()"
+        class="absolute top-4 right-5 z-10 p-2 text-gray-100 hover:text-white text-lg font-bold transition-colors bg-gray-800 bg-opacity-70 rounded-full h-8 flex items-center justify-center"
+      >
+        Exit ×
+      </button>
       <h2 class="text-lg font-bold mb-4 text-white">Create New Tournament</h2>
 
       <div class="space-y-4">
@@ -358,10 +369,19 @@
   <div
     *ngIf="showCreateTeamModal"
     class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75 z-50"
+    (click)="closeCreateTeamModal()"
   >
     <div
-      class="bg-gray-800 p-6 rounded-lg max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto"
+      class="bg-gray-800 p-6 rounded-lg max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto relative"
+      (click)="$event.stopPropagation()"
     >
+      <!-- Fixed Close Button -->
+      <button
+        (click)="closeCreateTeamModal()"
+        class="absolute top-4 right-5 z-10 p-2 text-gray-100 hover:text-white text-lg font-bold transition-colors bg-gray-800 bg-opacity-70 rounded-full h-8 flex items-center justify-center"
+      >
+        Exit ×
+      </button>
       <h2 class="text-lg font-bold mb-4 text-white">
         Create Team for {{ activeTournament?.name }}
       </h2>
@@ -456,8 +476,19 @@
   <div
     *ngIf="showAddPlayerModal"
     class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75 z-50"
+    (click)="showAddPlayerModal = false"
   >
-    <div class="bg-gray-800 p-6 rounded-lg max-w-md w-full mx-4">
+    <div
+      class="bg-gray-800 p-6 rounded-lg max-w-md w-full mx-4 relative"
+      (click)="$event.stopPropagation()"
+    >
+      <!-- Fixed Close Button -->
+      <button
+        (click)="showAddPlayerModal = false"
+        class="absolute top-4 right-5 z-10 p-2 text-gray-100 hover:text-white text-lg font-bold transition-colors bg-gray-800 bg-opacity-70 rounded-full h-8 flex items-center justify-center"
+      >
+        Exit ×
+      </button>
       <h2 class="text-lg font-bold mb-4 text-white">Add New Player</h2>
 
       <input
@@ -489,8 +520,19 @@
   <div
     *ngIf="showRecordResultModal"
     class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75 z-50"
+    (click)="closeRecordResultModal()"
   >
-    <div class="bg-gray-800 p-6 rounded-lg max-w-md w-full mx-4">
+    <div
+      class="bg-gray-800 p-6 rounded-lg max-w-md w-full mx-4 relative"
+      (click)="$event.stopPropagation()"
+    >
+      <!-- Fixed Close Button -->
+      <button
+        (click)="closeRecordResultModal()"
+        class="absolute top-4 right-5 z-10 p-2 text-gray-100 hover:text-white text-lg font-bold transition-colors bg-gray-800 bg-opacity-70 rounded-full h-8 flex items-center justify-center"
+      >
+        Exit ×
+      </button>
       <h2 class="text-lg font-bold mb-4 text-white">Record Match Result</h2>
 
       <div class="grid grid-cols-2 gap-4 mb-4">
@@ -551,16 +593,18 @@
   <div
     *ngIf="showPlayerMatchesModal"
     class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    (click)="closePlayerMatchesModal()"
   >
     <div
       class="bg-black bg-opacity-50 rounded-lg w-full max-w-4xl max-h-[90vh] overflow-hidden relative"
+      (click)="$event.stopPropagation()"
     >
       <!-- Fixed Close Button -->
       <button
         (click)="closePlayerMatchesModal()"
-        class="absolute top-4 right-6 z-10 text-white hover:text-white text-2xl font-bold transition-colors bg-black bg-opacity-50 rounded-full w-8 h-8 flex items-center justify-center hover:bg-opacity-75"
+        class="absolute top-4 right-5 z-10 p-2 text-gray-100 hover:text-white text-lg font-bold transition-colors bg-gray-800 bg-opacity-70 rounded-full h-8 flex items-center justify-center"
       >
-        ×
+        Exit ×
       </button>
 
       <!-- Modal Content with Scroll -->
