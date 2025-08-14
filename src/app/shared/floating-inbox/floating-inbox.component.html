@@ -1,0 +1,197 @@
+<!-- Floating Admin Inbox Button (Draggable) -->
+<div
+  *ngIf="isAdmin"
+  class="fixed z-50 cursor-pointer select-none"
+  [style.left.px]="buttonPosition.x"
+  [style.top.px]="buttonPosition.y"
+  [class.dragging]="isDragging"
+  (mousedown)="onButtonMouseDown($event)"
+  (touchstart)="onButtonTouchStart($event)"
+  (click)="toggleInboxOverlay()"
+>
+  <div
+    class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center hover:scale-110 floating-button relative group border-2 border-blue-400"
+    [class.shadow-2xl]="isDragging"
+  >
+    <i class="fa-solid fa-comments text-lg text-white"></i>
+
+    <!-- Tooltip -->
+    <div
+      class="absolute bottom-full right-0 mb-2 px-3 py-2 bg-gray-800 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap pointer-events-none tooltip"
+    >
+      Admin Inbox (Drag to move)
+      <div
+        class="absolute top-full right-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"
+      ></div>
+    </div>
+  </div>
+</div>
+
+<!-- Inbox Component Overlay -->
+<div
+  *ngIf="isAdmin && showInboxOverlay"
+  class="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center pt-[50px] sm:p-4"
+  (click)="closeInboxOverlay()"
+>
+  <div
+    class="bg-gray-900 rounded-lg shadow-2xl overflow-hidden overlay-enter"
+    (click)="$event.stopPropagation()"
+    style="
+      min-width: 320px;
+      min-height: 500px;
+      max-width: 90vw;
+      max-height: 90vh;
+    "
+  >
+    <!-- Overlay Header -->
+    <div
+      class="bg-gray-800 p-4 border-b border-gray-600 flex items-center justify-between"
+    >
+      <div class="flex items-center">
+        <i class="fa-solid fa-inbox text-white mr-3 text-xl"></i>
+        <h2 class="text-xl font-bold text-white">Admin Inbox</h2>
+      </div>
+      <button
+        (click)="closeInboxOverlay()"
+        class="text-gray-400 hover:text-white transition-colors p-2 rounded-lg hover:bg-gray-700"
+        title="Close"
+      >
+        <i class="fa-solid fa-times text-xl"></i>
+      </button>
+    </div>
+
+    <!-- Inbox Component Container -->
+    <div class="h-full overflow-hidden">
+      <!-- Chat List View -->
+      <div *ngIf="!selectedChat" class="h-full flex flex-col">
+        <!-- Header with refresh button -->
+        <div
+          class="bg-gray-700 p-3 border-b border-gray-600 flex justify-between items-center"
+        >
+          <h3 class="text-white font-semibold">المحادثات</h3>
+          <button
+            (click)="refreshMessages()"
+            class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm transition-colors"
+            title="تحديث"
+          >
+            <i class="fa-solid fa-refresh mr-1"></i>
+            تحديث
+          </button>
+        </div>
+
+        <!-- Chat List with Scroll -->
+        <div class="flex-1 overflow-y-auto p-2 max-h-96">
+          <div
+            *ngFor="let chat of playerChats"
+            (click)="selectChat(chat)"
+            class="bg-gray-800 hover:bg-gray-700 rounded-lg p-3 mb-2 cursor-pointer transition-colors border-l-4 border-transparent hover:border-blue-500"
+          >
+            <div class="flex justify-between items-start">
+              <div class="flex-1">
+                <h4 class="text-white font-medium text-sm">
+                  {{ chat.playerFullName }}
+                </h4>
+                <p class="text-gray-300 text-xs mt-1 truncate">
+                  {{ chat.lastMessage }}
+                </p>
+                <p class="text-gray-400 text-xs mt-1">
+                  {{ chat.lastMessageDate | date : "short" }}
+                </p>
+              </div>
+              <div
+                *ngIf="chat.unreadCount > 0"
+                class="bg-red-500 text-white text-xs rounded-full px-2 py-1 min-w-[20px] text-center"
+              >
+                {{ chat.unreadCount }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chat View -->
+      <div *ngIf="selectedChat" class="h-full flex flex-col">
+        <!-- Chat Header -->
+        <div class="bg-gray-700 px-2 border-b border-gray-600 flex items-center">
+          <button
+            (click)="goBack()"
+            class="text-gray-400 hover:text-white mr-3 transition-colors"
+            title="رجوع"
+          >
+            <i class="fa-solid fa-arrow-left text-lg"></i>
+          </button>
+          <h3 class="text-white text-sm font-semibold">
+            {{ selectedChat.playerFullName }}
+          </h3>
+        </div>
+
+        <!-- Messages Container with Scroll -->
+        <div
+          class="flex-1 overflow-y-auto p-3 space-y-3 max-h-80 flex flex-col-reverse"
+          #messagesContainer
+        >
+          <div
+            *ngFor="
+              let message of selectedChat.messages;
+              trackBy: trackByMessageId
+            "
+            class="mb-4"
+            [ngClass]="{
+              'text-right': !message.isFromAdmin,
+              'text-left': message.isFromAdmin
+            }"
+          >
+            <div
+              class="inline-block p-3 rounded-lg max-w-xs"
+              [ngClass]="{
+                'bg-green-700': !message.isFromAdmin,
+                'bg-gray-700': message.isFromAdmin
+              }"
+            >
+              <p class="text-white text-sm">{{ message.content }}</p>
+              <p class="text-xs mt-1 text-gray-300">
+                {{ message.sentAt | date : "MMM d, y, hh:mm a" }}
+              </p>
+
+              <!-- Message Actions (only mark as read for admin messages) -->
+              <div
+                *ngIf="message.isFromAdmin && !message.isRead"
+                class="flex justify-end items-center mt-2"
+              >
+                <button
+                  (click)="markAsRead(message.id)"
+                  class="text-green-400 hover:text-green-300 text-xs transition-colors"
+                  title="تحديد كمقروءة"
+                >
+                  <i class="fa-solid fa-check mr-1"></i>
+                  تحديد كمقروءة
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fixed Reply Input at Bottom -->
+        <div class="bg-gray-700 p-3 border-t border-gray-600">
+          <div class="flex items-center space-x-2 rtl:space-x-reverse">
+            <input
+              type="text"
+              [(ngModel)]="replyText"
+              placeholder="اكتب ردك هنا..."
+              class="flex-1 bg-gray-600 text-white text-sm px-3 py-2 rounded border border-gray-500 focus:border-blue-500 focus:outline-none"
+              (keyup.enter)="sendReply(selectedChat.playerId)"
+            />
+            <button
+              (click)="sendReply(selectedChat.playerId)"
+              class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm transition-colors"
+              title="إرسال"
+            >
+              <i class="fa-solid fa-paper-plane mr-1"></i>
+              إرسال
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
