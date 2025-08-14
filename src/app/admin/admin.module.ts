@@ -4,7 +4,7 @@ import { RouterModule } from '@angular/router';
 
 import { AdminRoutingModule } from './admin-routing.module';
 import { PlayersComponent } from './players/players.component';
-import { InboxComponent } from './inbox/inbox.component';
+
 import { FriendliesComponent } from './friendlies/friendlies.component';
 import { FriendlyInboxComponent } from './friendlies/friendly-inbox/friendly-inbox.component';
 import { FormsModule } from '@angular/forms';
@@ -18,7 +18,6 @@ import { TeamsDashboardComponent } from './teams-dashboard/teams-dashboard.compo
 @NgModule({
   declarations: [
     PlayersComponent,
-    InboxComponent,
     FriendliesComponent,
     FriendlyInboxComponent,
     FindPlayerPipe,

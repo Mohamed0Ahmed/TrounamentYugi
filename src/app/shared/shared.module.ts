@@ -1,13 +1,14 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { InboxComponent } from '../admin/inbox/inbox.component';
+import { MessageService } from '../core/services/message.service';
+import { AdminDashboardService } from '../core/services/admin-dashboard.service';
 
 @NgModule({
-  declarations: [
-    // ✅ تم حذف UpdateStatusComponent و AdminUpdateStatusComponent - مالهمش لازمة
-  ],
-  imports: [CommonModule],
-  exports: [
-    // ✅ تم تنظيف exports
-  ],
+  declarations: [InboxComponent],
+  imports: [CommonModule, FormsModule],
+  exports: [InboxComponent],
+  providers: [MessageService, AdminDashboardService],
 })
 export class SharedModule {}
