@@ -15,16 +15,14 @@
   [style.top.px]="buttonPosition.y"
   [class.dragging]="isDragging"
   (mousedown)="onButtonMouseDown($event)"
+  (touchstart)="onButtonTouchStart($event)"
   (click)="toggleInboxOverlay()"
 >
   <div
-    class="w-14 h-14 bg-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center hover:scale-110 floating-button relative group"
+    class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center hover:scale-110 floating-button relative group border-2 border-blue-400"
     [class.shadow-2xl]="isDragging"
   >
-    <i class="fa-solid fa-inbox text-2xl text-gray-800"></i>
-    <div
-      class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full animate-pulse"
-    ></div>
+    <i class="fa-solid fa-comments text-lg text-white"></i>
 
     <!-- Tooltip -->
     <div
@@ -41,11 +39,11 @@
 <!-- Inbox Component Overlay -->
 <div
   *ngIf="isAdmin && showInboxOverlay"
-  class="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-2 sm:p-4"
+  class="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center pt-[50px] sm:p-4"
   (click)="closeInboxOverlay()"
 >
   <div
-    class="bg-gray-900 rounded-lg shadow-2xl w-[95%] h-[95%] sm:w-[90%] sm:h-[90%] max-w-6xl max-h-[90vh] overflow-hidden overlay-enter"
+    class="bg-gray-900 rounded-lg shadow-2xl overflow-hidden overlay-enter"
     (click)="$event.stopPropagation()"
     style="min-width: 280px; min-height: 400px"
   >
