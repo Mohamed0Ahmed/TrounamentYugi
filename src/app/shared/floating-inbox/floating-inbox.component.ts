@@ -76,6 +76,7 @@ export class FloatingInboxComponent
   ngOnInit(): void {
     this.checkAdminStatus();
     this.setInitialButtonPosition();
+    this.detectMobileDevice();
 
     if (this.isAdmin) {
       // Load fresh data from server (like inbox.component)
@@ -145,6 +146,26 @@ export class FloatingInboxComponent
     }
   }
 
+  onButtonClick(event: Event): void {
+    // Handle click events (mainly for desktop)
+    // Prevent this from firing if we're dragging or on mobile
+    // This prevents conflicts with touch events on mobile
+    if (!this.isDragging && !this.isMobile) {
+      this.toggleInboxOverlay();
+    }
+  }
+
+  private detectMobileDevice(): void {
+    // Check if device is mobile using multiple detection methods
+    // This ensures accurate mobile detection for touch event handling
+    this.isMobile =
+      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+        navigator.userAgent
+      ) ||
+      'ontouchstart' in window ||
+      navigator.maxTouchPoints > 0;
+  }
+
   closeInboxOverlay(): void {
     this.showInboxOverlay = false;
   }
@@ -206,6 +227,7 @@ export class FloatingInboxComponent
 
   // Dragging functionality
   onButtonMouseDown(event: MouseEvent): void {
+    // Start dragging and reset movement flag for mouse events
     this.isDragging = true;
     this.hasMovedDuringDrag = false;
     this.dragOffset = {
@@ -219,6 +241,7 @@ export class FloatingInboxComponent
   }
 
   onButtonTouchStart(event: TouchEvent): void {
+    // Start dragging and reset movement flag for touch events
     this.isDragging = true;
     this.hasMovedDuringDrag = false;
 
@@ -228,7 +251,8 @@ export class FloatingInboxComponent
       y: touch.clientY - this.buttonPosition.y,
     };
 
-    event.preventDefault();
+    // Don't prevent default on touch start to allow proper touch handling
+    // This ensures touch events work correctly on mobile
     event.stopPropagation();
     document.body.style.cursor = 'grabbing';
     document.body.classList.add('dragging');
@@ -237,17 +261,20 @@ export class FloatingInboxComponent
   onButtonTouchEnd(event: TouchEvent): void {
     if (this.isDragging && !this.hasMovedDuringDrag) {
       // If no significant movement occurred, treat as a tap/click
-      // Don't call toggleInboxOverlay here as it will be handled by click event
-      // Just reset the dragging state
+      // For mobile, we need to explicitly call toggleInboxOverlay
+      // But prevent the click event from also firing
+      // This ensures the modal opens on mobile touch
+      event.preventDefault();
+      event.stopPropagation();
+      this.toggleInboxOverlay();
     }
 
     this.isDragging = false;
     document.body.style.cursor = 'default';
     document.body.classList.remove('dragging');
 
-    setTimeout(() => {
-      this.hasMovedDuringDrag = false;
-    }, 100);
+    // Reset the flag immediately to prevent conflicts
+    this.hasMovedDuringDrag = false;
   }
 
   @HostListener('document:mousemove', ['$event'])
@@ -729,6 +756,7 @@ export class FloatingInboxComponent
           this.toastr.success('تم إرسال الرد بنجاح');
 
           // Add the new reply to local data immediately (like inbox.component)
+          // This ensures the UI updates instantly without waiting for server response
           if (this.selectedChat) {
             const newReply = {
               id: response.messageId || Date.now(),
@@ -761,14 +789,15 @@ export class FloatingInboxComponent
 
             // Update cache
             this.saveToCache(this.playerChats);
+
+            // Force UI update immediately to show the new message
+            this.cdr.detectChanges();
+
+            // Scroll to bottom after sending reply to show the new message
+            setTimeout(() => {
+              this.scrollToBottom();
+            }, 100);
           }
-
-          this.cdr.detectChanges();
-
-          // Scroll to bottom after sending reply
-          setTimeout(() => {
-            this.scrollToBottom();
-          }, 100);
         } else {
           this.toastr.error(response.message || 'فشل في إرسال الرد');
         }

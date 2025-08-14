@@ -8,11 +8,11 @@
   (mousedown)="onButtonMouseDown($event)"
   (touchstart)="onButtonTouchStart($event)"
   (touchend)="onButtonTouchEnd($event)"
-  (click)="toggleInboxOverlay()"
 >
   <div
     class="w-12 h-12 md:w-12 md:h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center hover:scale-110 floating-button relative group border-2 border-blue-400"
     [class.shadow-2xl]="isDragging"
+    (click)="onButtonClick($event)"
   >
     <i class="fa-solid fa-comments text-lg text-white"></i>
 
