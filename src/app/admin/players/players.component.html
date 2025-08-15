@@ -117,7 +117,7 @@
 
     <!-- القائمة الأولية -->
     <div>
-      <div class="grid grid-cols-3 lg:grid-cols-5 gap-4 pt-5">
+      <div class="grid grid-cols-2 lg:grid-cols-5 gap-4 pt-5">
         <button
           (click)="toggleSidebar()"
           class="bg-blue-600 text-white px-3 py-2 rounded mb-4 hover:bg-blue-700 transition"
@@ -136,12 +136,7 @@
             <h4 class="text-white font-bold">{{ totalMessagesLeft }}</h4>
           </div>
         </button>
-        <button
-          routerLink="/admin/teams-dashboard"
-          class="bg-blue-600 hover:bg-blue-700 text-white mb-4 px-3 py-2 rounded transition-all"
-        >
-          👥 Teams Tournament
-        </button>
+
         <button
           class="bg-green-600 text-white px-3 py-2 rounded mb-4 hover:bg-green-700 transition"
           (click)="openStartLeagueModal()"

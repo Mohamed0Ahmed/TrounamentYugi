@@ -20,17 +20,25 @@
             *ngIf="isAdmin"
             routerLink="/admin/players"
             routerLinkActive="!text-indigo-300 bg-white/10 border-b-2 border-white"
-            class="text-white hover:text-gray-300 hover:bg-gray-700 transition rounded py-2 px-2 font-bold"
+            class="text-white hover:text-gray-300 hover:bg-gray-700 transition rounded py-2 px-2 font-bold text-sm md:text-base"
           >
-            Admin Dashboard
+            Dashboard
           </a>
           <a
             *ngIf="isAdmin"
             routerLink="/admin/friendlies"
             routerLinkActive="!text-indigo-300 bg-white/10 border-b-2 border-white"
-            class="text-white hover:text-gray-300 hover:bg-gray-700 transition rounded py-2 px-2 font-bold"
+            class="text-white hover:text-gray-300 hover:bg-gray-700 transition rounded py-2 px-2 font-bold text-sm md:text-base"
           >
             Friendlies
+          </a>
+          <a
+            *ngIf="isAdmin"
+            routerLink="/admin/teams-dashboard"
+            routerLinkActive="!text-indigo-300 bg-white/10 border-b-2 border-white"
+            class="text-white hover:text-gray-300 hover:bg-gray-700 transition rounded py-2 px-2 font-bold text-sm md:text-base"
+          >
+            Teams
           </a>
 
           <!-- Send Message (small screen only) -->
