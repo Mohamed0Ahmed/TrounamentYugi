@@ -23,6 +23,7 @@ export class TeamsDashboardComponent implements OnInit {
   tournaments: MultiTournamentDto[] = [];
   activeTournament: MultiTournamentDto | null = null;
   availablePlayers: PlayerDetail[] = [];
+  availablePlayersForReplacement: PlayerDetail[] = [];
   filteredPlayers: PlayerDetail[] = [];
   tournamentMatches: TeamMatchesDto[] = [];
   filteredPlayerMatches: MatchDetail[] = [];
@@ -34,6 +35,7 @@ export class TeamsDashboardComponent implements OnInit {
   showAddPlayerModal = false;
   showRecordResultModal = false;
   showPlayerMatchesModal = false;
+  showReplacePlayerModal = false;
 
   // Confirmation Modals
   showConfirmStartTournamentModal = false;
@@ -44,6 +46,7 @@ export class TeamsDashboardComponent implements OnInit {
   // Confirmation Data
   tournamentToConfirm: MultiTournamentDto | null = null;
   matchToUndo: MatchDetail | null = null;
+  selectedTeamForReplacement: TeamDetail | null = null;
 
   // Forms
   createTournamentForm: CreateTournamentDto = {
@@ -56,6 +59,11 @@ export class TeamsDashboardComponent implements OnInit {
   createTeamForm: TeamCreateDto = {
     teamName: '',
     playerIds: [],
+  };
+
+  replacePlayerForm = {
+    replacedPlayerId: 0,
+    newPlayerId: 0,
   };
 
   newPlayerName = '';
@@ -77,6 +85,7 @@ export class TeamsDashboardComponent implements OnInit {
   isCreatingTeam = false;
   isAddingPlayer = false;
   isRecordingResult = false;
+  isReplacingPlayer = false;
 
   constructor(
     private multiTournamentService: MultiTournamentService,
@@ -443,8 +452,6 @@ export class TeamsDashboardComponent implements OnInit {
       return;
     }
 
-
-
     let requestBody: any = {};
 
     if (this.activeTournament.systemOfScoring === 'Classic') {
@@ -702,5 +709,117 @@ export class TeamsDashboardComponent implements OnInit {
         return false;
       });
     }
+  }
+
+  // ============================
+  // 🔄 Player Replacement
+  // ============================
+
+  // Open Replace Player Modal
+  openReplacePlayerModal(team: TeamDetail): void {
+    console.log('🔍 openReplacePlayerModal called with team:', team);
+    this.selectedTeamForReplacement = team;
+    this.replacePlayerForm = {
+      replacedPlayerId: 0,
+      newPlayerId: 0,
+    };
+
+    // Load available players for replacement (excluding current team players)
+    this.loadAvailablePlayersForReplacement(team);
+    this.showReplacePlayerModal = true;
+    console.log(
+      '🔍 showReplacePlayerModal set to:',
+      this.showReplacePlayerModal
+    );
+  }
+
+  // Close Replace Player Modal
+  closeReplacePlayerModal(): void {
+    this.showReplacePlayerModal = false;
+    this.selectedTeamForReplacement = null;
+    this.replacePlayerForm = {
+      replacedPlayerId: 0,
+      newPlayerId: 0,
+    };
+  }
+
+  // Load Available Players for Replacement
+  loadAvailablePlayersForReplacement(team: TeamDetail): void {
+    if (!team.players) return;
+
+    // Get current team player IDs
+    const currentTeamPlayerIds = team.players.map((p) => p.playerId);
+
+    // Filter out players who are already in this team or other teams in active tournament
+    this.availablePlayersForReplacement = this.availablePlayers.filter(
+      (player) => {
+        // Exclude current team players
+        if (currentTeamPlayerIds.includes(player.playerId)) {
+          return false;
+        }
+
+        // Exclude players who are already in other teams in active tournament
+        if (this.activeTournament) {
+          const isInOtherTeam = this.activeTournament.teams.some(
+            (t) =>
+              t.multiTeamId !== team.multiTeamId &&
+              t.players.some((p) => p.playerId === player.playerId)
+          );
+          if (isInOtherTeam) {
+            return false;
+          }
+        }
+
+        return true;
+      }
+    );
+  }
+
+  // Select Player to Replace
+  selectPlayerToReplace(playerId: number): void {
+    this.replacePlayerForm.replacedPlayerId = playerId;
+  }
+
+  // Select New Player
+  selectNewPlayer(playerId: number): void {
+    this.replacePlayerForm.newPlayerId = playerId;
+  }
+
+  // Replace Player
+  replacePlayer(): void {
+    if (
+      !this.selectedTeamForReplacement ||
+      !this.replacePlayerForm.replacedPlayerId ||
+      !this.replacePlayerForm.newPlayerId
+    ) {
+      return;
+    }
+
+    this.isReplacingPlayer = true;
+
+    this.multiTournamentService
+      .replacePlayer(this.selectedTeamForReplacement.multiTeamId, {
+        replacedPlayerId: this.replacePlayerForm.replacedPlayerId,
+        newPlayerId: this.replacePlayerForm.newPlayerId,
+      })
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.toastr.success('Player replaced successfully!');
+            this.closeReplacePlayerModal();
+            // Reload tournaments to get updated data
+            this.loadTournaments();
+          } else {
+            this.toastr.error(response.message || 'Failed to replace player');
+          }
+        },
+        error: (error) => {
+          console.error('Error replacing player:', error);
+          this.toastr.error('An error occurred while replacing the player');
+        },
+        complete: () => {
+          this.isReplacingPlayer = false;
+        },
+      });
   }
 }

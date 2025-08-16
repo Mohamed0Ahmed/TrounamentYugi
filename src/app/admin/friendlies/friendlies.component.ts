@@ -35,6 +35,8 @@ export class FriendliesComponent implements OnInit {
   matchForm = {
     player1Id: 0,
     player2Id: 0,
+    player1Name: '',
+    player2Name: '',
     player1Score: null as number | null,
     player2Score: null as number | null,
     playedOn: new Date(),
@@ -42,6 +44,14 @@ export class FriendliesComponent implements OnInit {
 
   // Loading states
   isRecordingMatch = false;
+
+  // Autocomplete states
+  showPlayer1Suggestions = false;
+  showPlayer2Suggestions = false;
+  showPlayer1Select = false;
+  showPlayer2Select = false;
+  filteredPlayer1Suggestions: any[] = [];
+  filteredPlayer2Suggestions: any[] = [];
 
   // Statistics
   totalPlayers = 0;
@@ -265,8 +275,15 @@ export class FriendliesComponent implements OnInit {
   // Record Match Modal methods
   openRecordMatchModal(player?: any): void {
     this.selectedPlayerForMatch = player || null;
-    this.matchForm.player1Id = player?.playerId || 0;
+    if (player) {
+      this.matchForm.player1Id = player.playerId;
+      this.matchForm.player1Name = player.fullName;
+    } else {
+      this.matchForm.player1Id = 0;
+      this.matchForm.player1Name = '';
+    }
     this.matchForm.player2Id = 0;
+    this.matchForm.player2Name = '';
     this.matchForm.player1Score = null;
     this.matchForm.player2Score = null;
     this.matchForm.playedOn = new Date();
@@ -279,6 +296,8 @@ export class FriendliesComponent implements OnInit {
     this.matchForm = {
       player1Id: 0,
       player2Id: 0,
+      player1Name: '',
+      player2Name: '',
       player1Score: 0,
       player2Score: 0,
       playedOn: new Date(),
@@ -286,16 +305,22 @@ export class FriendliesComponent implements OnInit {
   }
 
   recordNewMatch(): void {
-    if (!this.matchForm.player1Id || !this.matchForm.player2Id) {
+    if (!this.matchForm.player1Name || !this.matchForm.player2Name) {
       this.toastr.warning('الرجاء اختيار كلا اللاعبين', 'تحذير');
       return;
     }
 
+    // Get player IDs from names
+    const player1 = this.getPlayerByName(this.matchForm.player1Name);
+    const player2 = this.getPlayerByName(this.matchForm.player2Name);
+
+    if (!player1 || !player2) {
+      this.toastr.warning('الرجاء التأكد من صحة أسماء اللاعبين', 'تحذير');
+      return;
+    }
+
     // Only check for same player in new match mode, not edit mode
-    if (
-      !this.selectedPlayerForMatch &&
-      this.matchForm.player1Id === this.matchForm.player2Id
-    ) {
+    if (!this.selectedPlayerForMatch && player1.playerId === player2.playerId) {
       this.toastr.warning(
         'لا يمكن أن يكون اللاعب الأول والثاني نفس الشخص',
         'تحذير'
@@ -328,8 +353,8 @@ export class FriendliesComponent implements OnInit {
     }
 
     const matchData = {
-      player1Id: this.matchForm.player1Id,
-      player2Id: this.matchForm.player2Id,
+      player1Id: player1.playerId,
+      player2Id: player2.playerId,
       player1Score: this.matchForm.player1Score,
       player2Score: this.matchForm.player2Score,
       playedOn: this.matchForm.playedOn,
@@ -341,15 +366,8 @@ export class FriendliesComponent implements OnInit {
       next: (response) => {
         if (response.success) {
           // Get player names for the toast message
-          const player1 = this.players.find(
-            (p) => p.playerId === this.matchForm.player1Id
-          );
-          const player2 = this.players.find(
-            (p) => p.playerId === this.matchForm.player2Id
-          );
-
           this.toastr.success(
-            `تم تسجيل المباراة بنجاح: ${player1?.fullName} (${this.matchForm.player1Score}) - ${player2?.fullName} (${this.matchForm.player2Score})`,
+            `تم تسجيل المباراة بنجاح: ${player1.fullName} (${this.matchForm.player1Score}) - ${player2.fullName} (${this.matchForm.player2Score})`,
             'تم تسجيل المباراة'
           );
 
@@ -393,6 +411,22 @@ export class FriendliesComponent implements OnInit {
     // In new match mode, filter out the selected player1
     return this.players.filter(
       (p) => p.playerId !== playerId && p.isActive !== false
+    );
+  }
+
+  getOpponentsForPlayerByName(playerName: string): any[] {
+    const player = this.getPlayerByName(playerName);
+    if (!player) return this.getAllActivePlayers();
+
+    // In edit mode, allow selecting any player except the current player1
+    if (this.selectedPlayerForMatch) {
+      return this.players.filter(
+        (p) => p.playerId !== player.playerId && p.isActive !== false
+      );
+    }
+    // In new match mode, filter out the selected player1
+    return this.players.filter(
+      (p) => p.playerId !== player.playerId && p.isActive !== false
     );
   }
 
@@ -634,6 +668,129 @@ export class FriendliesComponent implements OnInit {
     return player ? player.fullName : 'Unknown Player';
   }
 
+  // Search and validation methods for player names
+  searchPlayer1(event: any): void {
+    const playerName = event.target.value;
+    this.matchForm.player1Name = playerName;
+
+    // Filter suggestions
+    if (playerName.trim()) {
+      this.filteredPlayer1Suggestions = this.getAllActivePlayers().filter(
+        (player) =>
+          player.fullName.toLowerCase().includes(playerName.toLowerCase())
+      );
+    } else {
+      this.filteredPlayer1Suggestions = [];
+    }
+
+    const player = this.getPlayerByName(playerName);
+    if (player) {
+      this.matchForm.player1Id = player.playerId;
+      // Update player2 options when player1 changes
+      this.matchForm.player2Name = '';
+      this.matchForm.player2Id = 0;
+      this.filteredPlayer2Suggestions = [];
+    } else {
+      this.matchForm.player1Id = 0;
+    }
+  }
+
+  searchPlayer2(event: any): void {
+    const playerName = event.target.value;
+    this.matchForm.player2Name = playerName;
+
+    // Filter suggestions based on player1
+    if (playerName.trim()) {
+      this.filteredPlayer2Suggestions = this.getOpponentsForPlayerByName(
+        this.matchForm.player1Name
+      ).filter((player) =>
+        player.fullName.toLowerCase().includes(playerName.toLowerCase())
+      );
+    } else {
+      this.filteredPlayer2Suggestions = [];
+    }
+
+    const player = this.getPlayerByName(playerName);
+    if (player) {
+      this.matchForm.player2Id = player.playerId;
+    } else {
+      this.matchForm.player2Id = 0;
+    }
+  }
+
+  selectPlayer1(player: any): void {
+    this.matchForm.player1Name = player.fullName;
+    this.matchForm.player1Id = player.playerId;
+    this.showPlayer1Suggestions = false;
+    this.showPlayer1Select = false;
+    this.filteredPlayer1Suggestions = [];
+
+    // Clear player2 when player1 changes
+    this.matchForm.player2Name = '';
+    this.matchForm.player2Id = 0;
+    this.filteredPlayer2Suggestions = [];
+  }
+
+  selectPlayer2(player: any): void {
+    this.matchForm.player2Name = player.fullName;
+    this.matchForm.player2Id = player.playerId;
+    this.showPlayer2Suggestions = false;
+    this.showPlayer2Select = false;
+    this.filteredPlayer2Suggestions = [];
+  }
+
+  selectPlayer1FromSelect(event: any): void {
+    const playerId = parseInt(event.target.value);
+    if (playerId) {
+      const player = this.players.find((p) => p.playerId === playerId);
+      if (player) {
+        this.matchForm.player1Name = player.fullName;
+        this.matchForm.player1Id = player.playerId;
+        // Clear player2 when player1 changes
+        this.matchForm.player2Name = '';
+        this.matchForm.player2Id = 0;
+        this.filteredPlayer2Suggestions = [];
+      }
+    } else {
+      this.matchForm.player1Name = '';
+      this.matchForm.player1Id = 0;
+    }
+    this.showPlayer1Select = false;
+  }
+
+  selectPlayer2FromSelect(event: any): void {
+    const playerId = parseInt(event.target.value);
+    if (playerId) {
+      const player = this.players.find((p) => p.playerId === playerId);
+      if (player) {
+        this.matchForm.player2Name = player.fullName;
+        this.matchForm.player2Id = player.playerId;
+      }
+    } else {
+      this.matchForm.player2Name = '';
+      this.matchForm.player2Id = 0;
+    }
+    this.showPlayer2Select = false;
+  }
+
+  hidePlayer1Suggestions(): void {
+    setTimeout(() => {
+      this.showPlayer1Suggestions = false;
+      this.showPlayer1Select = false;
+    }, 200);
+  }
+
+  hidePlayer2Suggestions(): void {
+    setTimeout(() => {
+      this.showPlayer2Suggestions = false;
+      this.showPlayer2Select = false;
+    }, 200);
+  }
+
+  getPlayerByName(playerName: string): any {
+    return this.players.find((p) => p.fullName === playerName);
+  }
+
   // Edit match functionality
   editMatch(match: any): void {
     // Find player IDs by names
@@ -643,6 +800,8 @@ export class FriendliesComponent implements OnInit {
     this.matchForm = {
       player1Id: player1?.playerId || 0,
       player2Id: player2?.playerId || 0,
+      player1Name: match.player1Name,
+      player2Name: match.player2Name,
       player1Score: match.player1Score,
       player2Score: match.player2Score,
       playedOn: new Date(match.playedOn),
@@ -654,8 +813,17 @@ export class FriendliesComponent implements OnInit {
   updateMatch(): void {
     if (!this.selectedPlayerForMatch) return;
 
-    if (!this.matchForm.player1Id || !this.matchForm.player2Id) {
-      this.toastr.warning('الرجاء اختيار كلا اللاعبين', 'تحذير');
+    if (!this.matchForm.player1Name || !this.matchForm.player2Name) {
+      this.toastr.warning('الرجاء التأكد من أسماء اللاعبين', 'تحذير');
+      return;
+    }
+
+    // Get player IDs from names
+    const player1 = this.getPlayerByName(this.matchForm.player1Name);
+    const player2 = this.getPlayerByName(this.matchForm.player2Name);
+
+    if (!player1 || !player2) {
+      this.toastr.warning('الرجاء التأكد من صحة أسماء اللاعبين', 'تحذير');
       return;
     }
 
@@ -689,24 +857,16 @@ export class FriendliesComponent implements OnInit {
 
     this.friendlyMatchService
       .updateFriendlyMatchAsync(this.selectedPlayerForMatch.matchId, {
-        player1Id: this.matchForm.player1Id,
-        player2Id: this.matchForm.player2Id,
+        player1Id: player1.playerId,
+        player2Id: player2.playerId,
         player1Score: this.matchForm.player1Score,
         player2Score: this.matchForm.player2Score,
       })
       .subscribe({
         next: (response: any) => {
           if (response.success) {
-            // Get player names for the toast message
-            const player1 = this.players.find(
-              (p) => p.playerId === this.matchForm.player1Id
-            );
-            const player2 = this.players.find(
-              (p) => p.playerId === this.matchForm.player2Id
-            );
-
             this.toastr.success(
-              `تم تحديث المباراة بنجاح: ${player1?.fullName} (${this.matchForm.player1Score}) - ${player2?.fullName} (${this.matchForm.player2Score})`,
+              `تم تحديث المباراة بنجاح: ${player1.fullName} (${this.matchForm.player1Score}) - ${player2.fullName} (${this.matchForm.player2Score})`,
               'تم تحديث المباراة'
             );
 

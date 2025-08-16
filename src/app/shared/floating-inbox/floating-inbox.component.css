@@ -10,6 +10,15 @@
   touch-action: manipulation;
   user-select: none;
   -webkit-user-select: none;
+  /* Hardware acceleration for smoother movement */
+  will-change: transform;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  /* Optimize for mobile performance */
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  -webkit-perspective: 1000;
+  perspective: 1000;
 }
 
 .floating-button:hover {
@@ -250,5 +259,28 @@ input {
   /* Hide tooltip on mobile */
   .tooltip {
     display: none;
+  }
+}
+
+/* Mobile-specific optimizations */
+@media (max-width: 768px) {
+  .floating-button {
+    /* Force hardware acceleration on mobile */
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+    will-change: transform;
+    /* Optimize touch handling */
+    touch-action: none;
+    -webkit-touch-action: none;
+    /* Remove transitions for better performance */
+    transition: none;
+    -webkit-transition: none;
+  }
+
+  .floating-button.dragging {
+    /* Optimize dragging on mobile */
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+    will-change: transform;
   }
 }

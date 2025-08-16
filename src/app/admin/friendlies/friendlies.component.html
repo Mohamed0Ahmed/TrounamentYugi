@@ -50,7 +50,6 @@
   <div
     class="sm:flex-1 sm:p-2 transition-all duration-600 sm:container sm:mx-auto"
   >
- 
     <!-- Friendlies Tab Content -->
     <div *ngIf="activeTab === 'friendlies'">
       <div *ngIf="selectedPlayer" class="sm:w-4/6 mx-auto">
@@ -344,38 +343,134 @@
           <label class="block text-sm font-medium mb-1 text-gray-300"
             >Player 1</label
           >
-          <select
-            [(ngModel)]="matchForm.player1Id"
-            class="border border-gray-600 p-2 w-full rounded bg-gray-800 text-white"
-          >
-            <option [ngValue]="0">Select Player 1...</option>
-            <option
-              *ngFor="let player of getAllActivePlayers()"
-              [ngValue]="player.playerId"
+          <div class="relative">
+            <input
+              type="text"
+              [(ngModel)]="matchForm.player1Name"
+              (input)="searchPlayer1($event)"
+              (focus)="showPlayer1Suggestions = true; showPlayer1Select = true"
+              (blur)="hidePlayer1Suggestions()"
+              [placeholder]="'Type to search for Player 1...'"
+              class="border border-gray-600 p-2 w-full rounded bg-gray-800 text-white placeholder-gray-400"
+              autocomplete="off"
+            />
+            <!-- Player 1 Select Box -->
+            <div *ngIf="showPlayer1Select" class="absolute z-50 w-full mt-1">
+              <select
+                (change)="selectPlayer1FromSelect($event)"
+                (blur)="showPlayer1Select = false"
+                class="w-full bg-gray-800 border border-gray-600 rounded-md text-white shadow-2xl"
+                size="6"
+              >
+                <option
+                  value=""
+                  class="text-gray-400 bg-gray-800 py-2 px-3 border-b border-gray-700"
+                >
+                  -- اختر اللاعب الأول --
+                </option>
+                <option
+                  *ngFor="let player of getAllActivePlayers()"
+                  [value]="player.playerId"
+                  [selected]="matchForm.player1Id === player.playerId"
+                  class="text-white bg-gray-800 py-2 px-3 border-b border-gray-700 hover:bg-gray-700 cursor-pointer"
+                >
+                  {{ player.fullName }}
+                </option>
+              </select>
+            </div>
+            <!-- Player 1 Suggestions Dropdown -->
+            <div
+              *ngIf="
+                showPlayer1Suggestions && filteredPlayer1Suggestions.length > 0
+              "
+              class="absolute z-50 w-full mt-1 bg-gray-800 border border-gray-600 rounded-md shadow-lg max-h-48 overflow-y-auto"
             >
-              {{ player.fullName }}
-            </option>
-          </select>
+              <div
+                *ngFor="let player of filteredPlayer1Suggestions"
+                (click)="selectPlayer1(player)"
+                class="p-2 hover:bg-gray-700 cursor-pointer text-white border-b border-gray-600 last:border-b-0"
+              >
+                {{ player.fullName }}
+              </div>
+            </div>
+          </div>
+          <div
+            *ngIf="
+              matchForm.player1Name && !getPlayerByName(matchForm.player1Name)
+            "
+            class="text-red-400 text-sm mt-1"
+          >
+            Player not found. Please select from the list.
+          </div>
         </div>
 
         <div *ngIf="!selectedPlayerForMatch" class="mb-4">
           <label class="block text-sm font-medium mb-1 text-gray-300"
             >Player 2</label
           >
-          <select
-            [(ngModel)]="matchForm.player2Id"
-            class="border border-gray-600 p-2 w-full rounded bg-gray-800 text-white"
-          >
-            <option [ngValue]="0">Select Player 2...</option>
-            <option
-              *ngFor="
-                let opponent of getOpponentsForPlayer(matchForm.player1Id)
+          <div class="relative">
+            <input
+              type="text"
+              [(ngModel)]="matchForm.player2Name"
+              (input)="searchPlayer2($event)"
+              (focus)="showPlayer2Suggestions = true; showPlayer2Select = true"
+              (blur)="hidePlayer2Suggestions()"
+              [placeholder]="'Type to search for Player 2...'"
+              class="border border-gray-600 p-2 w-full rounded bg-gray-800 text-white placeholder-gray-400"
+              autocomplete="off"
+            />
+            <!-- Player 2 Select Box -->
+            <div *ngIf="showPlayer2Select" class="absolute z-50 w-full mt-1">
+              <select
+                (change)="selectPlayer2FromSelect($event)"
+                (blur)="showPlayer2Select = false"
+                class="w-full bg-gray-800 border border-gray-600 rounded-md text-white shadow-2xl"
+                size="6"
+              >
+                <option
+                  value=""
+                  class="text-gray-400 bg-gray-800 py-2 px-3 border-b border-gray-700"
+                >
+                  -- اختر اللاعب الثاني --
+                </option>
+                <option
+                  *ngFor="
+                    let player of getOpponentsForPlayerByName(
+                      matchForm.player1Name
+                    )
+                  "
+                  [value]="player.playerId"
+                  [selected]="matchForm.player2Id === player.playerId"
+                  class="text-white bg-gray-800 py-2 px-3 border-b border-gray-700 hover:bg-gray-700 cursor-pointer"
+                >
+                  {{ player.fullName }}
+                </option>
+              </select>
+            </div>
+            <!-- Player 2 Suggestions Dropdown -->
+            <div
+              *ngIf="
+                showPlayer2Suggestions && filteredPlayer2Suggestions.length > 0
               "
-              [ngValue]="opponent.playerId"
+              class="absolute z-50 w-full mt-1 bg-gray-800 border border-gray-600 rounded-md shadow-lg max-h-48 overflow-y-auto"
             >
-              {{ opponent.fullName }}
-            </option>
-          </select>
+              <div
+                *ngFor="let player of filteredPlayer2Suggestions"
+                (click)="selectPlayer2(player)"
+                class="p-2 hover:bg-gray-700 cursor-pointer text-white border-b border-gray-600 last:border-b-0"
+              >
+                {{ player.fullName }}
+              </div>
+            </div>
+          </div>
+          <div
+            *ngIf="
+              matchForm.player2Name && !getPlayerByName(matchForm.player2Name)
+            "
+            class="text-red-400 text-sm mt-1"
+          >
+            Player not found. Please select from the list.
+          </div>
         </div>
 
         <!-- Fixed player names for edit mode -->
@@ -447,12 +542,14 @@
             class="bg-green-600 px-4 py-2 text-white rounded hover:bg-green-700 transition"
             (click)="selectedPlayerForMatch ? updateMatch() : recordNewMatch()"
             [disabled]="
-              !matchForm.player1Id ||
-              !matchForm.player2Id ||
+              !matchForm.player1Name ||
+              !matchForm.player2Name ||
               (!selectedPlayerForMatch &&
-                matchForm.player1Id === matchForm.player2Id) ||
+                matchForm.player1Name === matchForm.player2Name) ||
               (matchForm.player1Score === 0 && matchForm.player2Score === 0) ||
-              isRecordingMatch
+              isRecordingMatch ||
+              !getPlayerByName(matchForm.player1Name) ||
+              !getPlayerByName(matchForm.player2Name)
             "
           >
             {{

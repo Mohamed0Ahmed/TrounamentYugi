@@ -259,11 +259,8 @@ export class FloatingInboxComponent
   }
 
   onButtonTouchEnd(event: TouchEvent): void {
-    if (this.isDragging && !this.hasMovedDuringDrag) {
-      // If no significant movement occurred, treat as a tap/click
-      // For mobile, we need to explicitly call toggleInboxOverlay
-      // But prevent the click event from also firing
-      // This ensures the modal opens on mobile touch
+    // Only open modal if it's a tap (no dragging occurred)
+    if (!this.hasMovedDuringDrag) {
       event.preventDefault();
       event.stopPropagation();
       this.toggleInboxOverlay();
@@ -312,33 +309,31 @@ export class FloatingInboxComponent
   @HostListener('document:touchmove', ['$event'])
   onGlobalTouchMove(event: TouchEvent): void {
     if (this.isDragging) {
-      requestAnimationFrame(() => {
-        const touch = event.touches[0];
-        const newX = touch.clientX - this.dragOffset.x;
-        const newY = touch.clientY - this.dragOffset.y;
+      const touch = event.touches[0];
+      const newX = touch.clientX - this.dragOffset.x;
+      const newY = touch.clientY - this.dragOffset.y;
 
-        const oldX = this.buttonPosition.x;
-        const oldY = this.buttonPosition.y;
+      const oldX = this.buttonPosition.x;
+      const oldY = this.buttonPosition.y;
 
-        const margin = 24;
-        const buttonSize = 48;
-        const maxX = window.innerWidth - buttonSize - margin;
-        const maxY = window.innerHeight - buttonSize - margin;
+      const margin = 24;
+      const buttonSize = 48;
+      const maxX = window.innerWidth - buttonSize - margin;
+      const maxY = window.innerHeight - buttonSize - margin;
 
-        const finalX = Math.max(margin, Math.min(newX, maxX));
-        const finalY = Math.max(margin, Math.min(newY, maxY));
+      const finalX = Math.max(margin, Math.min(newX, maxX));
+      const finalY = Math.max(margin, Math.min(newY, maxY));
 
-        if (Math.abs(finalX - oldX) > 5 || Math.abs(finalY - oldY) > 5) {
-          this.hasMovedDuringDrag = true;
-        }
+      if (Math.abs(finalX - oldX) > 5 || Math.abs(finalY - oldY) > 5) {
+        this.hasMovedDuringDrag = true;
+      }
 
-        this.buttonPosition = {
-          x: finalX,
-          y: finalY,
-        };
+      this.buttonPosition = {
+        x: finalX,
+        y: finalY,
+      };
 
-        this.saveButtonPosition();
-      });
+      this.saveButtonPosition();
     }
   }
 

@@ -35,12 +35,15 @@ export class FriendliesViewComponent implements OnInit {
   noMatchesFound: boolean = false;
   noShutoutsFound: boolean = false;
 
+  // Player search
+  playerSearchTerm: string = '';
+
   // Player scores cache
   playerScores: Map<number, { scored: number; conceded: number }> = new Map();
 
   // Pagination
   currentPage = 1;
-  itemsPerPage = 20;
+  itemsPerPage = 15;
   totalPages = 0;
   Math = Math; // Make Math available in template
 
@@ -91,6 +94,27 @@ export class FriendliesViewComponent implements OnInit {
     });
   }
 
+  // Player search methods
+  onPlayerSearchChange(): void {
+    // This method is called when the search term changes
+    // The filtering is handled in getFilteredPlayers() method
+  }
+
+  clearPlayerSearch(): void {
+    this.playerSearchTerm = '';
+  }
+
+  getFilteredPlayers(): FriendlyPlayerDto[] {
+    if (!this.playerSearchTerm.trim()) {
+      return this.players;
+    }
+
+    const searchTerm = this.playerSearchTerm.toLowerCase().trim();
+    return this.players.filter((player) =>
+      player.fullName.toLowerCase().includes(searchTerm)
+    );
+  }
+
   // Match management
   loadAllMatches(): void {
     this.isLoadingMatches = true;
@@ -99,6 +123,9 @@ export class FriendliesViewComponent implements OnInit {
         this.matches = matches;
         this.calculatePlayerScores(matches);
         this.isLoadingMatches = false;
+        
+        // Calculate total pages for pagination
+        this.totalPages = Math.ceil(matches.length / this.itemsPerPage);
       },
       error: (error) => {
         this.isLoadingMatches = false;
@@ -408,6 +435,9 @@ export class FriendliesViewComponent implements OnInit {
     this.filteredShutouts = filteredShutouts;
     this.noShutoutsFound =
       this.hasActiveFilters && filteredShutouts.length === 0;
+      
+    // Update total pages for pagination
+    this.totalPages = Math.ceil(this.getDisplayMatches().length / this.itemsPerPage);
   }
 
   getPaginatedMatches(): FriendlyMatchHistoryDto[] {
