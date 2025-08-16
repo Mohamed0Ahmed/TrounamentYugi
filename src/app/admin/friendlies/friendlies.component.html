@@ -355,16 +355,19 @@
               autocomplete="off"
             />
             <!-- Player 1 Select Box -->
-            <div *ngIf="showPlayer1Select" class="absolute z-50 w-full mt-1">
+            <div
+              *ngIf="showPlayer1Select"
+              class="absolute z-[9999] w-full mt-1 top-full"
+            >
               <select
                 (change)="selectPlayer1FromSelect($event)"
                 (blur)="showPlayer1Select = false"
-                class="w-full bg-gray-800 border border-gray-600 rounded-md text-white shadow-2xl"
-                size="6"
+                class="w-full bg-gray-800 border border-gray-600 rounded-md text-white shadow-2xl min-h-[200px]"
+                size="8"
               >
                 <option
                   value=""
-                  class="text-gray-400 bg-gray-800 py-2 px-3 border-b border-gray-700"
+                  class="text-gray-400 bg-gray-800 py-3 px-4 border-b border-gray-700 text-base"
                 >
                   -- اختر اللاعب الأول --
                 </option>
@@ -372,7 +375,7 @@
                   *ngFor="let player of getAllActivePlayers()"
                   [value]="player.playerId"
                   [selected]="matchForm.player1Id === player.playerId"
-                  class="text-white bg-gray-800 py-2 px-3 border-b border-gray-700 hover:bg-gray-700 cursor-pointer"
+                  class="text-white bg-gray-800 py-3 px-4 border-b border-gray-700 hover:bg-gray-700 cursor-pointer text-base"
                 >
                   {{ player.fullName }}
                 </option>
@@ -420,16 +423,19 @@
               autocomplete="off"
             />
             <!-- Player 2 Select Box -->
-            <div *ngIf="showPlayer2Select" class="absolute z-50 w-full mt-1">
+            <div
+              *ngIf="showPlayer2Select"
+              class="absolute z-[9999] w-full mt-1 top-full"
+            >
               <select
                 (change)="selectPlayer2FromSelect($event)"
                 (blur)="showPlayer2Select = false"
-                class="w-full bg-gray-800 border border-gray-600 rounded-md text-white shadow-2xl"
+                class="w-full bg-gray-800 border border-gray-600 rounded-md text-white shadow-2xl min-h-[200px]"
                 size="6"
               >
                 <option
                   value=""
-                  class="text-gray-400 bg-gray-800 py-2 px-3 border-b border-gray-700"
+                  class="text-gray-400 bg-gray-800 py-3 px-4 border-b border-gray-700 text-base"
                 >
                   -- اختر اللاعب الثاني --
                 </option>
@@ -441,7 +447,7 @@
                   "
                   [value]="player.playerId"
                   [selected]="matchForm.player2Id === player.playerId"
-                  class="text-white bg-gray-800 py-2 px-3 border-b border-gray-700 hover:bg-gray-700 cursor-pointer"
+                  class="text-white bg-gray-800 py-3 px-4 border-b border-gray-700 hover:bg-gray-700 cursor-pointer text-base"
                 >
                   {{ player.fullName }}
                 </option>
