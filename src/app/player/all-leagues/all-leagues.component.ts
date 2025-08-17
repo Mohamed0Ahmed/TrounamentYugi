@@ -5,6 +5,7 @@ import {
   Player,
   Match,
   SystemOfLeague,
+  LeagueType,
 } from './../../models/interfaces';
 import { OwlOptions, CarouselComponent } from 'ngx-owl-carousel-o';
 import { ToastrService } from 'ngx-toastr';
@@ -24,6 +25,7 @@ export class AllLeaguesComponent implements OnInit {
   isModalOpen: boolean = false;
   currentModalSystemOfLeague?: SystemOfLeague;
   SystemOfLeague = SystemOfLeague;
+  LeagueType = LeagueType;
   showKnockoutMatches: boolean = false;
   isKnockoutModalOpen: boolean = false;
   currentKnockoutLeagueId: number = 0;
@@ -266,6 +268,32 @@ export class AllLeaguesComponent implements OnInit {
 
   // التحقق من أن البطولة من نوع المجموعات
   isGroupsTournament(leagueType: any): boolean {
-    return leagueType === 2 || leagueType === 'Groups';
+    return (
+      leagueType === LeagueType.Groups ||
+      leagueType === 2 ||
+      leagueType === 'Groups' ||
+      leagueType === 'groups'
+    );
+  }
+
+  // دالة مساعدة للحصول على نص نوع الدوري
+  getLeagueTypeText(leagueType: any): string {
+    if (leagueType === LeagueType.Single || leagueType === 'Single') {
+      return 'League';
+    } else if (leagueType === LeagueType.Multi || leagueType === 'Multi') {
+      return 'Multi';
+    } else if (
+      leagueType === LeagueType.Groups ||
+      leagueType === 'Groups' ||
+      leagueType === 'groups'
+    ) {
+      return 'Groups';
+    }
+    return 'Unknown';
+  }
+
+  // دالة مساعدة للحصول على CSS class لنوع الدوري
+  getLeagueTypeClass(leagueType: any): string {
+    return 'text-blue-400';
   }
 }
