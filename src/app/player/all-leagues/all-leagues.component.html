@@ -124,7 +124,7 @@
 
           <div
             *ngIf="!isGroupsTournament(league.leagueType)"
-            class="relative overflow-x-auto shadow-md sm:rounded-lg"
+            class="relative overflow-x-auto shadow-md sm:rounded-lg w-full"
           >
             <button
               class="my-4 px-2 bg-gray-600 hover:bg-gray-700 transition-all text-white py-2 rounded"
@@ -134,26 +134,26 @@
             </button>
 
             <table
-              class="w-full text-sm text-left rtl:text-right text-gray-400"
+              class="w-full text-sm text-left rtl:text-right text-gray-400 min-w-full"
             >
               <thead
                 class="text-xs uppercase bg-black bg-opacity-50 backdrop-blur-sm text-white"
               >
                 <tr class="text-center">
-                  <th scope="col" class="px-2 py-3">Rank</th>
-                  <th scope="col" class="px-2 py-3">Name</th>
-                  <th scope="col" class="px-2 py-3">Points</th>
-                  <th scope="col" class="px-2 py-3 hidden sm:table-cell">
+                  <th scope="col" class="py-3 sm:px-2">Rank</th>
+                  <th scope="col" class="py-3 sm:px-2">Name</th>
+                  <th scope="col" class="py-3 sm:px-2">Points</th>
+                  <th scope="col" class="py-3 hidden sm:table-cell sm:px-2">
                     Win
                   </th>
-                  <th scope="col" class="px-2 py-3 hidden sm:table-cell">
+                  <th scope="col" class="py-3 hidden sm:table-cell sm:px-2">
                     Draw
                   </th>
-                  <th scope="col" class="px-2 py-3 hidden sm:table-cell">
+                  <th scope="col" class="py-3 hidden sm:table-cell sm:px-2">
                     Loss
                   </th>
-                  <th scope="col" class="px-2 py-3">Games</th>
-                  <th scope="col" class="px-2 py-3">Win Rate</th>
+                  <th scope="col" class="py-3 sm:px-2">Games</th>
+                  <th scope="col" class="py-3 sm:px-2">Win Rate</th>
                 </tr>
               </thead>
               <tbody>
@@ -164,39 +164,41 @@
                 >
                   <th
                     scope="row"
-                    class="px-2 py-4 font-medium whitespace-nowrap text-white relative"
+                    class="py-4 font-medium whitespace-nowrap text-white relative sm:px-2"
                   >
                     <i
-                      class="fa-solid fa-crown absolute top-[50%] left-[10px] md:left-10 translate-y-[-50%]"
+                      class="fa-solid fa-crown absolute top-[50%] left-[5px] md:left-10 translate-y-[-50%]"
                       style="color: #ffd43b"
                       *ngIf="player.rank == 1"
                     ></i>
                     {{ player.rank }}
                   </th>
-                  <td class="px-2 py-4 text-white">{{ player.fullName }}</td>
-                  <td class="px-2 py-4 text-center text-white">
+                  <td class="py-4 text-white sm:px-2">
+                    {{ player.fullName }}
+                  </td>
+                  <td class="py-4 text-center text-white sm:px-2">
                     {{ player.points }}
                   </td>
                   <td
-                    class="px-2 py-4 text-center text-green-500 hidden sm:table-cell"
+                    class="py-4 text-center text-green-500 hidden sm:table-cell sm:px-2"
                   >
                     {{ player.wins }}
                   </td>
                   <td
-                    class="px-2 py-4 text-center text-yellow-400 hidden sm:table-cell"
+                    class="py-4 text-center text-yellow-400 hidden sm:table-cell sm:px-2"
                   >
                     {{ player.draws }}
                   </td>
                   <td
-                    class="px-2 py-4 text-center text-red-500 hidden sm:table-cell"
+                    class="py-4 text-center text-red-500 hidden sm:table-cell sm:px-2"
                   >
                     {{ player.losses }}
                   </td>
-                  <td class="px-2 py-4 text-center text-white">
+                  <td class="py-4 text-center text-white sm:px-2">
                     {{ player.matchesPlayed }}
                   </td>
                   <td
-                    class="px-2 py-4 text-center"
+                    class="py-4 text-center sm:px-2"
                     [ngClass]="
                       player.winRate < 35
                         ? 'text-red-500'
@@ -224,7 +226,7 @@
   (click)="closeModal()"
 >
   <div
-    class="bg-black bg-opacity-50 backdrop-blur-sm p-6 rounded-lg shadow-lg w-full max-w-4xl mx-4 max-h-[80vh] overflow-y-auto"
+    class="bg-black bg-opacity-50 backdrop-blur-sm  rounded-lg shadow-lg w-full max-w-4xl mx-4 max-h-[80vh] overflow-y-auto"
     (click)="$event.stopPropagation()"
   >
     <div class="flex justify-between items-center mb-4">
@@ -234,15 +236,17 @@
       </button>
     </div>
     <div
-      class="table-container relative overflow-x-auto shadow-md sm:rounded-lg"
+      class="table-container relative overflow-x-auto shadow-md sm:rounded-lg w-full"
     >
-      <table class="w-full text-sm text-left rtl:text-right text-gray-400">
+      <table
+        class="w-full text-sm text-left rtl:text-right text-gray-400 min-w-full"
+      >
         <thead class="text-xs uppercase">
           <tr>
             <th
               *ngFor="let player of players; let i = index"
               scope="col"
-              class="px-2 py-3 text-center text-white cursor-pointer hover:bg-gray-400 transition-all min-w-[70px] sticky-header"
+              class="px-1 py-3 text-center text-white cursor-pointer hover:bg-gray-400 transition-all min-w-[70px] sticky-header sm:px-2"
               (click)="highlightColumn(player.playerId)"
               [ngClass]="
                 highlightedColumn == player.playerId
@@ -256,7 +260,7 @@
             </th>
             <th
               scope="col"
-              class="px-2 py-3 text-center text-white sticky-corner"
+              class="px-1 py-3 text-center text-white sticky-corner sm:px-2"
             >
               المباراة
             </th>
@@ -270,7 +274,7 @@
           >
             <td
               *ngFor="let player2 of players"
-              class="px-2 py-4 transition-all"
+              class="px-1 py-4 transition-all sm:px-2"
               [ngClass]="{
                 'highlighted-cell': highlightedColumn === player2.playerId
               }"
@@ -299,7 +303,7 @@
                 </ng-template>
               </span>
             </td>
-            <td class="px-2 py-4 font-bold text-white sticky-column">
+            <td class="px-1 py-4 font-bold text-white sticky-column sm:px-2">
               {{ player1.fullName }}
             </td>
           </tr>

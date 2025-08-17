@@ -7,6 +7,15 @@ import {
   DateFilter,
 } from 'friendly-match-types';
 
+// Enum for player sorting options
+export enum PlayerSortOption {
+  MostMatches = 'mostMatches',
+  MostWins = 'mostWins',
+  MostPoints = 'mostPoints',
+  BestWinRate = 'bestWinRate',
+  BestPointDifference = 'bestPointDifference',
+}
+
 @Component({
   selector: 'app-friendlies-view',
   templateUrl: './friendlies-view.component.html',
@@ -55,6 +64,11 @@ export class FriendliesViewComponent implements OnInit {
   };
   DateFilter = DateFilter; // Make enum available in template
 
+  // Player sorting
+  currentPlayerSort: PlayerSortOption = PlayerSortOption.MostMatches;
+  PlayerSortOption = PlayerSortOption; // Make enum available in template
+  sortedPlayers: FriendlyPlayerDto[] = [];
+
   constructor(private friendlyMatchService: FriendlyMatchService) {}
 
   ngOnInit(): void {
@@ -87,11 +101,127 @@ export class FriendliesViewComponent implements OnInit {
 
         // Apply filters after all data is loaded
         this.applyFilters();
+        this.sortPlayers(); // Sort players after loading
       },
       error: (error) => {
         this.isLoadingPlayers = false;
       },
     });
+  }
+
+  // Player sorting methods
+  sortPlayers(): void {
+    // Wait for matches to be loaded before sorting
+    if (this.matches.length === 0) {
+      this.sortedPlayers = [...this.players];
+      return;
+    }
+
+    this.sortedPlayers = [...this.players];
+
+    switch (this.currentPlayerSort) {
+      case PlayerSortOption.MostMatches:
+        this.sortByMostMatches();
+        break;
+      case PlayerSortOption.MostWins:
+        this.sortByMostWins();
+        break;
+      case PlayerSortOption.MostPoints:
+        this.sortByMostPoints();
+        break;
+      case PlayerSortOption.BestWinRate:
+        this.sortByBestWinRate();
+        break;
+      case PlayerSortOption.BestPointDifference:
+        this.sortByBestPointDifference();
+        break;
+      default:
+        this.sortByMostMatches();
+    }
+  }
+
+  sortByMostMatches(): void {
+    this.sortedPlayers.sort(
+      (a, b) => (b.totalMatches || 0) - (a.totalMatches || 0)
+    );
+  }
+
+  sortByMostWins(): void {
+    this.sortedPlayers.sort((a, b) => (b.totalWins || 0) - (a.totalWins || 0));
+  }
+
+  sortByMostPoints(): void {
+    this.sortedPlayers.sort((a, b) => {
+      const aTotalPoints = this.calculatePlayerTotalPoints(a);
+      const bTotalPoints = this.calculatePlayerTotalPoints(b);
+      return bTotalPoints - aTotalPoints;
+    });
+  }
+
+  sortByBestWinRate(): void {
+    this.sortedPlayers.sort((a, b) => (b.winRate || 0) - (a.winRate || 0));
+  }
+
+  sortByBestPointDifference(): void {
+    this.sortedPlayers.sort((a, b) => {
+      const aPointDiff = this.calculatePlayerPointDifference(a);
+      const bPointDiff = this.calculatePlayerPointDifference(b);
+      return bPointDiff - aPointDiff;
+    });
+  }
+
+  calculatePlayerTotalPoints(player: FriendlyPlayerDto): number {
+    // Calculate total points from actual matches
+    let totalPoints = 0;
+
+    this.matches.forEach((match) => {
+      if (match.player1Name === player.fullName) {
+        totalPoints += match.player1Score || 0;
+      } else if (match.player2Name === player.fullName) {
+        totalPoints += match.player2Score || 0;
+      }
+    });
+
+    return totalPoints;
+  }
+
+  calculatePlayerPointDifference(player: FriendlyPlayerDto): number {
+    // Calculate point difference from actual matches
+    let pointsScored = 0;
+    let pointsConceded = 0;
+
+    this.matches.forEach((match) => {
+      if (match.player1Name === player.fullName) {
+        pointsScored += match.player1Score || 0;
+        pointsConceded += match.player2Score || 0;
+      } else if (match.player2Name === player.fullName) {
+        pointsScored += match.player2Score || 0;
+        pointsConceded += match.player1Score || 0;
+      }
+    });
+
+    return pointsScored - pointsConceded;
+  }
+
+  onPlayerSortChange(): void {
+    this.sortPlayers();
+  }
+
+  getCurrentSortLabel(): string {
+    switch (this.currentPlayerSort) {
+      case PlayerSortOption.MostMatches:
+        return 'الأكثر لعباً للمباريات';
+      case PlayerSortOption.MostWins:
+        return 'الأكثر فوزاً';
+      case PlayerSortOption.MostPoints:
+        return 'الأكثر تحقيقاً للنقاط';
+      case PlayerSortOption.BestWinRate:
+        return 'أفضل نسبة فوز';
+      case PlayerSortOption.BestPointDifference:
+        return 'أفضل فرق نقاط';
+      default:
+        return 'الأكثر لعباً للمباريات';
+    }
   }
 
   // Player search methods
@@ -106,11 +236,11 @@ export class FriendliesViewComponent implements OnInit {
 
   getFilteredPlayers(): FriendlyPlayerDto[] {
     if (!this.playerSearchTerm.trim()) {
-      return this.players;
+      return this.sortedPlayers;
     }
 
     const searchTerm = this.playerSearchTerm.toLowerCase().trim();
-    return this.players.filter((player) =>
+    return this.sortedPlayers.filter((player) =>
       player.fullName.toLowerCase().includes(searchTerm)
     );
   }
@@ -123,9 +253,14 @@ export class FriendliesViewComponent implements OnInit {
         this.matches = matches;
         this.calculatePlayerScores(matches);
         this.isLoadingMatches = false;
-        
+
         // Calculate total pages for pagination
         this.totalPages = Math.ceil(matches.length / this.itemsPerPage);
+
+        // Re-sort players after loading matches to update points calculations
+        if (this.players.length > 0) {
+          this.sortPlayers();
+        }
       },
       error: (error) => {
         this.isLoadingMatches = false;
@@ -435,9 +570,11 @@ export class FriendliesViewComponent implements OnInit {
     this.filteredShutouts = filteredShutouts;
     this.noShutoutsFound =
       this.hasActiveFilters && filteredShutouts.length === 0;
-      
+
     // Update total pages for pagination
-    this.totalPages = Math.ceil(this.getDisplayMatches().length / this.itemsPerPage);
+    this.totalPages = Math.ceil(
+      this.getDisplayMatches().length / this.itemsPerPage
+    );
   }
 
   getPaginatedMatches(): FriendlyMatchHistoryDto[] {

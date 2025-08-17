@@ -46,16 +46,41 @@
         </p>
       </div>
 
-      <!-- Search Bar -->
+      <!-- Search Bar and Sorting Options -->
       <div class="mb-4">
-        <div class="flex gap-2">
+        <!-- Clear Search Button - Separate Row -->
+        <div class="mb-2" *ngIf="playerSearchTerm.trim()">
+          <button
+            (click)="clearPlayerSearch()"
+            class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors duration-200 flex items-center gap-2 text-sm"
+          >
+            <svg
+              class="h-4 w-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              ></path>
+            </svg>
+            Clear Search
+          </button>
+        </div>
+
+        <!-- Search and Sorting Row -->
+        <div class="flex gap-2 items-end">
+          <!-- Search Input -->
           <div class="relative flex-1">
             <input
               type="text"
               [(ngModel)]="playerSearchTerm"
               (ngModelChange)="onPlayerSearchChange()"
               placeholder="Search players by name..."
-              class="w-full px-4 py-2 pl-10 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              class="w-full py-2 pl-10 min-w-[150px] bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
             <div
               class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
@@ -76,27 +101,30 @@
             </div>
           </div>
 
-          <!-- Clear Search Button -->
-          <button
-            *ngIf="playerSearchTerm.trim()"
-            (click)="clearPlayerSearch()"
-            class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors duration-200 flex items-center gap-2"
-          >
-            <svg
-              class="h-4 w-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+          <!-- Sorting Options -->
+          <div class="flex flex-col">
+            <select
+              [(ngModel)]="currentPlayerSort"
+              (ngModelChange)="onPlayerSortChange()"
+              class="bg-gray-800 border border-gray-600 rounded-md text-white text-sm py-3 min-w-[150px]"
             >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M6 18L18 6M6 6l12 12"
-              ></path>
-            </svg>
-            Clear
-          </button>
+              <option [ngValue]="PlayerSortOption.MostMatches">
+                الأكثر لعباً للمباريات
+              </option>
+              <option [ngValue]="PlayerSortOption.MostWins">
+                الأكثر فوزاً
+              </option>
+              <option [ngValue]="PlayerSortOption.MostPoints">
+                الأكثر تحقيقاً للنقاط
+              </option>
+              <option [ngValue]="PlayerSortOption.BestWinRate">
+                أفضل نسبة فوز
+              </option>
+              <option [ngValue]="PlayerSortOption.BestPointDifference">
+                أفضل فرق نقاط
+              </option>
+            </select>
+          </div>
         </div>
 
         <!-- Search Results Counter -->
@@ -186,10 +214,12 @@
         <p *ngIf="!playerSearchTerm.trim()" class="text-gray-400">
           No players found
         </p>
-        <p *ngIf="playerSearchTerm.trim()" class="text-red-400">
+        <p *ngIf="playerSearchTerm.trim()" class="red-400">
           No players found matching "{{ playerSearchTerm }}"
         </p>
       </div>
+
+
     </div>
 
     <!-- Matches Tab -->

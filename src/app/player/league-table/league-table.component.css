@@ -8,7 +8,7 @@ thead tr {
 .sticky-header {
   position: sticky;
   top: 0;
-  z-index: 100;
+  z-index: 10; /* Reduced from 100 to be lower than navbar */
   /* Calculate background position based on cell index */
   background: var(--thead-gradient);
   background-size: calc(100% * var(--total-cells)) 100%;
@@ -29,7 +29,7 @@ thead tr {
 .sticky-column {
   position: sticky;
   right: 0;
-  z-index: 50;
+  z-index: 5; /* Reduced from 50 to be lower than navbar */
   box-shadow: -2px 0 4px rgba(0, 0, 0, 0.3);
   /* Ensure the background covers any content underneath */
   backdrop-filter: blur(0px);
@@ -40,7 +40,7 @@ thead tr {
   position: sticky;
   top: 0;
   right: 0;
-  z-index: 150;
+  z-index: 15; /* Reduced from 150 to be lower than navbar */
   /* Keep corner cell simple black background */
   background-color: #000000 !important;
   box-shadow: -2px 2px 8px rgba(0, 0, 0, 0.4);
@@ -86,9 +86,8 @@ tbody tr:nth-child(odd) .sticky-column {
 
 /* Highlighted cell styling - inset white shadow */
 .highlighted-cell {
-  box-shadow:
-    inset 4px 0 6px -4px rgba(255, 255, 255, 0.3),   /* left side */
-    inset -4px 0 6px -4px rgba(255, 255, 255, 0.3) !important; /* right side */
+  box-shadow: inset 4px 0 6px -4px rgba(255, 255, 255, 0.3),
+    /* left side */ inset -4px 0 6px -4px rgba(255, 255, 255, 0.3) !important; /* right side */
   border-radius: 3px;
   transition: all 0.3s ease;
 }
@@ -100,7 +99,6 @@ tbody tr:nth-child(odd) .sticky-column {
 
 /* Highlighted header styling - inset effect */
 
-
 .highlighted-header:hover {
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.5),
     inset 0 1px 0px 0px rgba(255, 255, 255, 0.2) !important;
@@ -108,7 +106,7 @@ tbody tr:nth-child(odd) .sticky-column {
 
 /* Enhanced sticky header highlighting */
 .sticky-header.highlighted-header {
-  z-index: 120; /* Higher than normal sticky-header */
+  z-index: 12; /* Reduced from 120 to be lower than navbar */
 }
 
 /* Visual indicator for better readability */
