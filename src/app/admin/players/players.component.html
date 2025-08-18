@@ -185,9 +185,7 @@
         >
           <h3 class="text-lg font-semibold mb-2 text-white">نوع البطولة</h3>
           <p class="font-bold text-gray-300">
-            <span *ngIf="leagueData.typeOfLeague === 0">👤</span>
-            <span *ngIf="leagueData.typeOfLeague === 1">👥</span>
-            <span *ngIf="leagueData.typeOfLeague === 2">🏆</span>
+            <span>{{ getLeagueTypeIcon(leagueData.typeOfLeague) }}</span>
             {{ getLeagueTypeText(leagueData.typeOfLeague) }}
           </p>
         </div>
@@ -196,8 +194,7 @@
         >
           <h3 class="text-lg font-semibold mb-2 text-white">نظام البطولة</h3>
           <p class="font-bold text-gray-300">
-            <span *ngIf="leagueData.systemOfLeague === 0">📊</span>
-            <span *ngIf="leagueData.systemOfLeague === 1">⚔️</span>
+            <span>{{ getSystemTypeIcon(leagueData.systemOfLeague) }}</span>
             {{
               leagueData.systemOfLeague !== undefined
                 ? getSystemTypeText(leagueData.systemOfLeague)

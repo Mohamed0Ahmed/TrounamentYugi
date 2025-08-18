@@ -666,9 +666,44 @@ export class PlayersComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Helper method to get readable league type
-  getLeagueTypeText(type: LeagueType): string {
-    switch (type) {
+  // Coercion helpers to support both numeric and string values coming from API
+  private coerceLeagueType(value: unknown): LeagueType | undefined {
+    if (typeof value === 'number') {
+      if (
+        value === LeagueType.Single ||
+        value === LeagueType.Multi ||
+        value === LeagueType.Groups
+      ) {
+        return value as LeagueType;
+      }
+    }
+    if (typeof value === 'string') {
+      const v = value.toLowerCase();
+      if (v === 'single' || v === '0') return LeagueType.Single;
+      if (v === 'multi' || v === '1') return LeagueType.Multi;
+      if (v === 'groups' || v === '2') return LeagueType.Groups;
+    }
+    return undefined;
+  }
+
+  private coerceSystemType(value: unknown): SystemOfLeague | undefined {
+    if (typeof value === 'number') {
+      if (value === SystemOfLeague.Points || value === SystemOfLeague.Classic) {
+        return value as SystemOfLeague;
+      }
+    }
+    if (typeof value === 'string') {
+      const v = value.toLowerCase();
+      if (v === 'points' || v === '0') return SystemOfLeague.Points;
+      if (v === 'classic' || v === '1') return SystemOfLeague.Classic;
+    }
+    return undefined;
+  }
+
+  // Helper method to get readable league type (supports number or string)
+  getLeagueTypeText(type: unknown): string {
+    const t = this.coerceLeagueType(type);
+    switch (t) {
       case LeagueType.Single:
         return 'بطولة فردية';
       case LeagueType.Multi:
@@ -680,9 +715,19 @@ export class PlayersComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Helper method to get readable system type
-  getSystemTypeText(system: SystemOfLeague): string {
-    switch (system) {
+  // Helper method to get league type icon
+  getLeagueTypeIcon(type: unknown): string {
+    const t = this.coerceLeagueType(type);
+    if (t === LeagueType.Single) return '👤';
+    if (t === LeagueType.Multi) return '👥';
+    if (t === LeagueType.Groups) return '🏆';
+    return '';
+  }
+
+  // Helper method to get readable system type (supports number or string)
+  getSystemTypeText(system: unknown): string {
+    const s = this.coerceSystemType(system);
+    switch (s) {
       case SystemOfLeague.Points:
         return 'نظام النقاط';
       case SystemOfLeague.Classic:
@@ -690,6 +735,14 @@ export class PlayersComponent implements OnInit, OnDestroy {
       default:
         return 'غير محدد';
     }
+  }
+
+  // Helper method to get system type icon
+  getSystemTypeIcon(system: unknown): string {
+    const s = this.coerceSystemType(system);
+    if (s === SystemOfLeague.Points) return '📊';
+    if (s === SystemOfLeague.Classic) return '⚔️';
+    return '';
   }
 
   // Helper method to get readable league type for table (handles both string and number)
