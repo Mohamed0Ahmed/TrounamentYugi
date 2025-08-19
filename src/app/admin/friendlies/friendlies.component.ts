@@ -679,8 +679,12 @@ export class FriendliesComponent implements OnInit {
         (player) =>
           player.fullName.toLowerCase().includes(playerName.toLowerCase())
       );
+      this.showPlayer1Suggestions = true;
+      this.showPlayer1Select = false; // Hide select box when typing
     } else {
       this.filteredPlayer1Suggestions = [];
+      this.showPlayer1Suggestions = false;
+      this.showPlayer1Select = true; // Show select box when empty
     }
 
     const player = this.getPlayerByName(playerName);
@@ -690,6 +694,7 @@ export class FriendliesComponent implements OnInit {
       this.matchForm.player2Name = '';
       this.matchForm.player2Id = 0;
       this.filteredPlayer2Suggestions = [];
+      this.showPlayer2Suggestions = false;
     } else {
       this.matchForm.player1Id = 0;
     }
@@ -706,8 +711,12 @@ export class FriendliesComponent implements OnInit {
       ).filter((player) =>
         player.fullName.toLowerCase().includes(playerName.toLowerCase())
       );
+      this.showPlayer2Suggestions = true;
+      this.showPlayer2Select = false; // Hide select box when typing
     } else {
       this.filteredPlayer2Suggestions = [];
+      this.showPlayer2Suggestions = false;
+      this.showPlayer2Select = true; // Show select box when empty
     }
 
     const player = this.getPlayerByName(playerName);
@@ -927,6 +936,33 @@ export class FriendliesComponent implements OnInit {
           );
         },
       });
+    }
+  }
+
+  // Focus methods to show suggestions
+  onPlayer1Focus(): void {
+    // Only show suggestions if there's text and filtered results
+    if (
+      this.matchForm.player1Name.trim() &&
+      this.filteredPlayer1Suggestions.length > 0
+    ) {
+      this.showPlayer1Suggestions = true;
+      this.showPlayer1Select = false;
+    } else {
+      this.showPlayer1Select = true;
+    }
+  }
+
+  onPlayer2Focus(): void {
+    // Only show suggestions if there's text and filtered results
+    if (
+      this.matchForm.player2Name.trim() &&
+      this.filteredPlayer2Suggestions.length > 0
+    ) {
+      this.showPlayer2Suggestions = true;
+      this.showPlayer2Select = false;
+    } else {
+      this.showPlayer2Select = true;
     }
   }
 }
