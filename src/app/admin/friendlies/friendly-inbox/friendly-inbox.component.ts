@@ -68,6 +68,8 @@ export class FriendlyInboxComponent
       next: (response: FriendlyMessageResponse) => {
         if (response.success && response.messages) {
           const groupedMessages = this.groupMessagesBySender(response.messages);
+          console.log(response.messages);
+
           // ترتيب المحادثات حسب الأحدث (آخر رسالة)
           this.playerChats = groupedMessages.sort(
             (a, b) =>
@@ -164,10 +166,14 @@ export class FriendlyInboxComponent
       }
 
       if (!chatMap[playerId]) {
+        // لا تعتمد على رسائل الأدمن لتعيين اسم اللاعب، سنستنتجه لاحقاً من آخر رسالة ليست من الأدمن
+        const initialName = !msg.isFromAdmin
+          ? msg.senderFullName || msg.playerFullName || `اللاعب ${playerId}`
+          : `اللاعب ${playerId}`;
+
         chatMap[playerId] = {
           senderId: String(playerId), // تحويل إلى string
-          senderFullName:
-            msg.senderFullName || msg.playerFullName || `اللاعب ${playerId}`, // fallback للاسم
+          senderFullName: initialName,
           senderPhoneNumber: msg.senderPhoneNumber || 'غير متوفر', // استخدام الحقل الصحيح مع fallback
           lastMessage: '',
           lastMessageDate: '',
@@ -190,6 +196,20 @@ export class FriendlyInboxComponent
       const lastMsg = chat.messages[chat.messages.length - 1];
       chat.lastMessage = lastMsg?.content ?? '';
       chat.lastMessageDate = lastMsg?.sentAt ?? '';
+
+      // استنتاج اسم اللاعب ورقم الهاتف من آخر رسالة ليست من الأدمن (إن وُجدت)
+      for (let i = chat.messages.length - 1; i >= 0; i--) {
+        const current = chat.messages[i];
+        if (!current.isFromAdmin) {
+          chat.senderFullName =
+            current.senderFullName ||
+            current.playerFullName ||
+            chat.senderFullName;
+          chat.senderPhoneNumber =
+            current.senderPhoneNumber || chat.senderPhoneNumber;
+          break;
+        }
+      }
       return chat;
     });
 
