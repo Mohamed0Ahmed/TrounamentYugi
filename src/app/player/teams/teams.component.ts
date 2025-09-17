@@ -5,6 +5,9 @@ import {
   TeamMatchesDto,
   TournamentStandingsDto,
   ApiResponse,
+  TeamDetail,
+  PlayerDetail,
+  StandingItem,
 } from '../../core/services/multi-tournament.service';
 
 @Component({
@@ -39,6 +42,13 @@ export class TeamsComponent implements OnInit {
   isLoadingArchive = false;
   isLoadingPlayers = false;
   isLoadingPastTournaments = false;
+
+  // Archive Team Players Modal
+  showArchiveTeamPlayersModal = false;
+  selectedArchiveTournament: MultiTournamentDto | null = null;
+  selectedArchiveTeam: TeamDetail | null = null;
+  archiveTeamPlayers: PlayerDetail[] = [];
+  isLoadingArchiveTeamPlayers = false;
 
   // Tab Management
   activeTab: 'current' | 'archive' = 'current';
@@ -488,6 +498,55 @@ export class TeamsComponent implements OnInit {
             ),
         });
     });
+  }
+
+  // ============================
+  // 📚 Archive: Team Players Modal
+  // ============================
+  openArchiveTeamPlayers(
+    tournament: MultiTournamentDto,
+    standing: StandingItem
+  ): void {
+    if (!tournament || !standing) {
+      return;
+    }
+
+    this.showArchiveTeamPlayersModal = true;
+    this.isLoadingArchiveTeamPlayers = true;
+    this.selectedArchiveTournament = tournament;
+    this.selectedArchiveTeam = null;
+    this.archiveTeamPlayers = [];
+
+    this.multiTournamentService
+      .getTournament(tournament.multiTournamentId)
+      .subscribe({
+        next: (response) => {
+          if (response.success && response.data) {
+            const fullTournament = response.data;
+            const team =
+              fullTournament.teams.find(
+                (t) =>
+                  t.multiTeamId === standing.multiTeamId ||
+                  t.teamName === standing.teamName
+              ) || null;
+
+            this.selectedArchiveTeam = team;
+            this.archiveTeamPlayers = team?.players ?? [];
+          }
+          this.isLoadingArchiveTeamPlayers = false;
+        },
+        error: () => {
+          this.isLoadingArchiveTeamPlayers = false;
+        },
+      });
+  }
+
+  closeArchiveTeamPlayersModal(): void {
+    this.showArchiveTeamPlayersModal = false;
+    this.isLoadingArchiveTeamPlayers = false;
+    this.selectedArchiveTournament = null;
+    this.selectedArchiveTeam = null;
+    this.archiveTeamPlayers = [];
   }
 
   /**

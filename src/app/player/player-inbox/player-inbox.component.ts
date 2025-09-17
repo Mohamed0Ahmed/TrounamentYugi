@@ -24,6 +24,7 @@ export class PlayerInboxComponent implements OnInit, AfterViewChecked {
   isFriendlyMode: boolean = false; // Default to official messages
   isLoading: boolean = false;
   @ViewChild('messagesContainer') messagesContainer!: ElementRef;
+  private isUserAtBottom: boolean = true;
 
   constructor(
     private messageService: MessageService,
@@ -38,7 +39,9 @@ export class PlayerInboxComponent implements OnInit, AfterViewChecked {
 
   ngAfterViewChecked(): void {
     this.cdr.detectChanges();
-    this.scrollToBottom();
+    if (this.isUserAtBottom) {
+      this.scrollToBottom();
+    }
   }
 
   loadMessages(): void {
@@ -152,6 +155,8 @@ export class PlayerInboxComponent implements OnInit, AfterViewChecked {
     this.friendlyMessages = [];
     this.newMessage = '';
     this.loadMessages();
+    // بعد السويتش نخلي الوضع أسفل، ثم يقدر المستخدم يطلع بحرية
+    this.isUserAtBottom = true;
   }
 
   get currentMessages(): any[] {
@@ -173,5 +178,14 @@ export class PlayerInboxComponent implements OnInit, AfterViewChecked {
       const container = this.messagesContainer.nativeElement;
       container.scrollTop = container.scrollHeight;
     }
+  }
+
+  onScroll(): void {
+    if (!this.messagesContainer) return;
+    const container = this.messagesContainer.nativeElement as HTMLElement;
+    const position = container.scrollTop + container.clientHeight;
+    const height = container.scrollHeight;
+    const threshold = 2; // سماحية صغيرة
+    this.isUserAtBottom = position >= height - threshold;
   }
 }

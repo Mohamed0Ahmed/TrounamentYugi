@@ -342,8 +342,8 @@ p {
 
 /* ============ تنسيقات التمرير المخصص ============ */
 ::-webkit-scrollbar {
-  width: 24px;
-  height: 24px;
+  /* width: 24px;
+  height: 24px; */
 }
 
 ::-webkit-scrollbar-track {
