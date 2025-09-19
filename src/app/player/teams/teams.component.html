@@ -356,7 +356,7 @@
                   </td>
                   <td class="py-2 text-white">
                     <button
-                      class=" hover:text-blue-300"
+                      class="hover:text-blue-300"
                       (click)="openArchiveTeamPlayers(tournament, standing)"
                       title="عرض لاعبي هذا الفريق"
                     >
@@ -604,7 +604,7 @@
                 *ngIf="match.isCompleted"
                 class="text-base font-semibold text-white"
               >
-                {{ match.playerScore }} - {{ match.opponentScore }}
+                {{ match.opponentScore }} - {{ match.playerScore }}
               </span>
               <span *ngIf="!match.isCompleted" class="text-gray-400 text-xs">
                 -- - --

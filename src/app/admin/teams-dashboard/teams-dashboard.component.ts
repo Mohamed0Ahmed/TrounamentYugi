@@ -97,6 +97,16 @@ export class TeamsDashboardComponent implements OnInit {
     this.loadAvailablePlayers();
   }
 
+  // Only active tournaments
+  get activeTournaments(): MultiTournamentDto[] {
+    return this.tournaments.filter((t) => t.isActive);
+  }
+
+  // trackBy for performance
+  trackByTournamentId(index: number, tournament: MultiTournamentDto): number {
+    return tournament.multiTournamentId;
+  }
+
   // Tournament Management
   loadTournaments(): void {
     this.isLoadingTournaments = true;
