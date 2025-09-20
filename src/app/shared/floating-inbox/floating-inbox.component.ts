@@ -705,7 +705,10 @@ export class FloatingInboxComponent
       if (!chatMap.has(senderId)) {
         chatMap.set(senderId, {
           playerId: senderId,
-          playerFullName: message.senderFullName,
+          playerFullName:
+            message.senderFullName ||
+            message.playerFullName ||
+            `اللاعب ${senderId}`,
           lastMessage: message.content,
           lastMessageDate: message.sentAt,
           unreadCount: message.isRead ? 0 : 1,
@@ -726,8 +729,19 @@ export class FloatingInboxComponent
       }
     });
 
-    // Sort messages within each chat from oldest to newest
+    // استنتاج اسم اللاعب من آخر رسالة ليست من الأدمن
     Array.from(chatMap.values()).forEach((chat) => {
+      for (let i = chat.messages.length - 1; i >= 0; i--) {
+        const msg = chat.messages[i];
+        if (!msg.isFromAdmin) {
+          chat.playerFullName =
+            msg.senderFullName ||
+            msg.playerFullName ||
+            `اللاعب ${chat.playerId}`;
+          break;
+        }
+      }
+      // ترتيب الرسائل من الأقدم للأحدث
       chat.messages.sort(
         (a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime()
       );
