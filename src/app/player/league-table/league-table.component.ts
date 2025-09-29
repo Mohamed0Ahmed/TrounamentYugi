@@ -84,12 +84,34 @@ export class LeagueTableComponent implements OnInit {
   loadLeagueSystem(): void {
     this.leagueService.GetCurrentLeague().subscribe({
       next: (res) => {
-        this.systemOfLeague = res.league?.systemOfLeague;
+        // Normalize possible string/number responses from API
+        const rawValue =
+          res.league?.systemOfLeague ?? this.currentLeague?.systemOfLeague;
+        this.systemOfLeague = this.coerceSystemType(rawValue);
       },
       error: () => {
         this.toastr.error('حدث خطأ أثناء جلب نظام الدوري');
       },
     });
+  }
+
+  // Ensure compatibility with both numeric enum and string values from API
+  private coerceSystemType(value: unknown): SystemOfLeague | undefined {
+    if (typeof value === 'number') {
+      if (value === SystemOfLeague.Points || value === SystemOfLeague.Classic) {
+        return value as SystemOfLeague;
+      }
+      return undefined;
+    }
+
+    if (typeof value === 'string') {
+      const v = value.toLowerCase();
+      if (v === 'points' || v === '0') return SystemOfLeague.Points;
+      if (v === 'classic' || v === '1') return SystemOfLeague.Classic;
+      return undefined;
+    }
+
+    return undefined;
   }
 
   getMatchResult(player1: Player, player2: Player) {

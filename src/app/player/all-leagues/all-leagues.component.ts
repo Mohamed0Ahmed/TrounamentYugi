@@ -40,7 +40,8 @@ export class AllLeaguesComponent implements OnInit {
     this.leagueService.GetAllLeaguesRank().subscribe({
       next: (response) => {
         if (response) {
-          this.leaguesRank = this.sortLeaguesForDisplay(response);
+          const sorted = this.sortLeaguesForDisplay(response);
+          this.leaguesRank = this.normalizeLeaguesForDisplay(sorted);
         } else {
           this.toastr.error(response);
         }
@@ -61,7 +62,8 @@ export class AllLeaguesComponent implements OnInit {
   loadData() {
     this.leagueService.GetAllLeaguesRank().subscribe({
       next: (response) => {
-        this.leaguesRank = this.sortLeaguesForDisplay(response);
+        const sorted = this.sortLeaguesForDisplay(response);
+        this.leaguesRank = this.normalizeLeaguesForDisplay(sorted);
       },
       error: (error) => {
         this.toastr.error('حدث خطأ أثناء تحميل بيانات الدوريات');
@@ -103,7 +105,9 @@ export class AllLeaguesComponent implements OnInit {
     if (league) {
       this.players = league.players || [];
       this.matches = league.matches || [];
-      this.currentModalSystemOfLeague = league.systemOfLeague;
+      this.currentModalSystemOfLeague = this.coerceSystemType(
+        league.systemOfLeague
+      );
     } else {
       this.players = [];
       this.matches = [];
@@ -209,7 +213,7 @@ export class AllLeaguesComponent implements OnInit {
 
   // دالة مساعدة لإرجاع systemOfLeague لدوري معين
   getSystemOfLeagueForLeague(league: any): SystemOfLeague | undefined {
-    return league?.systemOfLeague;
+    return this.coerceSystemType(league?.systemOfLeague);
   }
 
   // دالة للحصول على مباريات دوري معين
@@ -295,5 +299,34 @@ export class AllLeaguesComponent implements OnInit {
   // دالة مساعدة للحصول على CSS class لنوع الدوري
   getLeagueTypeClass(leagueType: any): string {
     return 'text-blue-400';
+  }
+
+  // Normalize systemOfLeague across responses (number or string)
+  private coerceSystemType(value: unknown): SystemOfLeague | undefined {
+    if (typeof value === 'number') {
+      if (value === SystemOfLeague.Points || value === SystemOfLeague.Classic) {
+        return value as SystemOfLeague;
+      }
+      return undefined;
+    }
+
+    if (typeof value === 'string') {
+      const v = value.toLowerCase();
+      if (v === 'points' || v === '0') return SystemOfLeague.Points;
+      if (v === 'classic' || v === '1') return SystemOfLeague.Classic;
+      return undefined;
+    }
+
+    return undefined;
+  }
+
+  // Normalize list items so template comparisons work reliably
+  private normalizeLeaguesForDisplay(
+    leagues: AllLeagueRank[]
+  ): AllLeagueRank[] {
+    return leagues.map((l) => ({
+      ...l,
+      systemOfLeague: this.coerceSystemType(l.systemOfLeague) as SystemOfLeague,
+    }));
   }
 }
